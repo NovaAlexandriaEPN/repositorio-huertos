@@ -1,499 +1,537 @@
 """
-Servicios de negocio del módulo de actividades.
-Implementa transacciones atómicas, validación de permisos, idempotencia por UUID,
-reglas de anulación, cálculo de recompensas y gestión del Maestro de huerto.
+Servicios del módulo actividades (tareas F2 y F3).
+
+Aquí viven las reglas de registro, anulación, recompensas y Maestro del huerto. Las vistas
+solo reciben la petición, llaman a estas funciones y muestran el resultado.
+
+Decisiones sobre los modelos compartidos de comunidades (Bryan):
+    - Administra la comunidad su responsable (`Comunidad.responsable`); no hay otro rol.
+    - Los puntos no se guardan en `Miembro`. Los puntos de una persona son la suma de los
+      puntos de sus actividades ACTIVAS en el huerto de su comunidad. Al anular, el total
+      baja solo, sin una segunda copia que pueda quedar desfasada.
+    - `Huerto.maestro` es un `Miembro` y su constancia es `maestro_motivo`,
+      `maestro_nombrado_por` y `maestro_fecha`: los cuatro campos se guardan o se vacían
+      juntos (restricción `huerto_maestro_constancia_completa`).
+    - Ser Maestro no concede permisos (README de comunidades).
+
+Todas las escrituras son atómicas y bloquean la fila del huerto mientras se decide, para que
+dos registros o nombramientos simultáneos no calculen sobre datos viejos. En SQLite el modo
+`IMMEDIATE` de settings ya serializa las escrituras; el bloqueo deja la intención explícita.
 """
-import uuid
-from datetime import timedelta
+import uuid as uuid_lib
+
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import transaction
+from django.db import IntegrityError, transaction
+from django.db.models import Q, Sum
 from django.utils import timezone
 
 from comunidades.models import Huerto, Miembro
+
 from .models import Actividad
 from .reglas import (
-    calcular_puntos_actividad,
-    calcular_progreso,
+    HITOS,
+    UMBRAL_MAESTRO,
     calcular_nivel,
-    determinar_hitos_cumplidos,
-    UMBRAL_MINIMO_MAESTRO,
-    HITOS_CULTIVO,
+    calcular_progreso,
+    porcentaje_en_nivel,
 )
 
-# Plazos agrícolas (CP-05). Cada valor es el ÚLTIMO día permitido:
-#   - Siembra: hasta 14 días después de la preparación (el día 15 ya se rechaza).
-#   - Secado: hasta 9 días después de la cosecha (el día 10 ya se rechaza).
-# Si el alcance (Matthew) fija otro límite, basta con cambiar estas dos constantes.
-PLAZO_MAX_SIEMBRA_TRAS_PREPARACION = 14
-PLAZO_MAX_SECADO_TRAS_COSECHA = 9
+Tipo = Actividad.Tipo
+Estado = Actividad.Estado
 
-# Valor centinela: "no comprobar si el formulario quedó desactualizado".
+# Puntos base por tipo (RN de recompensas). Los seis hitos solo los dan la primera vez
+# para cada planta del huerto; repetidos dan 0 (en riego y cuidado: 5 y luego 0).
+PUNTOS_POR_TIPO = {
+    Tipo.PREPARACION: 10,
+    Tipo.SIEMBRA: 15,
+    Tipo.RIEGO: 5,
+    Tipo.CUIDADO: 5,
+    Tipo.ABONO: 5,
+    Tipo.ASOCIACION: 5,
+    Tipo.PODA: 5,
+    Tipo.CONTROL_PLAGAS: 5,
+    Tipo.COSECHA: 20,
+    Tipo.SECADO: 15,
+    Tipo.PROCESAMIENTO: 10,
+    Tipo.DISENO: 10,
+    Tipo.RITUAL: 10,
+}
+
+# Plazos agrícolas (CP-05). Cada valor es el último día permitido.
+PLAZO_MAX_SIEMBRA_TRAS_PREPARACION = 14   # el día 14 se acepta; el 15 se rechaza
+PLAZO_MAX_SECADO_TRAS_COSECHA = 9         # el día 9 se acepta; el 10 se rechaza
+
+# Etapa que muestra cada tarjeta del Huerto Virtual según el último hito cumplido.
+ETAPAS = {
+    None: "Sin iniciar",
+    Tipo.PREPARACION: "Terreno preparado",
+    Tipo.SIEMBRA: "Sembrada",
+    Tipo.RIEGO: "En crecimiento",
+    Tipo.CUIDADO: "En crecimiento",
+    Tipo.COSECHA: "Cosechada",
+    Tipo.SECADO: "Secada",
+}
+
+# Valor que indica "no comprobar si el formulario quedó desactualizado".
 _SIN_VERIFICAR = object()
 
 
-@transaction.atomic
-def registrar_actividad(huerto, usuario, tipo, fecha, planta='', detalles='', request_uuid=None):
+# ---------------------------------------------------------------------------
+# Pertenencia, permisos y puntos
+# ---------------------------------------------------------------------------
+
+def miembro_del_huerto(usuario, huerto) -> Miembro:
+    """Devuelve la pertenencia del usuario a la comunidad del huerto.
+
+    Lanza PermissionDenied si la cuenta no pertenece a esa comunidad, para que nadie lea ni
+    modifique datos de un huerto ajeno.
     """
-    Registra una actividad de cultivo o ancestral en el huerto de forma atómica e idempotente.
+    miembro = Miembro.objects.filter(
+        usuario_id=usuario.pk, comunidad_id=huerto.comunidad_id
+    ).select_related("usuario").first()
+    if miembro is None:
+        raise PermissionDenied("Solo los miembros de la comunidad pueden acceder a este huerto.")
+    return miembro
+
+
+def es_responsable(usuario, huerto) -> bool:
+    """True si la cuenta es la responsable de la comunidad del huerto."""
+    return huerto.comunidad.responsable_id == usuario.pk
+
+
+def huerto_del_usuario(usuario):
+    """Huerto de la comunidad del usuario, o None si aún no tiene comunidad o huerto."""
+    return Huerto.objects.filter(comunidad__miembros__usuario_id=usuario.pk).first()
+
+
+def puntos_de_usuario(usuario, huerto) -> int:
+    """Suma de los puntos de las actividades activas del usuario en el huerto."""
+    total = Actividad.objects.filter(
+        huerto=huerto, actor_original_id=usuario.pk, estado=Estado.ACTIVA
+    ).aggregate(total=Sum("puntos"))["total"]
+    return total or 0
+
+
+def puntos_por_usuario(huerto) -> dict:
+    """Puntos de cada persona del huerto, como {id de usuario: puntos}."""
+    filas = (
+        Actividad.objects.filter(huerto=huerto, estado=Estado.ACTIVA)
+        .values("actor_original_id")
+        .annotate(total=Sum("puntos"))
+    )
+    return {fila["actor_original_id"]: fila["total"] or 0 for fila in filas}
+
+
+def _bloquear_huerto(huerto) -> Huerto:
+    """Vuelve a leer el huerto bloqueando su fila hasta el final de la transacción."""
+    return Huerto.objects.select_for_update().select_related("comunidad").get(pk=huerto.pk)
+
+
+def _posteriores(actividad):
+    """Condición de las actividades posteriores: fecha mayor, o misma fecha e id mayor."""
+    return Q(fecha__gt=actividad.fecha) | Q(fecha=actividad.fecha, id__gt=actividad.id)
+
+
+# ---------------------------------------------------------------------------
+# HU-08: registro
+# ---------------------------------------------------------------------------
+
+@transaction.atomic
+def registrar_actividad(huerto, usuario, tipo, fecha, planta=None, detalles="", request_uuid=None):
+    """Registra una actividad sin duplicarla aunque el formulario se reenvíe.
 
     Qué recibe:
-        - huerto (Huerto): Instancia del huerto comunitario donde se realiza la actividad.
-        - usuario (Usuario): Usuario que ejecuta la actividad (actor original).
-        - tipo (str): Uno de los 13 tipos de actividad válidos.
-        - fecha (date): Fecha de ejecución de la labor.
-        - planta (str, opcional): Especie medicinal asociada (o vacío para diseño/ritual).
-        - detalles (str, opcional): Observaciones adicionales.
-        - request_uuid (UUID o str, opcional): Identificador único de la petición para idempotencia.
+        huerto (Huerto), usuario (Usuario que realiza la labor), tipo (código de
+        Actividad.Tipo), fecha (date), planta (PlantaHuerto del mismo huerto; None en
+        diseño y ritual), detalles (texto) y request_uuid (UUID del formulario).
 
     Qué valida:
-        1. Permisos y pertenencia: El usuario debe ser miembro activo de la comunidad del huerto.
-        2. Idempotencia y UUID:
-           - Si ya existe una actividad con ese UUID y la carga (tipo, planta, fecha, huerto)
-             coincide exactamente: devuelve la actividad existente sin duplicar ni alterar puntos.
-           - Si ya existe con ese UUID pero con carga distinta: rechaza con ValidationError.
-           - Si ya existe con ese UUID y se encuentra ANULADA: rechaza con ValidationError
-             ("anulado no reactivado").
-        3. Plazos y coherencia temporal:
-           - No se permiten fechas futuras (fecha > hoy).
-           - Siembra: no puede ser anterior a la preparación de la planta ni pasar de
-             14 días después de ella (el día 15 se rechaza).
-           - Secado: exige una cosecha activa de la planta; no puede ser anterior a ella
-             ni pasar de 9 días después (el día 10 se rechaza).
-        4. Recompensas:
-           - Hitos (preparación, siembra, riego, cuidado, cosecha, secado): puntos completos
-             la primera vez para la planta y 0 las siguientes (riego y cuidado: 5 y luego 0).
-           - Otro UUID no duplica los puntos de un hito ya cumplido.
-           - Las demás actividades otorgan su puntaje estándar.
+        1. Pertenencia: el usuario es miembro de la comunidad del huerto.
+        2. Reenvío por UUID: mismo UUID y misma carga (tipo, planta, fecha y autor)
+           devuelve la actividad existente; carga distinta se rechaza; un UUID de una
+           actividad anulada no la reactiva.
+        3. Fecha no futura. Diseño y ritual sin planta; el resto, con una planta de
+           este huerto.
+        4. Plazos: la siembra no es anterior a la preparación activa de la planta ni pasa
+           de 14 días; el secado exige una cosecha activa, no es anterior a ella ni pasa
+           de 9 días. Las actividades anuladas no cuentan.
+        5. Recompensa: un hito da sus puntos solo la primera vez para esa planta mientras
+           esa actividad siga activa; repetirlo da 0. Las demás labores siempre puntúan.
 
     Qué guarda:
-        - Crea la instancia de Actividad con estado='ACTIVA', actor_original=usuario, puntos calculados
-          y el UUID de la petición.
-        - Actualiza atómicamente los puntos acumulados del Miembro en la comunidad.
+        Una Actividad ACTIVA con actor_original=usuario, los puntos calculados y el UUID.
+        No modifica Miembro: los puntos se obtienen sumando actividades activas.
 
     Qué permisos exige:
-        - Requiere que el usuario sea miembro registrado de la comunidad propietaria del huerto.
-          Usuarios ajenos son rechazados con PermissionDenied.
-    """
-    # 1. Validación de permisos y pertenencia
-    try:
-        miembro = Miembro.objects.select_for_update().get(usuario=usuario, comunidad=huerto.comunidad)
-    except Miembro.DoesNotExist:
-        raise PermissionDenied("Solo los miembros de la comunidad pueden registrar actividades en este huerto.")
+        Pertenecer a la comunidad del huerto. Cualquier miembro puede registrar.
 
-    # 2. Manejo de UUID e idempotencia (evitar duplicados en reenvíos)
+    Devuelve:
+        (actividad, creada): creada es False si fue un reenvío del mismo envío.
+    """
+    huerto = _bloquear_huerto(huerto)
+    miembro_del_huerto(usuario, huerto)
+
+    if tipo not in Tipo.values:
+        raise ValidationError("El tipo de actividad no es válido.")
+
     if request_uuid:
         try:
-            uuid_obj = uuid.UUID(str(request_uuid))
-        except (ValueError, TypeError):
-            raise ValidationError("El formato del UUID proporcionado no es válido.")
-
-        actividad_existente = Actividad.objects.filter(uuid=uuid_obj).first()
-        if actividad_existente:
-            # Comprobar si está anulada
-            if actividad_existente.es_anulada:
-                raise ValidationError("Una actividad anulada no puede ser reactivada mediante reenvío de UUID.")
-
-            # Comprobar igualdad de carga
-            misma_carga = (
-                actividad_existente.huerto_id == huerto.id and
-                actividad_existente.tipo == tipo and
-                (actividad_existente.planta or '').strip().lower() == (planta or '').strip().lower() and
-                actividad_existente.fecha == fecha
-            )
-            if misma_carga:
-                # Idempotencia: devuelve la existente sin alterar nada
-                return actividad_existente
-            else:
-                raise ValidationError("El UUID ya fue utilizado con una carga de datos distinta.")
+            uuid_envio = uuid_lib.UUID(str(request_uuid))
+        except (TypeError, ValueError):
+            raise ValidationError("El identificador del formulario no es válido; recarga la página.")
+        existente = Actividad.objects.filter(uuid=uuid_envio).first()
+        if existente is not None:
+            return _resolver_reenvio(existente, huerto, usuario, tipo, fecha, planta), False
     else:
-        uuid_obj = uuid.uuid4()
+        uuid_envio = uuid_lib.uuid4()
 
-    # 3. Validación de fecha
-    hoy = timezone.localdate()
-    if fecha > hoy:
-        raise ValidationError("No se pueden registrar actividades con fecha futura.")
+    if fecha > timezone.localdate():
+        raise ValidationError("La fecha no puede ser futura.")
 
-    planta_limpia = (planta or '').strip()
+    if tipo in Actividad.TIPOS_GENERALES:
+        if planta is not None:
+            raise ValidationError("Diseño y ritual se registran para todo el huerto, sin planta.")
+    else:
+        if planta is None:
+            raise ValidationError("Elige la planta del huerto sobre la que se hizo la labor.")
+        if planta.huerto_id != huerto.pk:
+            raise ValidationError("La planta elegida no pertenece a este huerto.")
 
-    # Validación de plazos y orden de fechas por planta (CP-05)
-    if planta_limpia and tipo in ('siembra', 'secado'):
-        actividades_planta = Actividad.objects.filter(
-            huerto=huerto,
-            planta__iexact=planta_limpia,
-            estado=Actividad.ESTADO_ACTIVA
-        )
+    activas_planta = Actividad.objects.none()
+    if planta is not None:
+        activas_planta = Actividad.objects.filter(planta=planta, estado=Estado.ACTIVA)
+        _validar_plazos(tipo, fecha, planta, activas_planta)
 
-        # Siembra: si la planta tiene preparación, la siembra no puede ser anterior
-        # ni pasar de PLAZO_MAX_SIEMBRA_TRAS_PREPARACION días.
-        if tipo == 'siembra':
-            ult_prep = actividades_planta.filter(tipo='preparacion').order_by('fecha', 'id').last()
-            if ult_prep:
-                dias = (fecha - ult_prep.fecha).days
-                if dias < 0:
-                    raise ValidationError("La siembra no puede ser anterior a la preparación de esa planta.")
-                if dias > PLAZO_MAX_SIEMBRA_TRAS_PREPARACION:
-                    raise ValidationError(
-                        f"La preparación de {planta_limpia} tiene {dias} días; la siembra debe hacerse "
-                        f"hasta {PLAZO_MAX_SIEMBRA_TRAS_PREPARACION} días después. Registre una nueva preparación."
-                    )
+    puntos = PUNTOS_POR_TIPO[tipo]
+    if tipo in HITOS and activas_planta.filter(tipo=tipo).exists():
+        puntos = 0
 
-        # Secado: exige una cosecha activa de la planta, no puede ser anterior a ella
-        # ni pasar de PLAZO_MAX_SECADO_TRAS_COSECHA días.
-        if tipo == 'secado':
-            ult_cosecha = actividades_planta.filter(tipo='cosecha').order_by('fecha', 'id').last()
-            if not ult_cosecha:
-                raise ValidationError(f"No hay una cosecha activa de {planta_limpia} para registrar su secado.")
-            dias = (fecha - ult_cosecha.fecha).days
-            if dias < 0:
-                raise ValidationError("El secado no puede realizarse antes de la cosecha.")
-            if dias > PLAZO_MAX_SECADO_TRAS_COSECHA:
-                raise ValidationError(
-                    f"La cosecha de {planta_limpia} tiene {dias} días; el secado debe registrarse "
-                    f"hasta {PLAZO_MAX_SECADO_TRAS_COSECHA} días después."
-                )
-
-    # 4. Cálculo de puntos
-    # Regla (CP-06): un hito (preparación, siembra, riego, cuidado, cosecha, secado) solo
-    # da puntos la primera vez para esa planta; repetirlo con otro UUID da 0 puntos.
-    # Si la actividad anterior se anula, el hito vuelve a dar puntos al registrarse de nuevo.
-    es_primera = True
-    if tipo in HITOS_CULTIVO:
-        es_primera = not Actividad.objects.filter(
-            huerto=huerto,
-            planta__iexact=planta_limpia,
-            tipo=tipo,
-            estado=Actividad.ESTADO_ACTIVA
-        ).exists()
-
-    puntos_otorgados = calcular_puntos_actividad(tipo, es_primera_en_planta=es_primera)
-
-    # 5. Creación atómica de la Actividad
-    actividad = Actividad.objects.create(
-        uuid=uuid_obj,
+    actividad = Actividad(
+        uuid=uuid_envio,
         huerto=huerto,
+        planta=planta,
         tipo=tipo,
-        planta=planta_limpia,
         fecha=fecha,
-        estado=Actividad.ESTADO_ACTIVA,
-        puntos=puntos_otorgados,
+        puntos=puntos,
         actor_original=usuario,
-        detalles=detalles or ''
+        detalles=(detalles or "").strip(),
     )
+    actividad.full_clean(exclude=["uuid"])
+    try:
+        with transaction.atomic():
+            actividad.save()
+    except IntegrityError:
+        # Otro envío con el mismo UUID se guardó entre la consulta y el guardado.
+        existente = Actividad.objects.get(uuid=uuid_envio)
+        return _resolver_reenvio(existente, huerto, usuario, tipo, fecha, planta), False
+    return actividad, True
 
-    # Actualizar puntos del miembro
-    if puntos_otorgados > 0:
-        miembro.puntos += puntos_otorgados
-        miembro.save(update_fields=['puntos'])
 
-    return actividad
+def _resolver_reenvio(existente, huerto, usuario, tipo, fecha, planta):
+    """Aplica las reglas de reenvío (CP-06) a una actividad que ya tiene ese UUID."""
+    if existente.es_anulada:
+        raise ValidationError("Ese envío corresponde a una actividad anulada y no se reactiva.")
+    misma_carga = (
+        existente.huerto_id == huerto.pk
+        and existente.tipo == tipo
+        and existente.fecha == fecha
+        and existente.planta_id == (planta.pk if planta is not None else None)
+        and existente.actor_original_id == usuario.pk
+    )
+    if not misma_carga:
+        raise ValidationError("Ese envío ya se usó con otros datos. Recarga el formulario.")
+    return existente
+
+
+def _validar_plazos(tipo, fecha, planta, activas_planta):
+    """Plazos de siembra y secado (CP-05) frente a las actividades activas de la planta."""
+    nombre = planta.planta.nombre_comun
+    if tipo == Tipo.SIEMBRA:
+        preparacion = activas_planta.filter(tipo=Tipo.PREPARACION).order_by("fecha", "id").last()
+        if preparacion is not None:
+            dias = (fecha - preparacion.fecha).days
+            if dias < 0:
+                raise ValidationError("La siembra no puede ser anterior a la preparación del terreno.")
+            if dias > PLAZO_MAX_SIEMBRA_TRAS_PREPARACION:
+                raise ValidationError(
+                    f"La preparación de {nombre} tiene {dias} días; la siembra se registra hasta "
+                    f"{PLAZO_MAX_SIEMBRA_TRAS_PREPARACION} días después. Registra una nueva preparación."
+                )
+    elif tipo == Tipo.SECADO:
+        cosecha = activas_planta.filter(tipo=Tipo.COSECHA).order_by("fecha", "id").last()
+        if cosecha is None:
+            raise ValidationError(f"{nombre} no tiene una cosecha activa para registrar su secado.")
+        dias = (fecha - cosecha.fecha).days
+        if dias < 0:
+            raise ValidationError("El secado no puede ser anterior a la cosecha.")
+        if dias > PLAZO_MAX_SECADO_TRAS_COSECHA:
+            raise ValidationError(
+                f"La cosecha de {nombre} tiene {dias} días; el secado se registra hasta "
+                f"{PLAZO_MAX_SECADO_TRAS_COSECHA} días después."
+            )
+
+
+# ---------------------------------------------------------------------------
+# HU-09: anulación
+# ---------------------------------------------------------------------------
+
+def verificar_puede_anular(actividad, usuario):
+    """Comprueba el permiso para anular sin modificar nada (lo usa la pantalla de confirmación).
+
+    Puede anular quien realizó la actividad o el responsable de la comunidad. Ser Maestro no
+    da este permiso. Lanza PermissionDenied si no corresponde.
+    """
+    huerto = actividad.huerto
+    miembro_del_huerto(usuario, huerto)
+    if actividad.actor_original_id != usuario.pk and not es_responsable(usuario, huerto):
+        raise PermissionDenied(
+            "Solo quien realizó la actividad o el responsable de la comunidad pueden anularla."
+        )
 
 
 @transaction.atomic
 def anular_actividad(actividad_id, usuario_autor, motivo):
-    """
-    Anula una actividad previamente registrada, preservando al actor original,
-    registrando auditoría completa y deduciendo los puntos de forma atómica.
+    """Anula una actividad conservando el registro, el actor original y la constancia.
 
     Qué recibe:
-        - actividad_id (int): ID de la actividad a anular.
-        - usuario_autor (Usuario): Usuario que solicita la anulación.
-        - motivo (str): Razón explicativa de la anulación (obligatorio).
+        actividad_id (int), usuario_autor (Usuario que anula) y motivo (texto obligatorio).
 
     Qué valida:
-        1. Pertenencia: El usuario autor debe pertenecer a la comunidad del huerto.
-        2. Estado: La actividad debe estar en estado 'ACTIVA'.
-        3. Motivo: Debe proporcionarse un motivo no vacío.
-        4. Última activa por planta (CP-07):
-           - Si la actividad está asociada a una planta (excepto diseño y ritual),
-             solo se puede anular si es la última actividad activa de esa planta en orden cronológico (fecha, id).
-        5. Preparación con siembras bloqueada (CP-07):
-           - Si la actividad es 'preparacion', no puede anularse si existen actividades
-             de 'siembra' activas posteriores asociadas a esa planta.
-        6. Regla de retiro de Maestro (CP-08):
-           - Si al restar los puntos al actor original, su puntaje queda bajo 100 y actualmente
-             es el Maestro del huerto, se retira automáticamente su nombramiento.
+        1. Permiso: quien realizó la actividad o el responsable de la comunidad.
+        2. La actividad está activa y el motivo no está vacío.
+        3. Ciclo: solo se anula la última actividad activa de esa planta, por fecha y,
+           en la misma fecha, por id. Diseño y ritual no tienen planta y se anulan
+           de forma independiente.
+        4. Una preparación no se anula si la planta tiene siembras activas.
 
     Qué guarda:
-        - Modifica la Actividad: estado='ANULADA', motivo_anulacion=motivo,
-          autor_anulacion=usuario_autor, fecha_anulacion=timezone.now().
-          El campo actor_original PERMANECE INTACTO.
-        - Resta atómicamente los puntos de la actividad del registro del Miembro correspondiente.
-        - Si aplica, retira al Maestro en el modelo Huerto.
+        estado=ANULADA, motivo_anulacion, anulada_por y fecha_anulacion. No cambia
+        actor_original ni borra la fila. Los puntos de esa actividad dejan de contar.
+        Si la persona era Maestro y queda bajo 100 puntos, se retira el nombramiento y
+        se vacía su constancia.
 
     Qué permisos exige:
-        - Debe ser miembro activo de la comunidad con rol de autorización
-          (el actor original, administrador de comunidad o maestro).
+        Ser quien realizó la actividad o el responsable de la comunidad.
+
+    Devuelve:
+        (actividad, maestro_retirado).
     """
-    if not motivo or not motivo.strip():
-        raise ValidationError("Es obligatorio especificar el motivo de anulación.")
+    motivo = (motivo or "").strip()
+    if not motivo:
+        raise ValidationError("Escribe el motivo de la anulación.")
 
-    try:
-        actividad = Actividad.objects.select_for_update().get(id=actividad_id)
-    except Actividad.DoesNotExist:
-        raise ValidationError("La actividad especificada no existe.")
+    actividad = (
+        Actividad.objects.select_related("huerto__comunidad", "planta__planta")
+        .filter(pk=actividad_id).first()
+    )
+    if actividad is None:
+        raise ValidationError("La actividad no existe.")
+    huerto = _bloquear_huerto(actividad.huerto)
+    actividad = Actividad.objects.select_for_update().get(pk=actividad.pk)
 
-    huerto = actividad.huerto
+    verificar_puede_anular(actividad, usuario_autor)
+    if actividad.es_anulada:
+        raise ValidationError("Esta actividad ya estaba anulada.")
 
-    # 1. Pertenencia del autor
-    try:
-        miembro_autor = Miembro.objects.get(usuario=usuario_autor, comunidad=huerto.comunidad)
-    except Miembro.DoesNotExist:
-        raise PermissionDenied("No tiene permisos para anular actividades en este huerto.")
-
-    # Permiso: actor original, admin o maestro actual
-    es_actor_original = (actividad.actor_original == usuario_autor)
-    es_admin = (miembro_autor.rol == 'ADMIN' or huerto.comunidad.creador == usuario_autor)
-    es_maestro = (huerto.maestro == usuario_autor)
-
-    if not (es_actor_original or es_admin or es_maestro):
-        raise PermissionDenied("Solo el autor original, el administrador o el Maestro pueden anular una actividad.")
-
-    # 2. Validación de estado
-    if not actividad.es_activa:
-        raise ValidationError("Esta actividad ya ha sido anulada previamente.")
-
-    # 3. Reglas de coherencia de ciclo (CP-07)
-    planta_limpia = (actividad.planta or '').strip()
-    es_independiente = actividad.tipo in ('diseno', 'ritual') or not planta_limpia
-
-    if not es_independiente:
-        # Última activa por planta
-        actividades_posteriores = Actividad.objects.filter(
-            huerto=huerto,
-            planta__iexact=planta_limpia,
-            estado=Actividad.ESTADO_ACTIVA
-        ).exclude(id=actividad.id).filter(
-            models_q_posteriores(actividad)
-        )
-
-        if actividades_posteriores.exists():
+    if actividad.planta_id is not None:
+        activas_planta = Actividad.objects.filter(
+            planta_id=actividad.planta_id, estado=Estado.ACTIVA
+        ).exclude(pk=actividad.pk)
+        if activas_planta.filter(_posteriores(actividad)).exists():
             raise ValidationError(
-                "Solo se puede anular la última actividad activa registrada para esta planta "
-                "para preservar la secuencia del ciclo de cultivo."
+                "Solo se anula la última actividad activa de esta planta, para conservar el orden del ciclo."
             )
+        if actividad.tipo == Tipo.PREPARACION and activas_planta.filter(tipo=Tipo.SIEMBRA).exists():
+            raise ValidationError("No se anula la preparación de una planta que ya tiene siembras activas.")
 
-        # Preparación con siembras bloqueada
-        if actividad.tipo == 'preparacion':
-            siembras_asociadas = Actividad.objects.filter(
-                huerto=huerto,
-                planta__iexact=planta_limpia,
-                tipo='siembra',
-                estado=Actividad.ESTADO_ACTIVA
-            ).exists()
-            if siembras_asociadas:
-                raise ValidationError(
-                    "No se puede anular una actividad de preparación que ya cuenta con siembras activas registradas."
-                )
-
-    # 4. Anulación y preservación del actor original
-    actividad.estado = Actividad.ESTADO_ANULADA
-    actividad.motivo_anulacion = motivo.strip()
-    actividad.autor_anulacion = usuario_autor
+    actividad.estado = Estado.ANULADA
+    actividad.motivo_anulacion = motivo
+    actividad.anulada_por = usuario_autor
     actividad.fecha_anulacion = timezone.now()
-    actividad.save(update_fields=['estado', 'motivo_anulacion', 'autor_anulacion', 'fecha_anulacion'])
+    actividad.full_clean(exclude=["uuid"])
+    actividad.save(update_fields=["estado", "motivo_anulacion", "anulada_por", "fecha_anulacion"])
 
-    # 5. Deducción de puntos del Miembro original
-    puntos_a_descontar = actividad.puntos
-    if puntos_a_descontar > 0:
-        miembro_original = Miembro.objects.select_for_update().filter(
-            usuario=actividad.actor_original,
-            comunidad=huerto.comunidad
-        ).first()
-
-        if miembro_original:
-            miembro_original.puntos = max(0, miembro_original.puntos - puntos_a_descontar)
-            miembro_original.save(update_fields=['puntos'])
-
-            # 6. Regla de retiro del Maestro bajo 100 puntos (CP-08)
-            if huerto.maestro == actividad.actor_original and miembro_original.puntos < UMBRAL_MINIMO_MAESTRO:
-                huerto.maestro = None
-                huerto.motivo_maestro = (
-                    f"Retiro automático del cargo de Maestro: los puntos del miembro se redujeron a "
-                    f"{miembro_original.puntos} (bajo el umbral de {UMBRAL_MINIMO_MAESTRO}) tras la anulación "
-                    f"de la actividad #{actividad.id}."
-                )
-                huerto.fecha_maestro = timezone.now()
-                huerto.autor_maestro = usuario_autor
-                huerto.save(update_fields=['maestro', 'motivo_maestro', 'fecha_maestro', 'autor_maestro'])
-
-    return actividad
+    maestro_retirado = False
+    if huerto.maestro_id is not None:
+        maestro = Miembro.objects.get(pk=huerto.maestro_id)
+        if (
+            maestro.usuario_id == actividad.actor_original_id
+            and puntos_de_usuario(maestro.usuario, huerto) < UMBRAL_MAESTRO
+        ):
+            huerto.maestro = None
+            huerto.maestro_motivo = ""
+            huerto.maestro_nombrado_por = None
+            huerto.maestro_fecha = None
+            huerto.save(update_fields=["maestro", "maestro_motivo", "maestro_nombrado_por", "maestro_fecha"])
+            maestro_retirado = True
+    return actividad, maestro_retirado
 
 
-def models_q_posteriores(actividad):
-    """Auxiliar para verificar si existen actividades posteriores por fecha y por ID (empate por ID)."""
-    from django.db.models import Q
-    return Q(fecha__gt=actividad.fecha) | (Q(fecha=actividad.fecha) & Q(id__gt=actividad.id))
-
+# ---------------------------------------------------------------------------
+# HU-11: Maestro del huerto
+# ---------------------------------------------------------------------------
 
 @transaction.atomic
-def nombrar_o_sustituir_maestro(huerto, usuario_autor, nuevo_maestro_usuario, motivo,
-                                maestro_esperado_id=_SIN_VERIFICAR):
-    """
-    Nombra o sustituye al Maestro del huerto con registro de motivo, autor y fecha.
+def nombrar_maestro(huerto, usuario_autor, candidato, motivo, maestro_esperado_id=_SIN_VERIFICAR):
+    """Nombra o sustituye al Maestro del huerto con motivo, autor y fecha.
 
     Qué recibe:
-        - huerto (Huerto): Huerto donde se realiza el nombramiento.
-        - usuario_autor (Usuario): Usuario que realiza el nombramiento (debe ser admin o creador).
-        - nuevo_maestro_usuario (Usuario): Usuario candidato a Maestro.
-        - motivo (str): Justificación del nombramiento o sustitución (obligatorio).
+        huerto (Huerto), usuario_autor (Usuario que nombra), candidato (Miembro),
+        motivo (texto) y maestro_esperado_id (id del Miembro Maestro que había al abrir
+        el formulario, o None si no había).
 
     Qué valida:
-        1. Pertenencia: Tanto el autor como el candidato deben pertenecer a la comunidad del huerto.
-        2. Permiso del autor: Debe ser Administrador de la comunidad o creador.
-        3. Umbral de 100 puntos (CP-08): El candidato debe tener al menos 100 puntos acumulados.
-           Si tiene < 100, se rechaza la solicitud.
-        4. Motivo obligatorio: No se permite motivo vacío.
-        5. Máximo uno: Solo existe un Maestro por huerto (la asignación sustituye al anterior).
-        6. Formulario desactualizado: si el Maestro cambió desde que se abrió el formulario
-           (maestro_esperado_id distinto del actual), rechaza y pide recargar. También rechaza
-           si el candidato ya es el Maestro actual.
-        7. Regla: 300 puntos no otorgan nombramiento automático ni derechos administrativos
-           (el nombramiento siempre requiere pasar por este servicio explícito).
+        1. Permiso: solo el responsable de la comunidad.
+        2. Formulario desactualizado: si el Maestro cambió desde que se abrió el
+           formulario, se rechaza y se pide revisar el estado actual.
+        3. El candidato pertenece a la comunidad y no es ya el Maestro.
+        4. El candidato tiene al menos 100 puntos y hay un motivo.
+        5. Como máximo un Maestro: el nuevo nombramiento sustituye al anterior.
+        Llegar a 300 puntos no nombra a nadie: el nombramiento siempre pasa por aquí.
 
     Qué guarda:
-        - Actualiza el Huerto: maestro=nuevo_maestro_usuario, motivo_maestro=motivo,
-          autor_maestro=usuario_autor, fecha_maestro=timezone.now().
+        En Huerto: maestro, maestro_motivo, maestro_nombrado_por y maestro_fecha.
 
     Qué permisos exige:
-        - Rol Administrador en la comunidad o ser el creador de la misma.
+        Ser el responsable de la comunidad del huerto.
     """
-    if not motivo or not motivo.strip():
-        raise ValidationError("Debe proporcionar un motivo para el nombramiento o sustitución del Maestro.")
-    # Bloquear la fila del huerto para que dos nombramientos simultáneos no se pisen
-    huerto = Huerto.objects.select_for_update().get(pk=huerto.pk)
-    if maestro_esperado_id is not _SIN_VERIFICAR and huerto.maestro_id != maestro_esperado_id:
+    motivo = (motivo or "").strip()
+    huerto = _bloquear_huerto(huerto)
+
+    if not es_responsable(usuario_autor, huerto):
+        raise PermissionDenied("Solo el responsable de la comunidad nombra al Maestro del huerto.")
+    if maestro_esperado_id is not _SIN_VERIFICAR and maestro_esperado_id != huerto.maestro_id:
         raise ValidationError(
-            "El Maestro del huerto cambió mientras completaba el formulario. "
-            "Revise el nombramiento actual y vuelva a intentarlo."
+            "El Maestro del huerto cambió mientras completabas el formulario. "
+            "Revisa el nombramiento actual y vuelve a intentarlo."
         )
-
-    # 1. Validar autor
-    try:
-        miembro_autor = Miembro.objects.get(usuario=usuario_autor, comunidad=huerto.comunidad)
-    except Miembro.DoesNotExist:
-        raise PermissionDenied("El usuario autor no pertenece a la comunidad.")
-
-    es_autorizado = (miembro_autor.rol == 'ADMIN' or huerto.comunidad.creador == usuario_autor)
-    if not es_autorizado:
-        raise PermissionDenied("Solo un administrador o el creador de la comunidad pueden nombrar al Maestro de huerto.")
-
-    # 2. Validar candidato
-    try:
-        miembro_candidato = Miembro.objects.get(usuario=nuevo_maestro_usuario, comunidad=huerto.comunidad)
-    except Miembro.DoesNotExist:
-        raise ValidationError("El usuario candidato no es miembro de esta comunidad.")
-
-    if huerto.maestro == nuevo_maestro_usuario:
-        raise ValidationError("El usuario seleccionado ya es el Maestro actual de este huerto.")
-
-    # 3. Umbral de 100 puntos
-    if miembro_candidato.puntos < UMBRAL_MINIMO_MAESTRO:
+    if candidato.comunidad_id != huerto.comunidad_id:
+        raise ValidationError("La persona elegida no pertenece a esta comunidad.")
+    if candidato.pk == huerto.maestro_id:
+        raise ValidationError("Esa persona ya es el Maestro del huerto.")
+    puntos = puntos_de_usuario(candidato.usuario, huerto)
+    if puntos < UMBRAL_MAESTRO:
         raise ValidationError(
-            f"El miembro {nuevo_maestro_usuario.get_username()} tiene {miembro_candidato.puntos} puntos. "
-            f"Se requiere un mínimo de {UMBRAL_MINIMO_MAESTRO} puntos para ser nombrado Maestro."
+            f"{candidato.usuario.get_full_name()} tiene {puntos} puntos; "
+            f"se necesitan al menos {UMBRAL_MAESTRO} para ser Maestro."
         )
+    if not motivo:
+        raise ValidationError("Explica por qué esta persona puede guiar el huerto.")
 
-    # 4. Guardar nombramiento / sustitución
-    huerto.maestro = nuevo_maestro_usuario
-    huerto.autor_maestro = usuario_autor
-    huerto.motivo_maestro = motivo.strip()
-    huerto.fecha_maestro = timezone.now()
-    huerto.save(update_fields=['maestro', 'autor_maestro', 'motivo_maestro', 'fecha_maestro'])
-
+    huerto.maestro = candidato
+    huerto.maestro_motivo = motivo
+    huerto.maestro_nombrado_por = usuario_autor
+    huerto.maestro_fecha = timezone.now()
+    huerto.full_clean()
+    huerto.save(update_fields=["maestro", "maestro_motivo", "maestro_nombrado_por", "maestro_fecha"])
     return huerto
 
 
-def obtener_historial_actividades(huerto, usuario, planta=None, tipo=None, estado=None):
+def candidatos_a_maestro(huerto):
+    """Miembros de la comunidad con al menos 100 puntos, sin el Maestro actual.
+
+    Devuelve una lista de (miembro, puntos) ordenada de mayor a menor puntaje.
     """
-    Obtiene el listado cronológico de actividades del huerto con filtros opcionales.
+    puntos = puntos_por_usuario(huerto)
+    miembros = Miembro.objects.filter(comunidad_id=huerto.comunidad_id).select_related("usuario")
+    if huerto.maestro_id:
+        miembros = miembros.exclude(pk=huerto.maestro_id)
+    elegibles = [(m, puntos.get(m.usuario_id, 0)) for m in miembros]
+    elegibles = [(m, p) for m, p in elegibles if p >= UMBRAL_MAESTRO]
+    return sorted(elegibles, key=lambda par: (-par[1], par[0].usuario.username))
 
-    Qué recibe:
-        - huerto (Huerto): Huerto a consultar.
-        - usuario (Usuario): Usuario que consulta.
-        - planta (str, opcional): Filtrar por especie medicinal.
-        - tipo (str, opcional): Filtrar por tipo de actividad.
-        - estado (str, opcional): Filtrar por estado ('ACTIVA' o 'ANULADA').
 
-    Qué valida:
-        - Valida que el usuario sea miembro de la comunidad (protección de datos ajenos).
+# ---------------------------------------------------------------------------
+# HU-10: historial, totales y Huerto Virtual
+# ---------------------------------------------------------------------------
 
-    Qué guarda:
-        - No realiza escrituras (solo lectura).
+def obtener_historial(huerto, usuario, planta_id=None, tipo=None, estado=None):
+    """Actividades del huerto, de la más reciente a la más antigua, con filtros opcionales.
 
-    Qué permisos exige:
-        - Miembro de la comunidad.
+    Incluye las anuladas con su constancia. Solo pueden consultarlo los miembros.
     """
-    if not Miembro.objects.filter(usuario=usuario, comunidad=huerto.comunidad).exists():
-        raise PermissionDenied("No tiene permiso para ver las actividades de este huerto.")
-
-    qs = Actividad.objects.filter(huerto=huerto).select_related('actor_original', 'autor_anulacion')
-
-    if planta and planta.strip():
-        qs = qs.filter(planta__iexact=planta.strip())
-    if tipo and tipo.strip():
-        qs = qs.filter(tipo=tipo.strip())
-    if estado and estado.strip():
-        qs = qs.filter(estado=estado.strip())
-
-    return qs.order_by('-fecha', '-id')
+    miembro_del_huerto(usuario, huerto)
+    actividades = Actividad.objects.filter(huerto=huerto).select_related(
+        "planta__planta", "actor_original", "anulada_por"
+    )
+    if planta_id:
+        actividades = actividades.filter(planta_id=planta_id)
+    if tipo:
+        actividades = actividades.filter(tipo=tipo)
+    if estado:
+        actividades = actividades.filter(estado=estado)
+    return actividades.order_by("-fecha", "-id")
 
 
 def obtener_resumen_huerto(huerto, usuario):
+    """Datos del Huerto Virtual: progreso, tarjetas por planta, totales, puntos y Maestro.
+
+    Qué devuelve (diccionario para la plantilla):
+        progreso_huerto: % de los seis hitos cumplidos en el huerto (cualquier planta).
+        hitos_huerto: códigos de hitos cumplidos en el huerto.
+        tarjetas: una por planta elegida, con su etapa, hitos, progreso y última actividad.
+        plantas_cultivadas: plantas con siembra activa (cada selección cuenta una vez).
+        total_activas, total_anuladas, puntos_usuario, nivel_usuario, porcentaje_nivel.
+        miembros: puntos y nivel de cada miembro, de mayor a menor.
+        maestro, maestro_motivo, maestro_fecha, maestro_nombrado_por, es_responsable.
     """
-    Calcula el estado consolidado del huerto virtual: progreso de hitos,
-    actividades activas, plantas registradas y estado del Maestro.
+    miembro_del_huerto(usuario, huerto)
+    actividades = Actividad.objects.filter(huerto=huerto)
+    activas = actividades.filter(estado=Estado.ACTIVA)
 
-    Qué recibe:
-        - huerto (Huerto): Huerto a consultar.
-        - usuario (Usuario): Usuario que consulta.
+    hitos_por_planta = {}
+    ultima_por_planta = {}
+    for actividad in activas.filter(planta__isnull=False).order_by("fecha", "id"):
+        if actividad.tipo in HITOS:
+            hitos_por_planta.setdefault(actividad.planta_id, set()).add(actividad.tipo)
+        ultima_por_planta[actividad.planta_id] = actividad
 
-    Qué valida:
-        - Valida pertenencia a la comunidad.
+    tarjetas = []
+    for seleccion in huerto.plantas.select_related("planta").order_by("planta__nombre_comun", "pk"):
+        hitos = hitos_por_planta.get(seleccion.pk, set())
+        ultimo_hito = next((h for h in reversed(HITOS) if h in hitos), None)
+        tarjetas.append({
+            "seleccion": seleccion,
+            "nombre": seleccion.planta.nombre_comun,
+            "metodo": seleccion.get_metodo_siembra_display(),
+            "hitos": [h for h in HITOS if h in hitos],
+            "etapa": ETAPAS[ultimo_hito],
+            "progreso": calcular_progreso(hitos),
+            "ultima_actividad": ultima_por_planta.get(seleccion.pk),
+        })
 
-    Qué guarda:
-        - Ninguna escritura.
+    hitos_huerto = set().union(*hitos_por_planta.values()) if hitos_por_planta else set()
+    puntos = puntos_por_usuario(huerto)
+    puntos_usuario = puntos.get(usuario.pk, 0)
 
-    Qué permisos exige:
-        - Miembro de la comunidad.
-    """
-    if not Miembro.objects.filter(usuario=usuario, comunidad=huerto.comunidad).exists():
-        raise PermissionDenied("No tiene permiso para acceder al huerto virtual de esta comunidad.")
-
-    actividades_activas = Actividad.objects.filter(huerto=huerto, estado=Actividad.ESTADO_ACTIVA)
-    tipos_activos = actividades_activas.values_list('tipo', flat=True)
-    hitos_cumplidos = determinar_hitos_cumplidos(tipos_activos)
-    progreso_porcentaje = calcular_progreso(hitos_cumplidos)
-
-    # order_by() vacío: sin él, el orden por defecto (-fecha, -id) hace que distinct() repita plantas.
-    # Además se agrupan las mayúsculas/minúsculas ("toronjil" y "Toronjil" son la misma planta).
-    plantas_cultivadas = {}
-    for nombre in actividades_activas.exclude(planta='').order_by('planta').values_list('planta', flat=True):
-        plantas_cultivadas.setdefault(nombre.strip().lower(), nombre.strip())
-
-    # Puntos del usuario actual en esta comunidad
-    miembro = Miembro.objects.filter(usuario=usuario, comunidad=huerto.comunidad).first()
-    puntos_usuario = miembro.puntos if miembro else 0
-    nivel_usuario = calcular_nivel(puntos_usuario)
-
-    # Avance dentro del nivel actual para la barra del usuario (0 a 100).
-    # Umbral inferior de cada nivel: 1→0, 2→50, 3→100, 4→200, 5→300.
-    inferior = (0, 50, 100, 200, 300)[nivel_usuario['nivel'] - 1]
-    siguiente = nivel_usuario['siguiente_umbral']
-    if siguiente:
-        porcentaje_nivel = round((puntos_usuario - inferior) * 100 / (siguiente - inferior), 1)
-    else:
-        porcentaje_nivel = 100.0
+    miembros = []
+    for miembro in Miembro.objects.filter(comunidad_id=huerto.comunidad_id).select_related("usuario"):
+        total = puntos.get(miembro.usuario_id, 0)
+        miembros.append({
+            "miembro": miembro,
+            "nombre": miembro.usuario.get_full_name() or miembro.usuario.username,
+            "puntos": total,
+            "nivel": calcular_nivel(total),
+            "es_maestro": miembro.pk == huerto.maestro_id,
+            "es_responsable": miembro.usuario_id == huerto.comunidad.responsable_id,
+        })
+    miembros.sort(key=lambda fila: (-fila["puntos"], fila["nombre"]))
 
     return {
-        'huerto': huerto,
-        'maestro': huerto.maestro,
-        'fecha_maestro': huerto.fecha_maestro,
-        'motivo_maestro': huerto.motivo_maestro,
-        'total_actividades': actividades_activas.count(),
-        'hitos_cumplidos': list(hitos_cumplidos),
-        'progreso_porcentaje': progreso_porcentaje,
-        'plantas_cultivadas': list(plantas_cultivadas.values()),
-        'puntos_usuario': puntos_usuario,
-        'nivel_usuario': nivel_usuario,
-        'porcentaje_nivel': porcentaje_nivel,
+        "huerto": huerto,
+        "progreso_huerto": calcular_progreso(hitos_huerto),
+        "hitos_huerto": [h for h in HITOS if h in hitos_huerto],
+        "tarjetas": tarjetas,
+        "plantas_cultivadas": sum(1 for t in tarjetas if Tipo.SIEMBRA in t["hitos"]),
+        "total_activas": activas.count(),
+        "total_anuladas": actividades.filter(estado=Estado.ANULADA).count(),
+        "puntos_usuario": puntos_usuario,
+        "nivel_usuario": calcular_nivel(puntos_usuario),
+        "porcentaje_nivel": porcentaje_en_nivel(puntos_usuario),
+        "miembros": miembros,
+        "maestro": huerto.maestro,
+        "maestro_motivo": huerto.maestro_motivo,
+        "maestro_fecha": huerto.maestro_fecha,
+        "maestro_nombrado_por": huerto.maestro_nombrado_por,
+        "es_responsable": es_responsable(usuario, huerto),
     }

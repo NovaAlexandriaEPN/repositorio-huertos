@@ -1,85 +1,45 @@
 {% extends "base.html" %}
 
-{% block title %}Maestro de Huerto - {{ huerto.nombre }}{% endblock %}
+{% block titulo %}Maestro del huerto · {{ huerto.comunidad.nombre }}{% endblock %}
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8 col-md-10">
-        <div class="card card-custom p-4">
-            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-                <div>
-                    <h3 class="fw-bold mb-1 text-success">
-                        <i class="bi bi-award-fill text-warning me-2"></i>Nombramiento de Maestro de Huerto
-                    </h3>
-                    <p class="text-muted mb-0 small">Huerto: <strong>{{ huerto.nombre }}</strong></p>
-                </div>
-                <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-arrow-left me-1"></i> Volver al Huerto
-                </a>
-            </div>
-
-            <!-- Maestro Actual -->
-            <div class="bg-light p-3 rounded mb-4 border d-flex align-items-center gap-3">
-                <div class="fs-1 text-warning">
-                    <i class="bi bi-star-fill"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold mb-1">Maestro de Huerto Actual</h6>
-                    {% if maestro_actual %}
-                        <p class="mb-0 text-success fw-semibold">
-                            {{ maestro_actual.get_full_name|default:maestro_actual.username }}
-                        </p>
-                        <small class="text-muted">
-                            Nombrado el {{ huerto.fecha_maestro|date:"d/m/Y H:i" }} | Motivo: "{{ huerto.motivo_maestro|truncatechars:50 }}"
-                        </small>
-                    {% else %}
-                        <p class="mb-0 text-muted fst-italic">El huerto no cuenta actualmente con un Maestro nombrado.</p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="alert alert-info small mb-4">
-                <strong><i class="bi bi-shield-check me-1"></i> Criterios del Sistema (HU-11 / CP-08):</strong>
-                <ul class="mb-0 ps-3 mt-1">
-                    <li>El huerto tiene <strong>como máximo un Maestro</strong> a la vez. Un nuevo nombramiento sustituye al anterior.</li>
-                    <li>Solo son elegibles los miembros con <strong>100 o más puntos</strong> acumulados por actividades reales.</li>
-                    <li>Alcanzar 300 puntos no confiere nombramiento automático; la designación debe ser formalizada con motivo.</li>
-                </ul>
-            </div>
-
-            {% include "componentes/errores.html" %}
-
-            <form method="post" novalidate>
-                {% csrf_token %}
-                {{ form.maestro_esperado }}
-                <div class="mb-3">
-                    <label for="id_candidato" class="form-label fw-semibold">
-                        Seleccionar Miembro Candidato <span class="text-danger">*</span>
-                    </label>
-                    {{ form.candidato }}
-                    <div class="form-text">
-                        En la lista solo aparecen miembros de la comunidad que han alcanzado el umbral mínimo de 100 puntos.
-                    </div>
-                </div>
-
-                <div class="mb-4">
-                    <label for="id_motivo_maestro" class="form-label fw-semibold">
-                        Motivo y justificación del nombramiento <span class="text-danger">*</span>
-                    </label>
-                    {{ form.motivo }}
-                    <div class="form-text">
-                        Describa las razones, trayectoria comunitaria y saberes tradicionales que sustentan esta designación.
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}" class="btn btn-light">Cancelar</a>
-                    <button type="submit" class="btn btn-warning px-4 fw-semibold text-dark" id="btn-guardar-maestro">
-                        <i class="bi bi-award me-1"></i> Confirmar Nombramiento
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+{% block contenido %}
+<div class="introduccion">
+  <h1>Maestro del huerto</h1>
+  <p>El responsable de la comunidad nombra un único Maestro entre quienes tienen al menos 100 puntos. Un nuevo nombramiento sustituye al anterior.</p>
 </div>
+
+<section class="resumen" aria-labelledby="titulo-actual">
+  <h2 id="titulo-actual">Maestro actual</h2>
+  {% if maestro %}
+    <p><strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong>, desde el {{ huerto.maestro_fecha|date:"d/m/Y H:i" }}.</p>
+    <p class="ayuda">{{ huerto.maestro_motivo }}</p>
+  {% else %}
+    <p>Todavía no hay Maestro.</p>
+  {% endif %}
+</section>
+
+{% include "componentes/errores.html" with form=form %}
+
+{% if form.fields.candidato.queryset.exists %}
+<form method="post" action="{% url 'actividades:nombrar_maestro' huerto.id %}" class="formulario">
+  {% csrf_token %}
+  {{ form.maestro_esperado }}
+  <div class="campo">
+    <label for="{{ form.candidato.id_for_label }}">{{ form.candidato.label }}</label>
+    {{ form.candidato }}
+  </div>
+  <div class="campo">
+    <label for="{{ form.motivo.id_for_label }}">{{ form.motivo.label }}</label>
+    {{ form.motivo }}
+    <div class="ayuda">{{ form.motivo.help_text }}</div>
+  </div>
+  <div class="acciones">
+    <button type="submit">{% if maestro %}Sustituir Maestro{% else %}Nombrar Maestro{% endif %}</button>
+    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Cancelar</a>
+  </div>
+</form>
+{% else %}
+<p>Ningún otro miembro tiene todavía 100 puntos o más.</p>
+<p><a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Volver al huerto virtual</a></p>
+{% endif %}
 {% endblock %}

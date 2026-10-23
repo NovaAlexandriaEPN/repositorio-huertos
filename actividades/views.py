@@ -1,288 +1,208 @@
 """
-Vistas de la aplicación actividades.
-Coordinan peticiones HTTP y respuestas, delegando la lógica de negocio en servicios.py.
+Vistas del módulo actividades (tareas F1 y F3).
+
+Solo coordinan la petición y la respuesta: leen el formulario, llaman a servicios.py y
+muestran el resultado. Las pantallas son privadas gracias a LoginRequiredMiddleware.
+Un usuario ajeno a la comunidad recibe 403 (PermissionDenied), también en las consultas.
+Las escrituras usan POST con CSRF.
 """
-import uuid
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
 
-from comunidades.models import Huerto, Miembro
-from .forms import (
-    AnulacionActividadForm,
-    NombramientoMaestroForm,
-    RegistroActividadForm,
-    ESPECIES_MEDICINALES_18,
-    obtener_opciones_plantas_medicinales,
-)
-from .models import Actividad
+from comunidades.models import Huerto
+
 from . import servicios
+from .forms import AnulacionActividadForm, NombramientoMaestroForm, RegistroActividadForm
+from .models import Actividad
 
 
-@login_required
-def registrar_actividad_view(request, huerto_id):
+def _texto_error(error: ValidationError) -> str:
+    return " ".join(error.messages)
+
+
+def mi_huerto(request):
+    """Lleva al Huerto Virtual de la comunidad del usuario.
+
+    Si todavía no pertenece a una comunidad con huerto configurado, lo indica y vuelve al perfil.
     """
-    Vista para el registro de una nueva actividad en el huerto comunitario.
+    huerto = servicios.huerto_del_usuario(request.user)
+    if huerto is None:
+        messages.info(request, "Tu comunidad todavía no tiene un huerto configurado.")
+        return redirect("cuentas:perfil")
+    return redirect("actividades:inicio_huerto_virtual", huerto_id=huerto.pk)
 
-    Qué recibe:
-        - request (HttpRequest): Petición HTTP (GET o POST).
-        - huerto_id (int): Identificador del huerto.
 
-    Qué valida:
-        - Que el usuario esté autenticado y sea miembro de la comunidad del huerto.
-        - Campos del formulario de registro y restricciones de negocio en el servicio.
+def huerto_virtual(request, huerto_id):
+    """Huerto Virtual (HU-10): progreso, tarjetas por planta, totales, puntos y Maestro.
 
-    Qué guarda:
-        - Llama a servicios.registrar_actividad() para persistir la Actividad y sumar puntos.
-
-    Qué permisos exige:
-        - Pertenecer a la comunidad del huerto como miembro activo.
+    Recibe: GET con huerto_id. Valida: pertenencia a la comunidad. No guarda nada.
+    Permiso: ser miembro de la comunidad.
     """
-    huerto = get_object_or_404(Huerto, id=huerto_id)
+    huerto = get_object_or_404(Huerto.objects.select_related("comunidad"), pk=huerto_id)
+    resumen = servicios.obtener_resumen_huerto(huerto, request.user)
+    return render(request, "actividades/inicio_huerto_virtual.html", resumen)
 
-    # Validar pertenencia del usuario
-    if not Miembro.objects.filter(usuario=request.user, comunidad=huerto.comunidad).exists():
-        messages.error(request, "No perteneces a la comunidad propietaria de este huerto.")
-        return redirect('comunidades:mi_comunidad') if 'comunidades' in request.resolver_match.namespaces else redirect('/')
 
-    if request.method == 'POST':
-        form = RegistroActividadForm(request.POST)
+def registrar_actividad(request, huerto_id):
+    """Registro de actividades (HU-08).
+
+    Recibe: GET (formulario) o POST con uuid, tipo, planta, fecha y detalles.
+    Valida: formulario y reglas del servicio (pertenencia, reenvío, plazos, puntos).
+    Guarda: una Actividad mediante servicios.registrar_actividad.
+    Permiso: ser miembro de la comunidad.
+    """
+    huerto = get_object_or_404(Huerto.objects.select_related("comunidad"), pk=huerto_id)
+    servicios.miembro_del_huerto(request.user, huerto)
+
+    if request.method == "POST":
+        form = RegistroActividadForm(request.POST, huerto=huerto)
         if form.is_valid():
             datos = form.cleaned_data
             try:
-                actividad = servicios.registrar_actividad(
+                actividad, creada = servicios.registrar_actividad(
                     huerto=huerto,
                     usuario=request.user,
-                    tipo=datos['tipo'],
-                    fecha=datos['fecha'],
-                    planta=datos['planta'],
-                    detalles=datos['detalles'],
-                    request_uuid=datos.get('uuid')
+                    tipo=datos["tipo"],
+                    fecha=datos["fecha"],
+                    planta=datos["planta"],
+                    detalles=datos["detalles"],
+                    request_uuid=datos["uuid"],
                 )
-                messages.success(
-                    request,
-                    f"¡Actividad de '{actividad.get_tipo_display()}' registrada con éxito! "
-                    f"(+{actividad.puntos} puntos otorgados)."
-                )
-                return redirect('actividades:historial_actividades', huerto_id=huerto.id)
-            except (ValidationError, PermissionDenied) as e:
-                error_msg = e.message if hasattr(e, 'message') else str(e)
-                messages.error(request, error_msg)
+            except ValidationError as error:
+                form.add_error(None, _texto_error(error))
+            else:
+                if creada:
+                    messages.success(
+                        request,
+                        f"Actividad registrada: {actividad.get_tipo_display()} "
+                        f"({actividad.nombre_planta}). Puntos: {actividad.puntos}.",
+                    )
+                else:
+                    messages.info(request, "Esta actividad ya estaba registrada; no se duplicó.")
+                return redirect("actividades:historial_actividades", huerto_id=huerto.pk)
     else:
-        # Generar un UUID único fresco para la sesión del formulario
-        form = RegistroActividadForm(initial={'uuid': uuid.uuid4()})
+        form = RegistroActividadForm(huerto=huerto)
 
-    contexto = {
-        'form': form,
-        'huerto': huerto,
-        'especies_sugeridas': obtener_opciones_plantas_medicinales(),
+    return render(request, "actividades/registrar_actividad.html", {
+        "form": form,
+        "huerto": huerto,
+        "tipos_generales": list(Actividad.TIPOS_GENERALES),
+    })
+
+
+def historial(request, huerto_id):
+    """Historial de actividades (HU-10), con filtros por planta, tipo y estado.
+
+    Recibe: GET con filtros opcionales. Valida: pertenencia. No guarda nada.
+    Permiso: ser miembro de la comunidad.
+    """
+    huerto = get_object_or_404(Huerto.objects.select_related("comunidad"), pk=huerto_id)
+    filtros = {
+        "planta": request.GET.get("planta", "").strip(),
+        "tipo": request.GET.get("tipo", "").strip(),
+        "estado": request.GET.get("estado", "").strip(),
     }
-    return render(request, 'actividades/registrar_actividad.html', contexto)
+    actividades = servicios.obtener_historial(
+        huerto,
+        request.user,
+        planta_id=int(filtros["planta"]) if filtros["planta"].isdigit() else None,
+        tipo=filtros["tipo"] if filtros["tipo"] in Actividad.Tipo.values else None,
+        estado=filtros["estado"] if filtros["estado"] in Actividad.Estado.values else None,
+    )
+    return render(request, "actividades/historial.html", {
+        "huerto": huerto,
+        "actividades": actividades,
+        "filtros": filtros,
+        "plantas": huerto.plantas.select_related("planta").order_by("planta__nombre_comun"),
+        "tipos": Actividad.Tipo.choices,
+        "estados": Actividad.Estado.choices,
+        "es_responsable": servicios.es_responsable(request.user, huerto),
+    })
 
 
-@login_required
-def historial_actividades_view(request, huerto_id):
+def anular_actividad(request, actividad_id):
+    """Anulación con motivo (HU-09).
+
+    Recibe: GET (confirmación) o POST con el motivo.
+    Valida: permiso (quien la realizó o el responsable), estado y orden del ciclo.
+    Guarda: estado ANULADA con motivo, autor y fecha; puede retirar al Maestro.
+    Permiso: ser quien realizó la actividad o el responsable de la comunidad.
     """
-    Vista para consultar el historial cronológico de actividades del huerto.
+    actividad = get_object_or_404(
+        Actividad.objects.select_related("huerto__comunidad", "planta__planta", "actor_original"),
+        pk=actividad_id,
+    )
+    servicios.verificar_puede_anular(actividad, request.user)
 
-    Qué recibe:
-        - request (HttpRequest): Petición GET con posibles filtros en query params.
-        - huerto_id (int): Identificador del huerto.
-
-    Qué valida:
-        - Pertenencia del usuario a la comunidad.
-
-    Qué guarda:
-        - Ninguna escritura (consulta de historial).
-
-    Qué permisos exige:
-        - Miembro de la comunidad.
-    """
-    huerto = get_object_or_404(Huerto, id=huerto_id)
-
-    filtro_planta = request.GET.get('planta', '').strip()
-    filtro_tipo = request.GET.get('tipo', '').strip()
-    filtro_estado = request.GET.get('estado', '').strip()
-
-    try:
-        actividades = servicios.obtener_historial_actividades(
-            huerto=huerto,
-            usuario=request.user,
-            planta=filtro_planta,
-            tipo=filtro_tipo,
-            estado=filtro_estado
-        )
-    except PermissionDenied as e:
-        messages.error(request, str(e))
-        return redirect('/')
-
-    # Verificar si el usuario actual es admin o creador para mostrar opciones de gestión
-    miembro = Miembro.objects.filter(usuario=request.user, comunidad=huerto.comunidad).first()
-    es_admin = miembro and (miembro.rol == 'ADMIN' or huerto.comunidad.creador == request.user)
-
-    contexto = {
-        'huerto': huerto,
-        'actividades': actividades,
-        'filtro_planta': filtro_planta,
-        'filtro_tipo': filtro_tipo,
-        'filtro_estado': filtro_estado,
-        'tipos_choices': Actividad.TIPO_ACTIVIDAD_CHOICES,
-        'es_admin': es_admin,
-    }
-    return render(request, 'actividades/historial.html', contexto)
-
-
-@login_required
-def anular_actividad_view(request, actividad_id):
-    """
-    Vista para solicitar la anulación justificada de una actividad activa.
-
-    Qué recibe:
-        - request (HttpRequest): GET (formulario) o POST (confirmación de anulación).
-        - actividad_id (int): ID de la actividad a anular.
-
-    Qué valida:
-        - Que la actividad exista y esté ACTIVA.
-        - Que el motivo esté presente y sea válido.
-        - Permisos de anulación (autor original, admin o maestro) y restricciones de ciclo.
-
-    Qué guarda:
-        - Llama a servicios.anular_actividad() para marcarla ANULADA, deducir puntos y registrar autor y fecha.
-
-    Qué permisos exige:
-        - Ser el actor original, o el administrador/creador de la comunidad, o el Maestro de huerto.
-    """
-    actividad = get_object_or_404(Actividad, id=actividad_id)
-    huerto = actividad.huerto
-
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AnulacionActividadForm(request.POST)
         if form.is_valid():
-            motivo = form.cleaned_data['motivo']
             try:
-                servicios.anular_actividad(
-                    actividad_id=actividad.id,
-                    usuario_autor=request.user,
-                    motivo=motivo
+                actividad, maestro_retirado = servicios.anular_actividad(
+                    actividad.pk, request.user, form.cleaned_data["motivo"]
                 )
-                messages.warning(
+            except ValidationError as error:
+                form.add_error(None, _texto_error(error))
+            else:
+                messages.success(
                     request,
-                    f"La actividad #{actividad.id} ({actividad.get_tipo_display()}) ha sido anulada con éxito. "
-                    f"Se dedujeron {actividad.puntos} puntos."
+                    f"Actividad anulada. Sus {actividad.puntos} puntos dejaron de contar.",
                 )
-                return redirect('actividades:historial_actividades', huerto_id=huerto.id)
-            except (ValidationError, PermissionDenied) as e:
-                error_msg = e.message if hasattr(e, 'message') else str(e)
-                messages.error(request, error_msg)
+                if maestro_retirado:
+                    messages.warning(
+                        request,
+                        "El Maestro del huerto quedó con menos de 100 puntos y se retiró su nombramiento.",
+                    )
+                return redirect("actividades:historial_actividades", huerto_id=actividad.huerto_id)
     else:
         form = AnulacionActividadForm()
 
-    contexto = {
-        'actividad': actividad,
-        'huerto': huerto,
-        'form': form,
-    }
-    return render(request, 'actividades/anular.html', contexto)
+    return render(request, "actividades/anular.html", {
+        "actividad": actividad,
+        "huerto": actividad.huerto,
+        "form": form,
+    })
 
 
-@login_required
-def nombrar_maestro_view(request, huerto_id):
+def nombrar_maestro(request, huerto_id):
+    """Nombramiento o sustitución del Maestro del huerto (HU-11).
+
+    Recibe: GET (formulario) o POST con candidato, motivo y maestro_esperado.
+    Valida: responsable, formulario desactualizado, pertenencia, 100 puntos y motivo.
+    Guarda: Maestro con motivo, autor y fecha en el Huerto.
+    Permiso: ser el responsable de la comunidad (otros miembros reciben 403).
     """
-    Vista para nombrar o sustituir al Maestro de huerto.
+    huerto = get_object_or_404(Huerto.objects.select_related("comunidad"), pk=huerto_id)
+    servicios.miembro_del_huerto(request.user, huerto)
+    if not servicios.es_responsable(request.user, huerto):
+        raise PermissionDenied("Solo el responsable de la comunidad nombra al Maestro del huerto.")
 
-    Qué recibe:
-        - request (HttpRequest): Petición GET o POST.
-        - huerto_id (int): Identificador del huerto.
-
-    Qué valida:
-        - Que el usuario autenticado sea Administrador de la comunidad o creador.
-        - Que el candidato pertenezca a la comunidad y cumpla el umbral de 100 puntos.
-        - Justificación obligatoria.
-        - Que el Maestro no haya cambiado desde que se abrió el formulario (formulario desactualizado).
-
-    Qué guarda:
-        - Actualiza el Maestro, motivo, autor y fecha en el modelo Huerto.
-
-    Qué permisos exige:
-        - Rol Administrador o Creador de la comunidad.
-    """
-    huerto = get_object_or_404(Huerto, id=huerto_id)
-
-    # Validar permisos administrativos
-    miembro = Miembro.objects.filter(usuario=request.user, comunidad=huerto.comunidad).first()
-    es_admin = miembro and (miembro.rol == 'ADMIN' or huerto.comunidad.creador == request.user)
-    if not es_admin:
-        messages.error(request, "Solo los administradores pueden nombrar o sustituir al Maestro de huerto.")
-        return redirect('actividades:inicio_huerto_virtual', huerto_id=huerto.id)
-
-    if request.method == 'POST':
+    if request.method == "POST":
         form = NombramientoMaestroForm(request.POST, huerto=huerto)
         if form.is_valid():
-            candidato = form.cleaned_data['candidato']
-            motivo = form.cleaned_data['motivo']
             try:
-                servicios.nombrar_o_sustituir_maestro(
-                    huerto=huerto,
-                    usuario_autor=request.user,
-                    nuevo_maestro_usuario=candidato,
-                    motivo=motivo,
-                    maestro_esperado_id=form.cleaned_data['maestro_esperado']
+                servicios.nombrar_maestro(
+                    huerto,
+                    request.user,
+                    form.cleaned_data["candidato"],
+                    form.cleaned_data["motivo"],
+                    maestro_esperado_id=form.cleaned_data["maestro_esperado"],
                 )
+            except ValidationError as error:
+                form.add_error(None, _texto_error(error))
+            else:
+                candidato = form.cleaned_data["candidato"].usuario
                 messages.success(
                     request,
-                    f"¡Nombramiento exitoso! {candidato.get_full_name() or candidato.username} "
-                    f"es el nuevo Maestro del huerto medicinal."
+                    f"{candidato.get_full_name() or candidato.username} es ahora el Maestro del huerto.",
                 )
-                return redirect('actividades:inicio_huerto_virtual', huerto_id=huerto.id)
-            except (ValidationError, PermissionDenied) as e:
-                error_msg = e.message if hasattr(e, 'message') else str(e)
-                messages.error(request, error_msg)
+                return redirect("actividades:inicio_huerto_virtual", huerto_id=huerto.pk)
     else:
         form = NombramientoMaestroForm(huerto=huerto)
 
-    contexto = {
-        'form': form,
-        'huerto': huerto,
-        'maestro_actual': huerto.maestro,
-    }
-    return render(request, 'actividades/nombrar_maestro.html', contexto)
-
-
-@login_required
-def inicio_huerto_virtual_view(request, huerto_id):
-    """
-    Vista del Huerto Virtual: tarjetas de estado, hitos alcanzados,
-    progreso del ciclo, puntos del usuario y panel del Maestro.
-
-    Qué recibe:
-        - request (HttpRequest): Petición GET.
-        - huerto_id (int): Identificador del huerto.
-
-    Qué valida:
-        - Pertenencia del usuario a la comunidad.
-
-    Qué guarda:
-        - Ninguna escritura (pantalla de consulta interactiva).
-
-    Qué permisos exige:
-        - Miembro de la comunidad.
-    """
-    huerto = get_object_or_404(Huerto, id=huerto_id)
-
-    try:
-        resumen = servicios.obtener_resumen_huerto(huerto=huerto, usuario=request.user)
-    except PermissionDenied as e:
-        messages.error(request, str(e))
-        return redirect('/')
-
-    miembro = Miembro.objects.filter(usuario=request.user, comunidad=huerto.comunidad).first()
-    es_admin = miembro and (miembro.rol == 'ADMIN' or huerto.comunidad.creador == request.user)
-
-    contexto = {
-        **resumen,
-        'es_admin': es_admin,
-        'huerto': huerto,
-    }
-    return render(request, 'actividades/inicio_huerto_virtual.html', contexto)
+    return render(request, "actividades/nombrar_maestro.html", {
+        "form": form,
+        "huerto": huerto,
+        "maestro": huerto.maestro,
+    })

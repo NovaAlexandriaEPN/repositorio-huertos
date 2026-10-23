@@ -1,138 +1,86 @@
 {% extends "base.html" %}
 
-{% block title %}Historial de Actividades - {{ huerto.nombre }}{% endblock %}
+{% block titulo %}Historial · {{ huerto.comunidad.nombre }}{% endblock %}
 
-{% block content %}
-<div class="card card-custom p-4 mb-4">
-    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 border-bottom pb-3 mb-4">
-        <div>
-            <h2 class="fw-bold mb-1 text-success">
-                <i class="bi bi-clock-history me-2"></i>Historial de Actividades
-            </h2>
-            <p class="text-muted mb-0">Huerto: <strong>{{ huerto.nombre }}</strong> | Comunidad: {{ huerto.comunidad.nombre }}</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}" class="btn btn-outline-secondary">
-                <i class="bi bi-grid-fill me-1"></i> Huerto Virtual
-            </a>
-            <a href="{% url 'actividades:registrar_actividad' huerto.id %}" class="btn btn-success-custom">
-                <i class="bi bi-plus-lg me-1"></i> Nueva Actividad
-            </a>
-        </div>
-    </div>
-
-    <!-- Filtros de búsqueda -->
-    <form method="get" class="row g-2 mb-4 bg-light p-3 rounded border">
-        <div class="col-md-4 col-sm-6">
-            <label class="form-label small fw-semibold">Filtrar por Planta</label>
-            <input type="text" name="planta" value="{{ filtro_planta }}" class="form-control form-control-sm" placeholder="Ej. Menta, Salvia...">
-        </div>
-        <div class="col-md-4 col-sm-6">
-            <label class="form-label small fw-semibold">Tipo de Actividad</label>
-            <select name="tipo" class="form-select form-select-sm">
-                <option value="">-- Todos los tipos --</option>
-                {% for code, label in tipos_choices %}
-                    <option value="{{ code }}" {% if filtro_tipo == code %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2 col-sm-6">
-            <label class="form-label small fw-semibold">Estado</label>
-            <select name="estado" class="form-select form-select-sm">
-                <option value="">-- Todos --</option>
-                <option value="ACTIVA" {% if filtro_estado == 'ACTIVA' %}selected{% endif %}>Activas</option>
-                <option value="ANULADA" {% if filtro_estado == 'ANULADA' %}selected{% endif %}>Anuladas</option>
-            </select>
-        </div>
-        <div class="col-md-2 col-sm-6 d-flex align-items-end gap-1">
-            <button type="submit" class="btn btn-primary btn-sm flex-grow-1">
-                <i class="bi bi-funnel-fill me-1"></i> Filtrar
-            </button>
-            <a href="{% url 'actividades:historial_actividades' huerto.id %}" class="btn btn-outline-secondary btn-sm" title="Limpiar filtros">
-                <i class="bi bi-x-circle"></i>
-            </a>
-        </div>
-    </form>
-
-    <!-- Tabla de actividades -->
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th># ID</th>
-                    <th>Tipo de Labor</th>
-                    <th>Planta</th>
-                    <th>Fecha</th>
-                    <th>Actor Original</th>
-                    <th>Puntos</th>
-                    <th>Estado</th>
-                    <th class="text-end">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for act in actividades %}
-                    <tr class="{% if act.es_anulada %}table-light opacity-75{% endif %}">
-                        <td class="text-muted small">#{{ act.id }}</td>
-                        <td>
-                            <strong>{{ act.get_tipo_display }}</strong>
-                            {% if act.detalles %}
-                                <p class="text-muted small mb-0">{{ act.detalles|truncatechars:60 }}</p>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if act.planta %}
-                                <span class="badge bg-light text-dark border">{{ act.planta }}</span>
-                            {% else %}
-                                <span class="text-muted small">General</span>
-                            {% endif %}
-                        </td>
-                        <td>{{ act.fecha|date:"d/m/Y" }}</td>
-                        <td>
-                            <i class="bi bi-person text-secondary me-1"></i>
-                            {{ act.actor_original.get_full_name|default:act.actor_original.username }}
-                        </td>
-                        <td>
-                            {% if act.puntos > 0 %}
-                                <span class="badge bg-success-subtle text-success border border-success-subtle">+{{ act.puntos }} pts</span>
-                            {% else %}
-                                <span class="badge bg-secondary-subtle text-secondary">0 pts</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if act.es_activa %}
-                                <span class="badge badge-estado-activa px-2 py-1">
-                                    <i class="bi bi-check-circle me-1"></i> Activa
-                                </span>
-                            {% else %}
-                                <span class="badge badge-estado-anulada px-2 py-1" data-bs-toggle="tooltip" title="Motivo: {{ act.motivo_anulacion }}">
-                                    <i class="bi bi-slash-circle me-1"></i> Anulada
-                                </span>
-                                <div class="small text-danger mt-1" style="font-size: 0.75rem;">
-                                    Por: {{ act.autor_anulacion.username|default:"Sistema" }}<br>
-                                    Motivo: {{ act.motivo_anulacion|truncatechars:35 }}
-                                </div>
-                            {% endif %}
-                        </td>
-                        <td class="text-end">
-                            {% if act.es_activa %}
-                                <a href="{% url 'actividades:anular_actividad' act.id %}" class="btn btn-outline-danger btn-sm" title="Anular actividad con motivo">
-                                    <i class="bi bi-x-octagon me-1"></i> Anular
-                                </a>
-                            {% else %}
-                                <span class="text-muted small italic">Sin acciones</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
-                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                            No se encontraron actividades registradas con los filtros aplicados.
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
+{% block contenido %}
+<div class="introduccion">
+  <h1>Historial de actividades</h1>
+  <p>Huerto de {{ huerto.comunidad.nombre }}. Las actividades anuladas se conservan con su motivo, autor y fecha.</p>
 </div>
+
+<form method="get" action="{% url 'actividades:historial_actividades' huerto.id %}" class="formulario" aria-label="Filtrar historial">
+  <div class="cuadricula">
+    <div class="campo">
+      <label for="filtro-planta">Planta</label>
+      <select id="filtro-planta" name="planta">
+        <option value="">Todas</option>
+        {% for seleccion in plantas %}
+        <option value="{{ seleccion.id }}"{% if filtros.planta == seleccion.id|stringformat:"d" %} selected{% endif %}>{{ seleccion.planta.nombre_comun }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="filtro-tipo">Actividad</label>
+      <select id="filtro-tipo" name="tipo">
+        <option value="">Todas</option>
+        {% for codigo, nombre in tipos %}
+        <option value="{{ codigo }}"{% if filtros.tipo == codigo %} selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="filtro-estado">Estado</label>
+      <select id="filtro-estado" name="estado">
+        <option value="">Todos</option>
+        {% for codigo, nombre in estados %}
+        <option value="{{ codigo }}"{% if filtros.estado == codigo %} selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="acciones">
+    <button type="submit">Filtrar</button>
+    <a href="{% url 'actividades:historial_actividades' huerto.id %}">Quitar filtros</a>
+    <a href="{% url 'actividades:registrar_actividad' huerto.id %}">Registrar actividad</a>
+    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Huerto virtual</a>
+  </div>
+</form>
+
+{% if actividades %}
+<div class="tabla-desplazable">
+<table>
+  <caption>{{ actividades|length }} actividad{{ actividades|length|pluralize:"es" }}</caption>
+  <thead>
+    <tr>
+      <th scope="col">Fecha</th><th scope="col">Actividad</th><th scope="col">Planta</th>
+      <th scope="col">Realizó</th><th scope="col">Puntos</th><th scope="col">Estado</th><th scope="col">Acción</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for act in actividades %}
+    <tr>
+      <td>{{ act.fecha|date:"d/m/Y" }}</td>
+      <td>{{ act.get_tipo_display }}{% if act.detalles %}<br><span class="ayuda">{{ act.detalles|truncatechars:80 }}</span>{% endif %}</td>
+      <td>{{ act.nombre_planta }}</td>
+      <td>{{ act.actor_original.get_full_name|default:act.actor_original.username }}</td>
+      <td>{{ act.puntos }}</td>
+      <td>
+        <span class="etiqueta-estado">{{ act.get_estado_display }}</span>
+        {% if act.es_anulada %}
+        <br><span class="ayuda">{{ act.motivo_anulacion }} · {{ act.anulada_por.get_full_name|default:act.anulada_por.username }}, {{ act.fecha_anulacion|date:"d/m/Y H:i" }}</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if act.es_activa and act.actor_original_id == user.id or act.es_activa and es_responsable %}
+        <a href="{% url 'actividades:anular_actividad' act.id %}">Anular</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p>No hay actividades con estos filtros.</p>
+{% endif %}
 {% endblock %}
