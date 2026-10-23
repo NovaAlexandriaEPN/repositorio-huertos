@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block titulo %}Iniciar sesión · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Iniciar sesión</h1>
+  <p>Entra con tu usuario y contraseña.</p>
+</div>
+
+{% include "componentes/errores.html" with form=form %}
+
+<form method="post" action="{% url 'cuentas:login' %}" class="formulario">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+  <div class="campo">
+    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+    {{ form.username }}
+  </div>
+  <div class="campo">
+    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+    {{ form.password }}
+  </div>
+  <div class="acciones">
+    <button type="submit">Iniciar sesión</button>
+    <a href="{% url 'cuentas:registro' %}">Crear una cuenta</a>
+  </div>
+</form>
+{% endblock %}

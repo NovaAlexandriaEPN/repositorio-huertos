@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mi perfil · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Mi perfil</h1>
+  <p>Consulta y actualiza tus datos. Solo tú puedes ver y editar tu fecha de nacimiento y género.</p>
+</div>
+
+{% include "componentes/errores.html" with form=form %}
+
+<form method="post" action="{% url 'cuentas:perfil' %}" class="formulario">
+  {% csrf_token %}
+  <p class="identidad">Usuario: <strong>{{ user.username }}</strong><br>
+    <span class="ayuda">El nombre de usuario no se puede cambiar.</span></p>
+  <div class="cuadricula">
+    <div class="campo ancho-completo">
+      <label for="{{ form.nombre_completo.id_for_label }}">Nombre completo</label>
+      {{ form.nombre_completo }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de nacimiento</label>
+      {{ form.fecha_nacimiento }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.genero.id_for_label }}">Género <span class="opcional">Opcional</span></label>
+      {{ form.genero }}
+    </div>
+    <div class="campo ancho-completo">
+      <label for="{{ form.talentos_ancestrales.id_for_label }}">Talentos ancestrales <span class="opcional">Opcional</span></label>
+      {{ form.talentos_ancestrales }}
+      <div class="ayuda" id="id_talentos_ancestrales_helptext">{{ form.talentos_ancestrales.help_text }}</div>
+    </div>
+  </div>
+  <p class="recomendacion">La participación se recomienda desde los 14 años. Es una recomendación, no un requisito de edad.</p>
+  <div class="acciones">
+    <button type="submit">Guardar cambios</button>
+    <a href="{% url 'cuentas:perfil' %}">Descartar cambios</a>
+  </div>
+</form>
+
+<section class="constancia" aria-labelledby="titulo-consentimiento">
+  <h2 id="titulo-consentimiento">Consentimiento de datos</h2>
+  {% if user.consentimiento_fecha %}
+    <p>Aceptaste la versión {{ user.consentimiento_version }} el
+      {{ user.consentimiento_fecha|date:"d/m/Y H:i" }} (hora de Guayaquil).</p>
+  {% else %}
+    <p>No consta una aceptación registrada para esta cuenta.</p>
+  {% endif %}
+  <details class="consulta-aviso">
+    <summary>Consultar el aviso de datos actual</summary>
+    {% include "componentes/aviso_datos.html" %}
+  </details>
+</section>
+{% endblock %}

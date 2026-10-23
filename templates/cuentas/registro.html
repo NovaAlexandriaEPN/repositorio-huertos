@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block titulo %}Crear cuenta · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Crear cuenta</h1>
+  <p>Registra tus datos para participar en un huerto comunitario.</p>
+  <p class="recomendacion">Participación recomendada desde los 14 años.
+    Puedes registrarte aunque tengas menos de 14.</p>
+</div>
+
+{% include "componentes/errores.html" with form=form %}
+
+<form method="post" action="{% url 'cuentas:registro' %}" class="formulario">
+  {% csrf_token %}
+  {{ form.aviso_version }}
+
+  <fieldset>
+    <legend>Tu perfil</legend>
+    <div class="cuadricula">
+      <div class="campo ancho-completo">
+        <label for="{{ form.nombre_completo.id_for_label }}">Nombre completo</label>
+        {{ form.nombre_completo }}
+      </div>
+      <div class="campo">
+        <label for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de nacimiento</label>
+        {{ form.fecha_nacimiento }}
+      </div>
+      <div class="campo">
+        <label for="{{ form.genero.id_for_label }}">Género <span class="opcional">Opcional</span></label>
+        {{ form.genero }}
+      </div>
+      <div class="campo ancho-completo">
+        <label for="{{ form.talentos_ancestrales.id_for_label }}">Talentos ancestrales <span class="opcional">Opcional</span></label>
+        {{ form.talentos_ancestrales }}
+        <div class="ayuda" id="id_talentos_ancestrales_helptext">{{ form.talentos_ancestrales.help_text }}</div>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Datos para entrar</legend>
+    <div class="campo">
+      <label for="{{ form.username.id_for_label }}">Usuario</label>
+      {{ form.username }}
+      <div class="ayuda" id="id_username_helptext">{{ form.username.help_text }}</div>
+    </div>
+    <div class="cuadricula">
+      <div class="campo">
+        <label for="{{ form.password1.id_for_label }}">Contraseña</label>
+        {{ form.password1 }}
+      </div>
+      <div class="campo">
+        <label for="{{ form.password2.id_for_label }}">Repite la contraseña</label>
+        {{ form.password2 }}
+      </div>
+    </div>
+    <div class="ayuda" id="id_password1_helptext">{{ form.password1.help_text }}</div>
+  </fieldset>
+
+  {% include "componentes/aviso_datos.html" %}
+
+  <div class="aceptacion">
+    {{ form.acepta_aviso }}
+    <label for="{{ form.acepta_aviso.id_for_label }}">{{ form.acepta_aviso.label }}</label>
+  </div>
+  <div class="acciones">
+    <button type="submit">Crear cuenta</button>
+    <a href="{% url 'cuentas:registro' %}">Volver a cargar el formulario</a>
+  </div>
+</form>
+<p class="enlace-acceso">¿Ya tienes una cuenta? <a href="{% url 'cuentas:login' %}">Inicia sesión</a>.</p>
+{% endblock %}
