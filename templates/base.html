@@ -1,0 +1,35 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Huertos medicinales{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="marca">
+      <span>Huertos medicinales comunitarios</span>
+      <span class="equipo">Nova Alexandria</span>
+    </div>
+    <nav class="navegacion" aria-label="Cuenta">
+      {% if user.is_authenticated %}
+        <span class="usuario">{{ user.username }}</span>
+        <a href="{% url 'cuentas:perfil' %}">Mi perfil</a>
+        <form method="post" action="{% url 'cuentas:logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="boton-enlace">Cerrar sesión</button>
+        </form>
+      {% else %}
+        <a href="{% url 'cuentas:login' %}">Iniciar sesión</a>
+        <a href="{% url 'cuentas:registro' %}">Crear cuenta</a>
+      {% endif %}
+    </nav>
+  </header>
+  <main id="contenido" class="contenido">
+    {% include "componentes/mensajes.html" %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>

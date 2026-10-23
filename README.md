@@ -15,18 +15,16 @@ Proyecto de **Calidad de Software (ISWD652, período 2026B)**.
 
 ## Estado actual del proyecto
 
-> [!WARNING]
-> **Los modelos todavía no existen y ningún comando `python manage.py ...` funciona por ahora.**
-> No ejecutes `migrate` hasta que se retire este aviso.
+En esta rama están disponibles el modelo `Usuario`, su primera migración, el registro con
+consentimiento, el inicio/cierre de sesión y la consulta/edición del perfil propio.
+Funcionan `migrate`, `runserver` y las pruebas automatizadas.
 
-| Puedes hacer ahora | Todavía no |
-|---|---|
-| [3.1](#31-clonar-el-repositorio) a [3.3](#33-instalar-dependencias): clonar, crear el entorno virtual e instalar dependencias. | [3.5](#35-crear-la-base-de-datos-y-cargar-el-catálogo): `migrate` y `cargar_catalogo`. |
-| [3.4](#34-clave-secreta-django_secret_key): generar y guardar tu clave secreta. | [3.6](#36-levantar-el-servidor): `runserver`. |
-| Escribir en los archivos de tu tarea según el plan: datos del catálogo, plantillas, estilos, `reglas.py` y documentación. | `migrate` y `runserver` de la sección [4](#4-uso-diario). |
-| | Ejecutar las pruebas de la sección [5](#5-pruebas). |
-
-Cuando Bryan defina `Usuario` en `cuentas/models.py`, genere la primera migración de `cuentas` y la suba al repositorio (tarea B1, hito del 16 de octubre). Entonces se avisará al grupo y se retirará este aviso; a partir de ahí todos pueden continuar con la 3.5.
+Los cinco modelos compartidos de B2-01 están definidos: `Comunidad`, `Miembro`, `Huerto`,
+`PlantaHuerto` y `MarcaMaterial`, con sus migraciones. El catálogo aporta `OpcionHuerto`,
+`Planta` y `Material` como dependencias.
+Los formularios, servicios y pantallas de comunidades/huertos, selección de plantas y
+materiales siguen pendientes. También faltan el modelo y las funciones de actividades.
+El comando `cargar_catalogo` todavía no está implementado.
 
 ---
 
@@ -79,9 +77,18 @@ Todos los comandos se ejecutan en **PowerShell**, dentro de la carpeta del repos
 ### 3.1 Clonar el repositorio
 
 ```powershell
-git clone <URL_DEL_REPOSITORIO> repositorio-huertos
+git clone https://github.com/NovaAlexandriaEPN/repositorio-huertos.git repositorio-huertos
 cd repositorio-huertos
 ```
+
+Para revisar el avance de Bryan después de clonar:
+
+```powershell
+git switch --track origin/bryan
+```
+
+Bryan mantiene su trabajo en `bryan`. Los demás integrantes usan sus propias ramas para
+sus cambios; revisar esta rama no requiere integrarla en `main`.
 
 ### 3.2 Crear y activar el entorno virtual
 
@@ -131,41 +138,121 @@ $env:DJANGO_SECRET_KEY = $clave
 Comprueba que está definida (en una terminal nueva):
 
 ```powershell
-echo $env:DJANGO_SECRET_KEY
+[bool]$env:DJANGO_SECRET_KEY  # Debe mostrar True, sin imprimir la clave.
 ```
 
 > No cambies la clave después de crear datos: las sesiones iniciadas dejarían de ser válidas.
 
 ### 3.5 Crear la base de datos y cargar el catálogo
 
-> [!WARNING]
-> Todavía no disponible. Ver [Estado actual del proyecto](#estado-actual-del-proyecto).
-
 ```powershell
 python manage.py migrate
-python manage.py cargar_catalogo
 ```
 
-`cargar_catalogo` crea las 18 plantas, 13 guías, opciones, materiales y eventos lunares.
-Se puede ejecutar varias veces: no duplica registros ni borra actividades, pertenencias o
-nombramientos.
+Esto crea la base local con las tablas de Django y los modelos disponibles de cuentas,
+catálogo y comunidades.
+`python manage.py cargar_catalogo` se ejecutará cuando esté implementado: deberá cargar las
+18 plantas, 13 guías, opciones, materiales y eventos lunares sin duplicar datos ni borrar historial.
 
 ### 3.6 Levantar el servidor
-
-> [!WARNING]
-> Todavía no disponible. Ver [Estado actual del proyecto](#estado-actual-del-proyecto).
 
 ```powershell
 python manage.py runserver
 ```
 
-Abrir <http://127.0.0.1:8000/cuentas/> en el navegador. Detener con `Ctrl + C`.
+Abrir <http://127.0.0.1:8000/cuentas/login/> en el navegador. Si todavía no tienes cuenta,
+usa el enlace «Crear una cuenta». Después de entrar se muestra tu perfil en
+<http://127.0.0.1:8000/cuentas/perfil/>. Detener el servidor con `Ctrl + C`.
+
+### Acceso y privacidad
+
+`LoginRequiredMiddleware` exige sesión en todas las vistas por defecto. Solo registro e
+inicio de sesión llevan `@login_not_required`; las nuevas pantallas del producto permanecen
+privadas sin añadir excepciones. El cierre de sesión y la edición usan POST con CSRF.
+
+El perfil siempre se obtiene de `request.user`, sin recibir el ID de otra cuenta. Solo se
+editan nombre completo, nacimiento, género y talentos. Usuario, contraseña, permisos y
+constancia de consentimiento no se modifican desde ese formulario. Las respuestas de cuentas
+llevan cabeceras para evitar almacenar las páginas personales en caché.
+
+### Modelos de comunidad y huerto (B2)
+
+`comunidades/models.py` define estas relaciones:
+
+- `Comunidad.responsable`: una cuenta puede ser responsable de una sola comunidad.
+- `Miembro.usuario`: una cuenta tiene una sola pertenencia. `Miembro.comunidad` permite
+  que muchas cuentas pertenezcan a la misma comunidad. `es_responsable` se obtiene de
+  `Comunidad.responsable`, sin guardar un segundo rol que pueda contradecirlo.
+- `Huerto.comunidad`: cada comunidad puede tener un solo huerto. El área se guarda con
+  dos decimales en `area_m2` y debe ser positiva; la ubicación es manual.
+- `Huerto.disenos` y `Huerto.abonos`: elecciones múltiples. `cerca`, `suelo` y
+  `fuente_agua`: elecciones únicas de `catalogo.OpcionHuerto`.
+- `Huerto.maestro` apunta a un `Miembro`. `maestro_motivo`, `maestro_nombrado_por`
+  (cuenta responsable) y `maestro_fecha` guardan la constancia vigente. Estos campos no
+  conceden permisos ni guardan puntos o niveles.
+- `PlantaHuerto.huerto` y `planta`: combinación única. `metodo_siembra` admite
+  `semillas`, `estacas`, `esquejes` o `plantulas`, definidos en `catalogo.models.MetodoSiembra`.
+  La selección conserva su huerto y especie. El método puede cambiar antes del historial.
+- `MarcaMaterial.huerto` y `material`: combinación única. `disponible` es una casilla
+  compartida, inicialmente falsa; cada huerto mantiene su propia marca.
+
+`catalogo/models.py` contiene:
+
+- `OpcionHuerto`: `codigo` único, `categoria`, `nombre` y `explicacion`.
+  Categorías: `diseno`, `cerca`, `suelo`, `agua`, `abono`.
+- `Planta`: las 19 claves de las fichas acordadas. Los textos desconocidos aceptan `None`;
+  las listas y fuentes se guardan en `JSONField` con listas independientes por registro.
+  La ruta de foto es relativa a `static/`, por ejemplo `img/plantas/romero.jpg`.
+- `Material`: `codigo`, `nombre`, `grupo`, `recomendacion` y `metodos_siembra`.
+  Grupos: `herramientas`, `siembra`, `abonos`. Una lista de métodos vacía indica que es
+  común a todos los métodos; una lista no vacía usa los códigos de `MetodoSiembra`.
+
+Los modelos `TipoActividad` y `EventoLunar`, y la carga de los datos, siguen pendientes.
+Estos modelos no completan ni verifican el contenido de las 18 fichas.
+
+La creación de comunidad deberá guardar comunidad y pertenencia del creador en una
+transacción. El huerto se guardará al completar su primera configuración válida;
+antes puede no existir. No se generan filas relacionadas mediante señales automáticas.
+
+Los modelos validan los cambios de responsable/pertenencia, las categorías de las
+opciones únicas y la pertenencia/autoría del nombramiento. Para ejecutar esa validación,
+los servicios deben llamar a `full_clean()` antes de guardar: `save()` y `objects.create()`
+no la ejecutan por sí solos. Las claves únicas y las restricciones de área/constancia
+también están protegidas en SQLite.
+
+El configurador pendiente deberá validar las listas recibidas de diseños y abonos:
+al menos una opción de cada categoría, antes de guardarlas en la misma transacción.
+`limit_choices_to` filtra los formularios, pero no protege una escritura directa en esas
+relaciones múltiples. Los permisos y el código de invitación se comprobarán en los servicios;
+el código se genera automáticamente, es único y no es una credencial de inicio de sesión.
+Las reglas de puntos y el mínimo de 100 para nombrar maestro se implementarán en actividades.
+
+### Contrato con actividades para proteger el historial
+
+`Actividad.planta` debe apuntar a la selección `PlantaHuerto`, no a la especie del catálogo:
+
+```python
+# Dentro del futuro modelo Actividad:
+planta = models.ForeignKey(
+    "comunidades.PlantaHuerto",
+    on_delete=models.PROTECT,
+    related_name="actividades",
+    null=True,
+    blank=True,
+)
+```
+
+`null=True` permite las actividades generales. La relación inversa debe incluir todo el
+historial, también los registros anulados. `PlantaHuerto.tiene_historial` consulta esa
+relación y `clean()` rechaza cambiar el método si ya hay actividades. `PROTECT` impedirá
+borrar una selección referenciada por actividades.
+
+Hasta incorporar `Actividad`, aún no existe historial de actividades. La regla de cambio
+de método tiene una prueba unitaria; la comprobación integrada con registros activos y
+anulados, los permisos y la retirada de selecciones se completarán en B2-04. Comunidades
+no importa el módulo actividades: usa la relación inversa que Django añadirá.
 
 ## 4. Uso diario
-
-> [!WARNING]
-> Por ahora solo funcionan la activación del entorno, `git pull` y `pip install`; `migrate` y
-> `runserver` todavía no. Ver [Estado actual del proyecto](#estado-actual-del-proyecto).
 
 Cada vez que abras una terminal nueva para trabajar:
 
@@ -188,12 +275,9 @@ python manage.py runserver
 
 ## 5. Pruebas
 
-> [!WARNING]
-> Todavía no disponible. Ver [Estado actual del proyecto](#estado-actual-del-proyecto).
-
 ```powershell
 python manage.py test                 # todas las aplicaciones
-python manage.py test actividades     # una sola aplicación
+python manage.py test cuentas         # una sola aplicación
 python manage.py test -v 2            # salida detallada
 ```
 
@@ -234,7 +318,10 @@ sola vez (Doménica) y el resto lo recibe con `git pull`:
 
 ## 7. Reglas de trabajo con Git
 
-- Una **rama por funcionalidad** o cambio coherente: `git checkout -b feature/registro-actividad`.
+- Cada integrante trabaja en su rama. Bryan usa **`bryan`** y publica únicamente ahí;
+  los cambios a `main` requieren la integración acordada por el equipo.
+- Antes de guardar o publicar trabajo, comprobar `git branch --show-current`. En la
+  instalación de Bryan debe mostrar `bryan`; `git push` publica a `origin/bryan`.
 - **Nunca** se suben: `.venv/`, `db.sqlite3`, copias de la base de demo, claves ni archivos `.env`
   (ya están en `.gitignore`).
 - Cada cambio de modelo incluye **su migración**. Los cambios de modelos y migraciones se
