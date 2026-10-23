@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar Actividad - {{ huerto.nombre }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+        <div class="card card-custom p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+                <div>
+                    <h3 class="fw-bold mb-1 text-success">
+                        <i class="bi bi-journal-plus me-2"></i>Registrar Actividad de Cultivo
+                    </h3>
+                    <p class="text-muted mb-0 small">Huerto: <strong>{{ huerto.nombre }}</strong> | Comunidad: {{ huerto.comunidad.nombre }}</p>
+                </div>
+                <a href="{% url 'actividades:historial_actividades' huerto.id %}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-arrow-left me-1"></i> Ir al Historial
+                </a>
+            </div>
+
+            {% include "componentes/errores.html" %}
+
+            <form method="post" novalidate id="form-actividad">
+                {% csrf_token %}
+                {{ form.uuid }}
+
+                <div class="mb-3">
+                    <label for="id_tipo" class="form-label fw-semibold">Tipo de labor o actividad <span class="text-danger">*</span></label>
+                    {{ form.tipo }}
+                    <div class="form-text">
+                        13 tipos disponibles (preparación, siembra, cuidado, riego, cosecha, secado, ritual ancestral, etc.).
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_planta" class="form-label fw-semibold">Planta medicinal</label>
+                    {{ form.planta }}
+                    <datalist id="plantas_sugeridas">
+                        {% for valor, etiqueta in especies_sugeridas %}
+                            <option value="{{ valor }}">{{ etiqueta }}</option>
+                        {% endfor %}
+                    </datalist>
+                    <div class="form-text">
+                        Seleccione una de las 18 especies medicinales del catálogo o deje vacío para diseño y rituales independientes.
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_fecha" class="form-label fw-semibold">Fecha de realización <span class="text-danger">*</span></label>
+                        {{ form.fecha }}
+                        <div class="form-text">No se admiten fechas futuras.</div>
+                    </div>
+                    <div class="col-md-6 mb-3 d-flex align-items-center">
+                        <div class="p-3 bg-light rounded w-100 border text-muted small">
+                            <i class="bi bi-info-circle text-primary me-1"></i>
+                            <strong>Recompensas:</strong> El primer riego y cuidado otorgan 5 puntos; las demás labores suman puntos según el hito completado.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_detalles" class="form-label fw-semibold">Detalles u observaciones</label>
+                    {{ form.detalles }}
+                    <div class="form-text">Indique técnicas agroecológicas, fases lunares observadas o saberes tradicionales aplicados.</div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}" class="btn btn-light">Cancelar</a>
+                    <button type="submit" class="btn btn-success-custom px-4" id="btn-guardar-actividad">
+                        <i class="bi bi-check2-circle me-1"></i> Guardar Actividad
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
