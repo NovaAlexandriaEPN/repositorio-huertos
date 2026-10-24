@@ -49,6 +49,11 @@ disponibilidad en su propio huerto; las recomendaciones se filtran por sus méto
 La [guía de materiales](docs/aprendizaje/B3-02_permisos_y_materiales.md) documenta las funciones
 y variables de plantilla que sirven para integrar el trabajo de Juan y Doménica.
 
+B3-03 reúne las comprobaciones de privacidad, pertenencia única e historial en los `tests.py`
+existentes: [guía de pruebas propias](docs/aprendizaje/B3-03_pruebas_reglas_propias.md).
+El [apartado de implementación de cuentas y comunidades](docs/v1/implementacion_cuentas_comunidades.md)
+contiene el texto de B3-04 para incorporarlo al borrador del informe.
+
 ---
 
 ## Contenido
@@ -72,7 +77,7 @@ y variables de plantilla que sirven para integrar el trabajo de Juan y Doménica
 | Django | **5.2.18 (LTS)** | Fijado exactamente en `requirements.txt`. |
 | Base de datos | SQLite | Incluida en Python. Transacciones `IMMEDIATE`, espera de 5 s. |
 | tzdata | 2026.5 | Zona horaria `America/Guayaquil` en Windows. |
-| Interfaz | Plantillas Django + Bootstrap 5.3 (local) + CSS mínimo | Sin CDN: la demo funciona sin internet. |
+| Interfaz actual | Plantillas Django + CSS local | Bootstrap 5.3 está previsto; sus archivos aún no están incorporados. |
 | Pruebas | Django `TestCase` + `manage.py test` | Un `tests.py` por aplicación. |
 
 ## 2. Requisitos previos
@@ -97,48 +102,41 @@ y variables de plantilla que sirven para integrar el trabajo de Juan y Doménica
 
 Todos los comandos se ejecutan en **PowerShell**, dentro de la carpeta del repositorio.
 
-### 3.1 Clonar el repositorio
+### 3.1 Clonar la rama de implementación
+
+Para revisar lo publicado por Bryan, crear una copia nueva en el escritorio:
 
 ```powershell
-git clone https://github.com/NovaAlexandriaEPN/repositorio-huertos.git repositorio-huertos
-cd repositorio-huertos
+Set-Location -LiteralPath ([Environment]::GetFolderPath('Desktop'))
+git clone --branch bryan https://github.com/NovaAlexandriaEPN/repositorio-huertos.git repositorio-huertos
+Set-Location -LiteralPath .\repositorio-huertos
 ```
 
-Para revisar el avance de Bryan después de clonar:
+Si el repositorio ya está clonado, entrar en su carpeta y usar:
 
 ```powershell
-git switch --track origin/bryan
+git fetch origin bryan
+git switch bryan
 ```
 
 Bryan mantiene su trabajo en `bryan`. Los demás integrantes usan sus propias ramas para
 sus cambios; revisar esta rama no requiere integrarla en `main`.
 
-### 3.2 Crear y activar el entorno virtual
+### 3.2 Crear el entorno virtual
 
 ```powershell
 py -3.13 -m venv .venv
-.\.venv\Scripts\Activate.ps1
+& .\.venv\Scripts\python.exe --version
 ```
 
-El prompt debe empezar con `(.venv)`. Comprueba:
-
-```powershell
-python --version   # Python 3.13.14
-```
-
-> Si PowerShell bloquea la activación ("la ejecución de scripts está deshabilitada"),
-> habilítala solo para la terminal actual y vuelve a activar:
->
-> ```powershell
-> Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-> .\.venv\Scripts\Activate.ps1
-> ```
+Debe mostrar `Python 3.13.14`. Los comandos de esta guía llaman directamente al Python de
+`.venv`; no necesitan activar el entorno ni cambiar la política de ejecución de PowerShell.
 
 ### 3.3 Instalar dependencias
 
 ```powershell
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
+& .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+& .\.venv\Scripts\python.exe -m pip check
 ```
 
 ### 3.4 Clave secreta (`DJANGO_SECRET_KEY`)
@@ -148,17 +146,18 @@ python -m pip install -r requirements.txt
 Esto se hace **una sola vez** por computador y **antes de `migrate`**.
 
 ```powershell
-# 1. Generar la clave
-$clave = python -c "import secrets; print(secrets.token_urlsafe(50))"
-
-# 2. Guardarla de forma permanente para tu usuario de Windows (sobrevive reinicios)
-setx DJANGO_SECRET_KEY $clave
-
-# 3. Cargarla también en la terminal actual (setx solo afecta a terminales nuevas)
-$env:DJANGO_SECRET_KEY = $clave
+# Reutilizar la clave del usuario de Windows si ya existe.
+$claveHuertosLocal = [Environment]::GetEnvironmentVariable('DJANGO_SECRET_KEY', 'User')
+if ([string]::IsNullOrWhiteSpace($claveHuertosLocal)) {
+    $claveHuertosLocal = & .\.venv\Scripts\python.exe -c "import secrets; print(secrets.token_urlsafe(50))"
+    if ($LASTEXITCODE -ne 0) { throw 'No se pudo generar la clave local.' }
+    [Environment]::SetEnvironmentVariable('DJANGO_SECRET_KEY', $claveHuertosLocal, 'User')
+}
+$env:DJANGO_SECRET_KEY = $claveHuertosLocal
+Remove-Variable claveHuertosLocal
 ```
 
-Comprueba que está definida (en una terminal nueva):
+Comprueba que está cargada en esta terminal:
 
 ```powershell
 [bool]$env:DJANGO_SECRET_KEY  # Debe mostrar True, sin imprimir la clave.
@@ -169,23 +168,36 @@ Comprueba que está definida (en una terminal nueva):
 ### 3.5 Crear la base de datos y cargar el catálogo
 
 ```powershell
-python manage.py migrate
+& .\.venv\Scripts\python.exe manage.py check
+& .\.venv\Scripts\python.exe manage.py migrate
 ```
 
 Esto crea la base local con las tablas de Django y los modelos disponibles de cuentas,
 catálogo y comunidades.
-`python manage.py cargar_catalogo` se ejecutará cuando esté implementado: deberá cargar las
+`& .\.venv\Scripts\python.exe manage.py cargar_catalogo` se ejecutará cuando esté implementado: deberá cargar las
 18 plantas, 13 guías, opciones, materiales y eventos lunares sin duplicar datos ni borrar historial.
 
 ### 3.6 Levantar el servidor
 
 ```powershell
-python manage.py runserver
+& .\.venv\Scripts\python.exe manage.py runserver
 ```
 
-Abrir <http://127.0.0.1:8000/cuentas/login/> en el navegador. Si todavía no tienes cuenta,
-usa el enlace «Crear una cuenta». Después de entrar se muestra tu perfil en
-<http://127.0.0.1:8000/cuentas/perfil/>. Detener el servidor con `Ctrl + C`.
+Abrir <http://127.0.0.1:8000/>. Sin sesión lleva al inicio de sesión y, después del acceso,
+a la comunidad. Si se entra directamente por `/cuentas/login/` sin un destino solicitado,
+se muestra el perfil. El enlace «Crear cuenta» permite registrarse; el menú conecta perfil,
+comunidad y huerto. Detener el servidor con `Ctrl + C`.
+
+### 3.7 Verificación de instalación
+
+El 24 de octubre de 2026 se comprobó una copia temporal de las fuentes de `c9e7747` en
+este mismo PC. Se creó un `.venv` nuevo, se instalaron las versiones de `requirements.txt`,
+`pip check` terminó sin conflictos y las migraciones se aplicaron sobre una base vacía.
+La suite completa descubrió y ejecutó 122 pruebas con resultado `OK`.
+
+Un servidor WSGI local devolvió 200 para acceso, registro y CSS, y 302 al solicitar `/`
+sin sesión. Se utilizó una clave temporal del proceso. La base de trabajo del repositorio
+no participó en esta comprobación. La revisión en un segundo computador sigue pendiente.
 
 ### Acceso y privacidad
 
@@ -276,7 +288,7 @@ mensaje para revisar o reintentar; otros errores de base no se ocultan como vali
 
 Las pruebas de comunidades incluyen los modelos B2-01, creación/unión/edición, aislamiento
 entre comunidades, privacidad, métodos HTTP y CSRF. Se ejecutan con
-`python manage.py test comunidades`.
+`& .\.venv\Scripts\python.exe manage.py test comunidades`.
 
 ### Configurador y selección de plantas (B2-03/B2-04)
 
@@ -356,13 +368,19 @@ Fernando ni sustituye el recorrido final con sus servicios de registro y anulaci
 Cada vez que abras una terminal nueva para trabajar:
 
 ```powershell
-cd repositorio-huertos
-.\.venv\Scripts\Activate.ps1
-git pull
-python -m pip install -r requirements.txt   # solo si cambió requirements.txt
-python manage.py migrate                    # solo si alguien subió migraciones nuevas
-python manage.py runserver
+$rutaProyectoHuertos = Join-Path ([Environment]::GetFolderPath('Desktop')) 'repositorio-huertos'
+Set-Location -LiteralPath $rutaProyectoHuertos
+git branch --show-current
+git pull --ff-only
+$env:DJANGO_SECRET_KEY = [Environment]::GetEnvironmentVariable('DJANGO_SECRET_KEY', 'User')
+if (-not $env:DJANGO_SECRET_KEY) { throw 'Configura la clave siguiendo la sección 3.4.' }
+& .\.venv\Scripts\python.exe -m pip install -r requirements.txt   # si cambiaron las dependencias
+& .\.venv\Scripts\python.exe manage.py migrate                  # si hay migraciones nuevas
+& .\.venv\Scripts\python.exe manage.py runserver
 ```
+
+En la copia de Bryan, la rama debe ser `bryan`. `--ff-only` detiene la actualización si
+las ramas han divergido y necesitan una integración.
 
 ### Variables de entorno disponibles
 
@@ -375,13 +393,14 @@ python manage.py runserver
 ## 5. Pruebas
 
 ```powershell
-python manage.py test                 # todas las aplicaciones
-python manage.py test cuentas         # una sola aplicación
-python manage.py test -v 2            # salida detallada
+& .\.venv\Scripts\python.exe manage.py test                 # todas las aplicaciones
+& .\.venv\Scripts\python.exe manage.py test cuentas         # una sola aplicación
+& .\.venv\Scripts\python.exe manage.py test -v 2            # salida detallada
 ```
 
 Las pruebas usan una base temporal; no modifican `db.sqlite3`.
-Los casos manuales (CP-01 a CP-10) y sus resultados reales se registran en
+La guía B3-03 identifica las clases que comprueban privacidad, pertenencia e historial.
+Los casos manuales (CP-01 a CP-10) y sus resultados reales de noviembre se registrarán en
 [`docs/v1/resultados.md`](docs/v1/resultados.md).
 
 ## 6. Estructura del proyecto
@@ -409,8 +428,9 @@ petición y respuesta.
 
 ### Bootstrap local
 
-Bootstrap 5.3 se guarda en el repositorio para que la demo funcione sin internet. Se agrega una
-sola vez (Doménica) y el resto lo recibe con `git pull`:
+La interfaz actual carga `static/css/estilos.css`. La carpeta `static/vendor/bootstrap/`
+contiene por ahora un archivo de reserva `.gitkeep`. Para incorporar Bootstrap 5.3 según
+el diseño previsto, Doménica puede:
 
 1. Descargar *Compiled CSS and JS* de <https://getbootstrap.com/docs/5.3/getting-started/download/>.
 2. Copiar `css/bootstrap.min.css` y `js/bootstrap.bundle.min.js` a `static/vendor/bootstrap/`.
@@ -430,7 +450,8 @@ sola vez (Doménica) y el resto lo recibe con `git pull`:
 - Para cambios que afecten modelos compartidos, servicios, permisos o contratos entre módulos,
   se pide una revisión breve antes de integrar.
 - Si `requirements.txt` cambia, avisa al grupo. Para fijar una dependencia nueva:
-  `python -m pip install <paquete>` y luego `python -m pip freeze > requirements.txt`.
+  `& .\.venv\Scripts\python.exe -m pip install <paquete>` y luego
+  `& .\.venv\Scripts\python.exe -m pip freeze > requirements.txt`.
 
 | Archivo o carpeta | Coordina |
 |---|---|
@@ -444,16 +465,17 @@ sola vez (Doménica) y el resto lo recibe con `git pull`:
 
 ## 8. Base de datos de demostración
 
-La base ficticia (ciclo avanzado y dos comunidades) se prepara con el producto o con
-`python manage.py shell` y se guarda **fuera de Git**. Para usarla en el ensayo o la demo:
+La base ficticia de demo con ciclo avanzado y dos comunidades está pendiente de preparación
+e integración con actividades. Se guardará fuera de Git. Las pruebas automatizadas crean
+sus propios datos temporales y no preparan esa base de demo.
+
+Para respaldar la base de trabajo existente, detener el servidor y ejecutar desde el repositorio:
 
 ```powershell
 # Respaldar tu base de trabajo
-Copy-Item db.sqlite3 db_trabajo.sqlite3
-
-# Usar la copia de demo
-Copy-Item <ruta>\db_demo.sqlite3 db.sqlite3 -Force
-python manage.py runserver
+$respaldoHuertos = 'db_trabajo_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.sqlite3'
+Copy-Item -LiteralPath db.sqlite3 -Destination $respaldoHuertos
 ```
 
-El guion de la demo está en [`docs/v1/demo.md`](docs/v1/demo.md).
+El archivo [`docs/v1/demo.md`](docs/v1/demo.md) está reservado para el guion de la demo;
+todavía no contiene un guion completo.
