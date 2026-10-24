@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% comment %}
+Diseño de pantalla dividida para iniciar sesión y crear cuenta.
+A la izquierda, un panel con imagen y frase; a la derecha, el formulario.
+Bloques: foto_clase, foto_titulo, foto_texto, encabezado, contenido, pie.
+Para usar una foto local, la pantalla redefine foto_estilo, por ejemplo:
+  background-image: url('{% static "img/plantas/romero.jpg" %}')
+{% endcomment %}
+
+{% block cuerpo %}
+<div class="acceso">
+  <aside class="acceso-foto {% block foto_clase %}{% endblock %}" style="{% block foto_estilo %}{% endblock %}">
+    <span class="marca"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg>Huerto</span>
+    <div class="acceso-foto-texto">
+      <p class="acceso-foto-titulo">{% block foto_titulo %}Cultiva bienestar.{% endblock %}</p>
+      <p>{% block foto_texto %}Tu huerto medicinal, en un solo lugar.{% endblock %}</p>
+    </div>
+  </aside>
+
+  <main id="contenido" class="acceso-panel">
+    <div class="acceso-interior">
+      <span class="marca marca-apilada"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg>Huerto</span>
+      <header class="acceso-encabezado">
+        {% block encabezado %}{% endblock %}
+      </header>
+      {% include "componentes/mensajes.html" %}
+      {% block contenido %}{% endblock %}
+      {% block pie %}{% endblock %}
+    </div>
+  </main>
+</div>
+{% endblock %}
