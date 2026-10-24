@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block titulo %}Historial · {{ huerto.comunidad.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Historial de actividades</h1>
+  <p>Huerto de {{ huerto.comunidad.nombre }}. Las actividades anuladas se conservan con su motivo, autor y fecha.</p>
+</div>
+
+<form method="get" action="{% url 'actividades:historial_actividades' huerto.id %}" class="formulario" aria-label="Filtrar historial">
+  <div class="cuadricula">
+    <div class="campo">
+      <label for="filtro-planta">Planta</label>
+      <select id="filtro-planta" name="planta">
+        <option value="">Todas</option>
+        {% for seleccion in plantas %}
+        <option value="{{ seleccion.id }}"{% if filtros.planta == seleccion.id|stringformat:"d" %} selected{% endif %}>{{ seleccion.planta.nombre_comun }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="filtro-tipo">Actividad</label>
+      <select id="filtro-tipo" name="tipo">
+        <option value="">Todas</option>
+        {% for codigo, nombre in tipos %}
+        <option value="{{ codigo }}"{% if filtros.tipo == codigo %} selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="campo">
+      <label for="filtro-estado">Estado</label>
+      <select id="filtro-estado" name="estado">
+        <option value="">Todos</option>
+        {% for codigo, nombre in estados %}
+        <option value="{{ codigo }}"{% if filtros.estado == codigo %} selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+  <div class="acciones">
+    <button type="submit">Filtrar</button>
+    <a href="{% url 'actividades:historial_actividades' huerto.id %}">Quitar filtros</a>
+    <a href="{% url 'actividades:registrar_actividad' huerto.id %}">Registrar actividad</a>
+    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Huerto virtual</a>
+  </div>
+</form>
+
+{% if actividades %}
+<div class="tabla-desplazable">
+<table>
+  <caption>{{ actividades|length }} actividad{{ actividades|length|pluralize:"es" }}</caption>
+  <thead>
+    <tr>
+      <th scope="col">Fecha</th><th scope="col">Actividad</th><th scope="col">Planta</th>
+      <th scope="col">Realizó</th><th scope="col">Puntos</th><th scope="col">Estado</th><th scope="col">Acción</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for act in actividades %}
+    <tr>
+      <td>{{ act.fecha|date:"d/m/Y" }}</td>
+      <td>{{ act.get_tipo_display }}{% if act.detalles %}<br><span class="ayuda">{{ act.detalles|truncatechars:80 }}</span>{% endif %}</td>
+      <td>{{ act.nombre_planta }}</td>
+      <td>{{ act.actor_original.get_full_name|default:act.actor_original.username }}</td>
+      <td>{{ act.puntos }}</td>
+      <td>
+        <span class="etiqueta-estado">{{ act.get_estado_display }}</span>
+        {% if act.es_anulada %}
+        <br><span class="ayuda">{{ act.motivo_anulacion }} · {{ act.anulada_por.get_full_name|default:act.anulada_por.username }}, {{ act.fecha_anulacion|date:"d/m/Y H:i" }}</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if act.es_activa and act.actor_original_id == user.id or act.es_activa and es_responsable %}
+        <a href="{% url 'actividades:anular_actividad' act.id %}">Anular</a>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p>No hay actividades con estos filtros.</p>
+{% endif %}
+{% endblock %}

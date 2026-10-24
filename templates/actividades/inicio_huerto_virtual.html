@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block titulo %}Huerto virtual · {{ huerto.comunidad.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Huerto virtual de {{ huerto.comunidad.nombre }}</h1>
+  <p>Avance del ciclo, plantas, puntos y Maestro del huerto.</p>
+</div>
+
+<nav class="acciones" aria-label="Acciones del huerto">
+  <a href="{% url 'actividades:registrar_actividad' huerto.id %}">Registrar actividad</a>
+  <a href="{% url 'actividades:historial_actividades' huerto.id %}">Ver historial</a>
+  {% if es_responsable %}<a href="{% url 'actividades:nombrar_maestro' huerto.id %}">Nombrar Maestro</a>{% endif %}
+</nav>
+
+<section class="resumen" aria-labelledby="titulo-progreso">
+  <h2 id="titulo-progreso">Progreso del huerto</h2>
+  <p>{{ progreso_huerto|stringformat:".1f" }} % de los seis hitos del ciclo cumplidos.</p>
+  <progress max="100" value="{{ progreso_huerto|stringformat:'.1f' }}" aria-labelledby="titulo-progreso">{{ progreso_huerto|stringformat:".1f" }} %</progress>
+  <ul class="totales">
+    <li>Plantas cultivadas: <strong>{{ plantas_cultivadas }}</strong></li>
+    <li>Actividades activas: <strong>{{ total_activas }}</strong></li>
+    <li>Actividades anuladas: <strong>{{ total_anuladas }}</strong></li>
+  </ul>
+</section>
+
+<section class="resumen" aria-labelledby="titulo-nivel">
+  <h2 id="titulo-nivel">Tus puntos</h2>
+  <p><strong>{{ puntos_usuario }}</strong> puntos · Nivel {{ nivel_usuario.nivel }}: {{ nivel_usuario.nombre }}</p>
+  <progress max="100" value="{{ porcentaje_nivel|stringformat:'.1f' }}" aria-labelledby="titulo-nivel">{{ porcentaje_nivel|stringformat:".1f" }} %</progress>
+  {% if nivel_usuario.siguiente_umbral %}
+    <p class="ayuda">Te faltan {{ nivel_usuario.puntos_restantes }} puntos para el siguiente nivel.</p>
+  {% else %}
+    <p class="ayuda">Alcanzaste el nivel más alto. El nivel no nombra Maestro ni da permisos.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="titulo-plantas">
+  <h2 id="titulo-plantas">Plantas del huerto</h2>
+  {% if tarjetas %}
+  <div class="tarjetas">
+    {% for tarjeta in tarjetas %}
+    <article class="tarjeta">
+      <h3>{{ tarjeta.nombre }}</h3>
+      <p class="etiqueta-estado">{{ tarjeta.etapa }}</p>
+      <p class="ayuda">Método: {{ tarjeta.metodo }}</p>
+      <progress max="100" value="{{ tarjeta.progreso|stringformat:'.1f' }}" aria-label="Progreso de {{ tarjeta.nombre }}">{{ tarjeta.progreso|stringformat:".1f" }} %</progress>
+      <p>{{ tarjeta.hitos|length }} de 6 hitos{% if tarjeta.ultima_actividad %} · Última: {{ tarjeta.ultima_actividad.get_tipo_display }} ({{ tarjeta.ultima_actividad.fecha|date:"d/m/Y" }}){% endif %}</p>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p>El huerto todavía no tiene plantas elegidas. Se agregan desde el configurador del huerto.</p>
+  {% endif %}
+</section>
+
+<section class="resumen" aria-labelledby="titulo-maestro">
+  <h2 id="titulo-maestro">Maestro del huerto</h2>
+  {% if maestro %}
+    <p><strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong></p>
+    <p>{{ maestro_motivo }}</p>
+    <p class="ayuda">Nombrado por {{ maestro_nombrado_por.get_full_name|default:maestro_nombrado_por.username }} el {{ maestro_fecha|date:"d/m/Y H:i" }}.</p>
+  {% else %}
+    <p>El huerto todavía no tiene Maestro. Lo nombra el responsable de la comunidad entre quienes tienen 100 puntos o más.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="titulo-miembros">
+  <h2 id="titulo-miembros">Puntos de la comunidad</h2>
+  <div class="tabla-desplazable">
+  <table>
+    <thead><tr><th scope="col">Miembro</th><th scope="col">Puntos</th><th scope="col">Nivel</th></tr></thead>
+    <tbody>
+      {% for fila in miembros %}
+      <tr>
+        <td>{{ fila.nombre }}{% if fila.es_responsable %} <span class="etiqueta-estado">Responsable</span>{% endif %}{% if fila.es_maestro %} <span class="etiqueta-estado">Maestro</span>{% endif %}</td>
+        <td>{{ fila.puntos }}</td>
+        <td>{{ fila.nivel.nivel }} · {{ fila.nivel.nombre }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}

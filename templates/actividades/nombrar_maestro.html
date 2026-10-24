@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block titulo %}Maestro del huerto · {{ huerto.comunidad.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Maestro del huerto</h1>
+  <p>El responsable de la comunidad nombra un único Maestro entre quienes tienen al menos 100 puntos. Un nuevo nombramiento sustituye al anterior.</p>
+</div>
+
+<section class="resumen" aria-labelledby="titulo-actual">
+  <h2 id="titulo-actual">Maestro actual</h2>
+  {% if maestro %}
+    <p><strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong>, desde el {{ huerto.maestro_fecha|date:"d/m/Y H:i" }}.</p>
+    <p class="ayuda">{{ huerto.maestro_motivo }}</p>
+  {% else %}
+    <p>Todavía no hay Maestro.</p>
+  {% endif %}
+</section>
+
+{% include "componentes/errores.html" with form=form %}
+
+{% if form.fields.candidato.queryset.exists %}
+<form method="post" action="{% url 'actividades:nombrar_maestro' huerto.id %}" class="formulario">
+  {% csrf_token %}
+  {{ form.maestro_esperado }}
+  <div class="campo">
+    <label for="{{ form.candidato.id_for_label }}">{{ form.candidato.label }}</label>
+    {{ form.candidato }}
+  </div>
+  <div class="campo">
+    <label for="{{ form.motivo.id_for_label }}">{{ form.motivo.label }}</label>
+    {{ form.motivo }}
+    <div class="ayuda">{{ form.motivo.help_text }}</div>
+  </div>
+  <div class="acciones">
+    <button type="submit">{% if maestro %}Sustituir Maestro{% else %}Nombrar Maestro{% endif %}</button>
+    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Cancelar</a>
+  </div>
+</form>
+{% else %}
+<p>Ningún otro miembro tiene todavía 100 puntos o más.</p>
+<p><a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Volver al huerto virtual</a></p>
+{% endif %}
+{% endblock %}
