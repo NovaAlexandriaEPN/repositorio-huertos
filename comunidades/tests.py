@@ -630,6 +630,49 @@ class PantallasComunidadTests(TestCase):
         for miembro in response.context["miembros"]:
             self.assertEqual(set(miembro), {"usuario_id", "nombre"})
 
+    def test_responsable_no_lee_ni_edita_el_perfil_privado_de_otro_miembro(self):
+        self.participante.fecha_nacimiento = date(2001, 2, 3)
+        self.participante.genero = Usuario.Genero.NO_BINARIO
+        self.participante.save(update_fields=["fecha_nacimiento", "genero"])
+        self.client.force_login(self.responsable)
+        url = reverse("cuentas:perfil")
+        consulta = self.client.get(url, {"usuario_id": self.participante.pk})
+        self.assertEqual(consulta.context["form"].instance.pk, self.responsable.pk)
+        self.assertNotContains(consulta, self.participante.fecha_nacimiento.isoformat())
+        cambio = self.client.post(url, {
+            "usuario_id": self.participante.pk,
+            "nombre_completo": "Nombre propio actualizado",
+            "fecha_nacimiento": "1990-01-01", "genero": "",
+            "talentos_ancestrales": "",
+        })
+        self.assertRedirects(cambio, url)
+        self.participante.refresh_from_db()
+        self.responsable.refresh_from_db()
+        self.assertEqual(self.participante.fecha_nacimiento, date(2001, 2, 3))
+        self.assertEqual(self.participante.genero, Usuario.Genero.NO_BINARIO)
+        self.assertEqual(self.participante.nombre_completo, "luis_pantallas")
+        self.assertEqual(self.responsable.nombre_completo, "Nombre propio actualizado")
+
+    def test_formulario_antiguo_no_traslada_a_quien_ya_creo_una_comunidad(self):
+        primera_pestana = Client()
+        segunda_pestana = Client()
+        for cliente in (primera_pestana, segunda_pestana):
+            cliente.force_login(self.libre)
+        self.assertEqual(primera_pestana.get(reverse("comunidades:crear")).status_code, 200)
+        self.assertEqual(segunda_pestana.get(reverse("comunidades:unirse")).status_code, 200)
+        self.assertRedirects(
+            primera_pestana.post(reverse("comunidades:crear"), self.datos),
+            reverse("comunidades:mi_comunidad"),
+        )
+        propia = Comunidad.objects.get(responsable=self.libre)
+        respuesta_antigua = segunda_pestana.post(reverse("comunidades:unirse"), {
+            "codigo_invitacion": self.otra.codigo_invitacion,
+        })
+        self.assertContains(respuesta_antigua, "Ya perteneces a una comunidad")
+        self.assertEqual(Miembro.objects.filter(usuario=self.libre).count(), 1)
+        self.assertEqual(Miembro.objects.get(usuario=self.libre).comunidad, propia)
+        self.assertEqual(Comunidad.objects.count(), 3)
+
     def test_participante_no_ve_enlace_de_edicion_y_miembro_no_crea_otra(self):
         self.client.force_login(self.participante)
         response = self.client.get(reverse("comunidades:mi_comunidad"))
@@ -1002,8 +1045,13 @@ class ContratoHistorialSeleccionTests(TransactionTestCase):
         try:
             with connection.schema_editor() as editor:
                 editor.create_model(RegistroContrato)
-            registro = RegistroContrato.objects.create(planta=seleccion)
             self.client.force_login(self.responsable)
+            # Un formulario abierto antes del registro no autoriza una escritura posterior.
+            for nombre in ("cambiar_metodo", "retirar_planta"):
+                pagina = self.client.get(reverse("comunidades:" + nombre, args=[seleccion.pk]))
+                self.assertEqual(pagina.status_code, 200)
+                self.assertFalse(pagina.context["con_historial"])
+            registro = RegistroContrato.objects.create(planta=seleccion)
             for anulado in (False, True):
                 registro.anulado = anulado
                 registro.save(update_fields=["anulado"])
@@ -1011,6 +1059,11 @@ class ContratoHistorialSeleccionTests(TransactionTestCase):
                     self.assertTrue(seleccion.tiene_historial)
                     if anulado:
                         self.assertFalse(seleccion.actividades.exists())
+                    seleccion.metodo_siembra = MetodoSiembra.ESQUEJES
+                    with self.assertRaises(ValidationError) as error_modelo:
+                        seleccion.full_clean()
+                    self.assertIn("metodo_siembra", error_modelo.exception.message_dict)
+                    seleccion.refresh_from_db()
                     with self.assertRaises(ValidationError):
                         cambiar_metodo_siembra(
                             actor=self.responsable, seleccion_id=seleccion.pk,
