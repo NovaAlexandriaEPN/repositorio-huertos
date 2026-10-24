@@ -67,6 +67,12 @@ button:hover { background: #1d452d; }
 .consulta-aviso { background: #fff; border: 1px solid #d7dfd5; border-radius: .35rem; padding: 1rem; }
 .consulta-aviso summary { cursor: pointer; font-weight: 600; }
 .consulta-aviso[open] summary { margin-bottom: 1rem; }
+.datos-comunidad { margin: 0 0 1.5rem; }
+.datos-comunidad dt { font-weight: 600; margin-top: .75rem; }
+.datos-comunidad dd { margin: .15rem 0 0; overflow-wrap: anywhere; }
+.codigo-invitacion { font-size: 1.2rem; letter-spacing: .08em; overflow-wrap: anywhere; }
+.lista-miembros { padding-left: 1.2rem; }
+.lista-miembros li { margin-bottom: .5rem; overflow-wrap: anywhere; }
 @media (max-width: 600px) {
   .contenido { margin-top: 1.5rem; padding: 0 1rem; }
   .formulario { padding: 1rem; }

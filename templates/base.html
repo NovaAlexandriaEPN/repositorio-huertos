@@ -17,6 +17,7 @@
       {% if user.is_authenticated %}
         <span class="usuario">{{ user.username }}</span>
         <a href="{% url 'cuentas:perfil' %}">Mi perfil</a>
+        <a href="{% url 'comunidades:mi_comunidad' %}">Mi comunidad</a>
         <form method="post" action="{% url 'cuentas:logout' %}">
           {% csrf_token %}
           <button type="submit" class="boton-enlace">Cerrar sesión</button>

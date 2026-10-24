@@ -22,9 +22,14 @@ Funcionan `migrate`, `runserver` y las pruebas automatizadas.
 Los cinco modelos compartidos de B2-01 están definidos: `Comunidad`, `Miembro`, `Huerto`,
 `PlantaHuerto` y `MarcaMaterial`, con sus migraciones. El catálogo aporta `OpcionHuerto`,
 `Planta` y `Material` como dependencias.
-Los formularios, servicios y pantallas de comunidades/huertos, selección de plantas y
-materiales siguen pendientes. También faltan el modelo y las funciones de actividades.
+Crear comunidad, unirse por código, consultar miembros y editar los datos de la comunidad
+ya funcionan en `/comunidades/` (B2-02). Solo el responsable puede editar; cada cuenta
+mantiene una única pertenencia. La lista de miembros no muestra nacimiento ni género.
+El configurador del huerto, la selección de plantas y el marcado de materiales siguen
+pendientes. También faltan el modelo y las funciones de actividades.
 El comando `cargar_catalogo` todavía no está implementado.
+
+Guía para aprender y probar B2-02: [Crear, unirse y editar comunidad](docs/aprendizaje/B2-02_comunidades.md).
 
 ---
 
@@ -210,7 +215,7 @@ llevan cabeceras para evitar almacenar las páginas personales en caché.
 Los modelos `TipoActividad` y `EventoLunar`, y la carga de los datos, siguen pendientes.
 Estos modelos no completan ni verifican el contenido de las 18 fichas.
 
-La creación de comunidad deberá guardar comunidad y pertenencia del creador en una
+La creación de comunidad guarda comunidad y pertenencia del creador en una
 transacción. El huerto se guardará al completar su primera configuración válida;
 antes puede no existir. No se generan filas relacionadas mediante señales automáticas.
 
@@ -223,9 +228,37 @@ también están protegidas en SQLite.
 El configurador pendiente deberá validar las listas recibidas de diseños y abonos:
 al menos una opción de cada categoría, antes de guardarlas en la misma transacción.
 `limit_choices_to` filtra los formularios, pero no protege una escritura directa en esas
-relaciones múltiples. Los permisos y el código de invitación se comprobarán en los servicios;
+relaciones múltiples. Los permisos y el código de invitación se comprueban en los servicios de comunidad;
 el código se genera automáticamente, es único y no es una credencial de inicio de sesión.
 Las reglas de puntos y el mínimo de 100 para nombrar maestro se implementarán en actividades.
+
+### Crear, unirse y editar comunidad (B2-02)
+
+Con una sesión iniciada, abrir <http://127.0.0.1:8000/comunidades/> o usar **Mi comunidad**
+en el menú. Si aún no hay pertenencia, la pantalla ofrece crear una comunidad o unirse
+con el código de 12 caracteres generado por el sistema.
+
+| Ruta | Operación |
+|---|---|
+| `/comunidades/` | Consultar la propia comunidad y sus miembros. |
+| `/comunidades/crear/` | Mostrar el formulario o crear comunidad y pertenencia del responsable. |
+| `/comunidades/unirse/` | Mostrar el formulario o unirse mediante un código válido. |
+| `/comunidades/editar/` | Mostrar o guardar los datos de la comunidad propia, solo para su responsable. |
+
+GET muestra las páginas; POST con CSRF realiza las escrituras. Las rutas no reciben un ID
+de comunidad para elegir qué consultar o editar: los servicios la obtienen de la pertenencia
+de la cuenta de la sesión. El código de invitación no concede permisos de edición.
+No se aceptan responsable ni código como campos editables del formulario.
+
+`ComunidadForm` valida los cinco campos públicos de creación/edición. Los servicios vuelven
+a comprobar cuenta activa, pertenencia y permisos, validan el modelo y guardan en una
+transacción. Crear o unirse por segunda vez se rechaza sin duplicar registros ni trasladar
+al miembro. Los conflictos de integridad o de escritura ocupada en SQLite muestran un
+mensaje para revisar o reintentar; otros errores de base no se ocultan como validaciones.
+
+Las pruebas de comunidades incluyen los modelos B2-01, creación/unión/edición, aislamiento
+entre comunidades, privacidad, métodos HTTP y CSRF. Se ejecutan con
+`python manage.py test comunidades`. El resto de las reglas del huerto continúa en B2-03/B2-04.
 
 ### Contrato con actividades para proteger el historial
 

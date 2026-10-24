@@ -2,16 +2,25 @@ from datetime import date
 from decimal import Decimal
 from unittest.mock import PropertyMock, patch
 
-from django.core.exceptions import ValidationError
+from django.contrib.auth.models import AnonymousUser
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models.deletion import ProtectedError
-from django.test import TestCase
+from django.test import Client, TestCase
+from django.urls import reverse
 from django.utils import timezone
 
 from catalogo.models import Material, MetodoSiembra, OpcionHuerto, Planta
 from cuentas.models import Usuario
 
 from .models import Comunidad, Huerto, MarcaMaterial, Miembro, PlantaHuerto
+from .servicios import (
+    crear_comunidad,
+    editar_comunidad,
+    listar_miembros,
+    obtener_comunidad,
+    unirse_comunidad,
+)
 
 
 def crear_usuario(username):
@@ -398,3 +407,240 @@ class SeleccionesMaterialesTests(TestCase):
                 with self.assertRaises(ValidationError) as error:
                     marca.full_clean()
                 self.assertIn(campo, error.exception.message_dict)
+
+
+class OperacionesComunidadTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.responsable = crear_usuario("responsable_servicio")
+        cls.participante = crear_usuario("participante_servicio")
+        cls.libre = crear_usuario("libre_servicio")
+        cls.otro_responsable = crear_usuario("otro_servicio")
+        cls.datos = {
+            "nombre": "Huerto del barrio",
+            "tipo": Comunidad.Tipo.BARRIO,
+            "contacto_nombre": "Ana de prueba",
+            "contacto_telefono": "0991234567",
+            "contacto_correo": "ana@example.com",
+        }
+        cls.comunidad = crear_comunidad(actor=cls.responsable, **cls.datos)
+        cls.otra = crear_comunidad(
+            actor=cls.otro_responsable, **{**cls.datos, "nombre": "Comunidad ajena"}
+        )
+        unirse_comunidad(actor=cls.participante, codigo_invitacion=cls.comunidad.codigo_invitacion)
+
+    def test_crear_incluye_al_responsable_sin_inventar_un_huerto(self):
+        comunidad = crear_comunidad(actor=self.libre, **self.datos)
+        miembro = Miembro.objects.get(usuario=self.libre)
+        self.assertEqual(miembro.comunidad, comunidad)
+        self.assertEqual(comunidad.responsable, self.libre)
+        self.assertTrue(miembro.es_responsable)
+        self.assertFalse(Huerto.objects.filter(comunidad=comunidad).exists())
+
+    def test_unirse_normaliza_codigo_y_no_crea_otra_comunidad(self):
+        total = Comunidad.objects.count()
+        miembro = unirse_comunidad(
+            actor=self.libre, codigo_invitacion=" " + self.comunidad.codigo_invitacion.lower() + " "
+        )
+        self.assertEqual(miembro.comunidad, self.comunidad)
+        self.assertFalse(miembro.es_responsable)
+        self.assertEqual(Comunidad.objects.count(), total)
+
+    def test_no_se_duplican_pertenencias_ni_se_cambia_de_comunidad(self):
+        for actor in (self.responsable, self.participante):
+            with self.subTest(actor=actor.username):
+                with self.assertRaises(ValidationError):
+                    crear_comunidad(actor=actor, **self.datos)
+                for codigo in (self.comunidad.codigo_invitacion, self.otra.codigo_invitacion):
+                    with self.assertRaises(ValidationError):
+                        unirse_comunidad(actor=actor, codigo_invitacion=codigo)
+                self.assertEqual(Miembro.objects.filter(usuario=actor).count(), 1)
+                self.assertEqual(obtener_comunidad(actor=actor), self.comunidad)
+
+    def test_codigo_invalido_o_inexistente_no_crea_pertenencia(self):
+        for codigo in ("no-es-codigo", " ", "F" * 12):
+            with self.subTest(codigo=codigo):
+                with self.assertRaises(ValidationError):
+                    unirse_comunidad(actor=self.libre, codigo_invitacion=codigo)
+                self.assertFalse(Miembro.objects.filter(usuario=self.libre).exists())
+
+    def test_solo_responsable_edita_y_no_cambia_identidades(self):
+        codigo = self.comunidad.codigo_invitacion
+        actualizada = editar_comunidad(
+            actor=self.responsable, **{**self.datos, "nombre": "Nombre corregido"}
+        )
+        self.assertEqual(actualizada.nombre, "Nombre corregido")
+        self.assertEqual(actualizada.codigo_invitacion, codigo)
+        self.assertEqual(actualizada.responsable, self.responsable)
+        with self.assertRaises(PermissionDenied):
+            editar_comunidad(actor=self.participante, **self.datos)
+        with self.assertRaises(PermissionDenied):
+            editar_comunidad(actor=self.libre, **self.datos)
+
+    def test_cada_responsable_solo_edita_su_propia_comunidad(self):
+        editar_comunidad(actor=self.otro_responsable, **{**self.datos, "nombre": "Otra editada"})
+        self.comunidad.refresh_from_db()
+        self.otra.refresh_from_db()
+        self.assertEqual(self.comunidad.nombre, "Huerto del barrio")
+        self.assertEqual(self.otra.nombre, "Otra editada")
+
+    def test_entrada_invalida_no_deja_comunidad_ni_pertenencia(self):
+        with self.assertRaises(ValidationError):
+            crear_comunidad(actor=self.libre, **{**self.datos, "contacto_correo": "invalido"})
+        self.assertFalse(Comunidad.objects.filter(responsable=self.libre).exists())
+        self.assertFalse(Miembro.objects.filter(usuario=self.libre).exists())
+
+    def test_cuenta_anonima_o_desactivada_no_puede_usar_los_servicios(self):
+        # La instancia conserva is_active=True; la comprobación consulta el estado real.
+        Usuario.objects.filter(pk=self.libre.pk).update(is_active=False)
+        for actor in (AnonymousUser(), self.libre):
+            with self.subTest(actor=type(actor).__name__):
+                with self.assertRaises(PermissionDenied):
+                    crear_comunidad(actor=actor, **self.datos)
+                with self.assertRaises(PermissionDenied):
+                    unirse_comunidad(actor=actor, codigo_invitacion=self.comunidad.codigo_invitacion)
+                with self.assertRaises(PermissionDenied):
+                    editar_comunidad(actor=actor, **self.datos)
+
+    def test_consulta_aislada_y_miembros_sin_datos_privados(self):
+        self.assertIsNone(obtener_comunidad(actor=self.libre))
+        self.assertEqual(listar_miembros(actor=self.libre), [])
+        miembros = listar_miembros(actor=self.participante)
+        self.assertEqual({m["usuario_id"] for m in miembros}, {self.responsable.pk, self.participante.pk})
+        for miembro in miembros:
+            self.assertEqual(set(miembro), {"usuario_id", "nombre"})
+
+
+class PantallasComunidadTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.responsable = crear_usuario("ana_pantallas")
+        cls.participante = crear_usuario("luis_pantallas")
+        cls.libre = crear_usuario("persona_libre")
+        cls.ajeno = crear_usuario("persona_ajena")
+        cls.datos = {
+            "nombre": "Comunidad de Ana",
+            "tipo": Comunidad.Tipo.FAMILIA,
+            "contacto_nombre": "Ana de prueba",
+            "contacto_telefono": "0991234567",
+            "contacto_correo": "ana@example.com",
+        }
+        cls.comunidad = crear_comunidad(actor=cls.responsable, **cls.datos)
+        cls.otra = crear_comunidad(
+            actor=cls.ajeno, **{**cls.datos, "nombre": "Nombre ajeno reservado"}
+        )
+        unirse_comunidad(actor=cls.participante, codigo_invitacion=cls.comunidad.codigo_invitacion)
+
+    def test_todas_las_pantallas_exigen_sesion(self):
+        for nombre in ("mi_comunidad", "crear", "unirse", "editar"):
+            with self.subTest(pantalla=nombre):
+                url = reverse("comunidades:" + nombre)
+                response = self.client.get(url)
+                self.assertRedirects(response, reverse("cuentas:login") + "?next=" + url)
+
+    def test_sin_comunidad_ofrece_crear_o_unirse_sin_crear_registros_por_get(self):
+        self.client.force_login(self.libre)
+        response = self.client.get(reverse("comunidades:mi_comunidad"))
+        self.assertContains(response, reverse("comunidades:crear"))
+        self.assertContains(response, reverse("comunidades:unirse"))
+        for nombre in ("crear", "unirse"):
+            self.assertEqual(self.client.get(reverse("comunidades:" + nombre)).status_code, 200)
+        self.assertFalse(Miembro.objects.filter(usuario=self.libre).exists())
+        self.assertFalse(Comunidad.objects.filter(responsable=self.libre).exists())
+
+    def test_crear_por_post_ignora_campos_de_permiso_inyectados(self):
+        self.client.force_login(self.libre)
+        response = self.client.post(reverse("comunidades:crear"), {
+            **self.datos,
+            "responsable": self.ajeno.pk,
+            "codigo_invitacion": "0" * 12,
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_comunidad"))
+        nueva = Comunidad.objects.get(responsable=self.libre)
+        self.assertEqual(self.libre.miembro.comunidad, nueva)
+        self.assertNotEqual(nueva.codigo_invitacion, "0" * 12)
+
+    def test_unirse_con_codigo_y_reenvio_no_duplica(self):
+        self.client.force_login(self.libre)
+        datos = {"codigo_invitacion": self.comunidad.codigo_invitacion.lower()}
+        self.assertRedirects(
+            self.client.post(reverse("comunidades:unirse"), datos),
+            reverse("comunidades:mi_comunidad"),
+        )
+        response = self.client.post(reverse("comunidades:unirse"), datos)
+        self.assertContains(response, "Ya perteneces a una comunidad")
+        self.assertEqual(Miembro.objects.filter(usuario=self.libre).count(), 1)
+
+    def test_codigo_inexistente_muestra_error_junto_al_formulario(self):
+        self.client.force_login(self.libre)
+        response = self.client.post(reverse("comunidades:unirse"), {"codigo_invitacion": "F" * 12})
+        self.assertFormError(response.context["form"], "codigo_invitacion", "No se encontró una comunidad con ese código.")
+        self.assertContains(response, "No se encontró una comunidad con ese código.")
+        self.assertFalse(Miembro.objects.filter(usuario=self.libre).exists())
+
+    def test_participante_no_edita_aunque_envie_post_directamente(self):
+        self.client.force_login(self.participante)
+        for method in (self.client.get, self.client.post):
+            with self.subTest(method=method.__name__):
+                response = method(reverse("comunidades:editar"), self.datos)
+                self.assertEqual(response.status_code, 403)
+        self.comunidad.refresh_from_db()
+        self.assertEqual(self.comunidad.nombre, self.datos["nombre"])
+
+    def test_responsable_edita_solo_su_comunidad_y_conserva_codigo(self):
+        self.client.force_login(self.responsable)
+        response = self.client.post(reverse("comunidades:editar"), {
+            **self.datos, "nombre": "Comunidad actualizada",
+            "comunidad": self.otra.pk, "responsable": self.ajeno.pk,
+            "codigo_invitacion": "0" * 12,
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_comunidad"))
+        codigo = self.comunidad.codigo_invitacion
+        self.comunidad.refresh_from_db()
+        self.otra.refresh_from_db()
+        self.assertEqual(self.comunidad.nombre, "Comunidad actualizada")
+        self.assertEqual(self.comunidad.responsable, self.responsable)
+        self.assertEqual(self.comunidad.codigo_invitacion, codigo)
+        self.assertEqual(self.otra.nombre, "Nombre ajeno reservado")
+
+    def test_consulta_no_expone_comunidad_ajena_ni_perfil_de_otro_miembro(self):
+        self.participante.fecha_nacimiento = date(2001, 2, 3)
+        self.participante.genero = Usuario.Genero.NO_BINARIO
+        self.participante.save(update_fields=["fecha_nacimiento", "genero"])
+        self.client.force_login(self.responsable)
+        response = self.client.get(reverse("comunidades:mi_comunidad"), {
+            "comunidad": self.otra.pk, "codigo_invitacion": self.otra.codigo_invitacion,
+        })
+        self.assertContains(response, self.participante.nombre_completo)
+        self.assertNotContains(response, self.otra.nombre)
+        self.assertNotContains(response, self.otra.codigo_invitacion)
+        self.assertNotContains(response, "2001-02-03")
+        self.assertNotContains(response, "no_binario")
+        self.assertNotContains(response, "Nacimiento")
+        self.assertTrue(response.context["puede_editar"])
+        for miembro in response.context["miembros"]:
+            self.assertEqual(set(miembro), {"usuario_id", "nombre"})
+
+    def test_participante_no_ve_enlace_de_edicion_y_miembro_no_crea_otra(self):
+        self.client.force_login(self.participante)
+        response = self.client.get(reverse("comunidades:mi_comunidad"))
+        self.assertNotContains(response, reverse("comunidades:editar"))
+        response = self.client.post(reverse("comunidades:crear"), self.datos)
+        self.assertContains(response, "Ya perteneces a una comunidad")
+        self.assertEqual(Comunidad.objects.count(), 2)
+
+    def test_post_sin_csrf_se_rechaza_y_formulario_con_token_funciona(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.libre)
+        url = reverse("comunidades:crear")
+        self.assertEqual(client.post(url, self.datos).status_code, 403)
+        self.assertFalse(Comunidad.objects.filter(responsable=self.libre).exists())
+        client.get(url)
+        response = client.post(url, self.datos, HTTP_X_CSRFTOKEN=client.cookies["csrftoken"].value)
+        self.assertRedirects(response, reverse("comunidades:mi_comunidad"))
+
+    def test_metodos_no_permitidos_no_modifican_registros(self):
+        self.client.force_login(self.responsable)
+        self.assertEqual(self.client.post(reverse("comunidades:mi_comunidad")).status_code, 405)
+        for nombre in ("crear", "unirse", "editar"):
+            self.assertEqual(self.client.delete(reverse("comunidades:" + nombre)).status_code, 405)
