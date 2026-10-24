@@ -1,6 +1,8 @@
 from django import forms
 
-from .models import Comunidad
+from catalogo.models import MetodoSiembra, OpcionHuerto, Planta
+
+from .models import Comunidad, Huerto, PlantaHuerto
 
 
 class ComunidadForm(forms.ModelForm):
@@ -49,3 +51,58 @@ class UnirseComunidadForm(forms.Form):
 
     def clean_codigo_invitacion(self):
         return self.cleaned_data["codigo_invitacion"].upper()
+
+
+class HuertoForm(forms.ModelForm):
+    """Configuración editable; comunidad y nombramiento no son campos del cliente."""
+
+    class Meta:
+        model = Huerto
+        fields = (
+            "provincia", "parroquia", "direccion", "area_m2",
+            "disenos", "cerca", "suelo", "fuente_agua", "abonos",
+        )
+        labels = {"area_m2": "Área en m²"}
+        widgets = {
+            "disenos": forms.CheckboxSelectMultiple,
+            "abonos": forms.CheckboxSelectMultiple,
+            "area_m2": forms.NumberInput(attrs={"min": "0.01", "step": "0.01"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.categorias_pendientes = []
+        for campo, categoria in (
+            ("disenos", OpcionHuerto.Categoria.DISENO),
+            ("cerca", OpcionHuerto.Categoria.CERCA),
+            ("suelo", OpcionHuerto.Categoria.SUELO),
+            ("fuente_agua", OpcionHuerto.Categoria.AGUA),
+            ("abonos", OpcionHuerto.Categoria.ABONO),
+        ):
+            self.fields[campo].queryset = OpcionHuerto.objects.filter(categoria=categoria)
+            if not self.fields[campo].queryset.exists():
+                self.categorias_pendientes.append(str(OpcionHuerto.Categoria(categoria).label))
+
+
+class ElegirPlantaForm(forms.ModelForm):
+    class Meta:
+        model = PlantaHuerto
+        fields = ("planta", "metodo_siembra")
+        labels = {"planta": "Especie del catálogo"}
+
+    def __init__(self, *args, huerto, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.catalogo_vacio = not Planta.objects.exists()
+        self.fields["planta"].queryset = Planta.objects.exclude(
+            selecciones_huerto__huerto=huerto
+        )
+
+
+class MetodoSiembraForm(forms.Form):
+    metodo_siembra = forms.ChoiceField(
+        label="Método de siembra", choices=MetodoSiembra.choices
+    )
+
+
+class ConfirmarRetiroForm(forms.Form):
+    """La confirmación solo envía POST y CSRF; la selección procede de la ruta."""

@@ -284,7 +284,12 @@ class PlantaHuerto(models.Model):
             return False
         # Actividad añadirá la relación inversa al implementar su modelo.
         actividades = getattr(self, "actividades", None)
-        return actividades is not None and actividades.exists()
+        if actividades is None:
+            return False
+        # El gestor base conserva también anuladas aunque el gestor habitual las filtre.
+        return actividades.model._base_manager.filter(
+            **{actividades.field.attname: self.pk}
+        ).exists()
 
     def clean(self):
         super().clean()

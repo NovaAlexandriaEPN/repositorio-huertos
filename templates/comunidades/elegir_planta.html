@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block titulo %}Elegir una especie · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<h1>Elegir una especie</h1>
+<p>Selecciona una especie del catálogo y un método de siembra. Cada especie se elige una sola vez por huerto.</p>
+{% if catalogo_vacio %}
+  <p class="recomendacion" role="status">Aún no hay especies disponibles en el catálogo.</p>
+{% elif not hay_disponibles %}
+  <p class="recomendacion" role="status">Tu huerto ya incluye todas las especies disponibles.</p>
+{% endif %}
+{% include "componentes/errores.html" with form=form %}
+<form method="post" action="{% url 'comunidades:elegir_planta' %}" class="formulario">
+  {% csrf_token %}
+  <div class="campo"><label for="{{ form.planta.id_for_label }}">Especie del catálogo</label>{{ form.planta }}</div>
+  <div class="campo"><label for="{{ form.metodo_siembra.id_for_label }}">Método de siembra</label>{{ form.metodo_siembra }}</div>
+  <div class="acciones">
+    <button type="submit" {% if not hay_disponibles %}disabled{% endif %}>Añadir al huerto</button>
+    <a href="{% url 'comunidades:mi_huerto' %}">Volver al huerto</a>
+  </div>
+</form>
+{% endblock %}

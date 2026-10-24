@@ -25,11 +25,19 @@ Los cinco modelos compartidos de B2-01 están definidos: `Comunidad`, `Miembro`,
 Crear comunidad, unirse por código, consultar miembros y editar los datos de la comunidad
 ya funcionan en `/comunidades/` (B2-02). Solo el responsable puede editar; cada cuenta
 mantiene una única pertenencia. La lista de miembros no muestra nacimiento ni género.
-El configurador del huerto, la selección de plantas y el marcado de materiales siguen
-pendientes. También faltan el modelo y las funciones de actividades.
+El configurador del huerto (B2-03) y la selección de plantas (B2-04) están implementados.
+Solo el responsable configura, elige, cambia métodos o retira selecciones. Los miembros
+consultan el huerto propio. El marcado de materiales y las funciones de actividades
+siguen pendientes.
 El comando `cargar_catalogo` todavía no está implementado.
 
+La base local puede no tener todavía las opciones y las 18 fichas del catálogo. Las pantallas
+informan cuando faltan datos; las pruebas usan contenido ficticio en una base temporal.
+La integración final con el modelo `Actividad` se comprueba cuando ese modelo esté disponible.
+
 Guía para aprender y probar B2-02: [Crear, unirse y editar comunidad](docs/aprendizaje/B2-02_comunidades.md).
+
+Guía de B2-03/B2-04: [Configurar huerto y elegir plantas](docs/aprendizaje/B2-03_B2-04_huerto_y_plantas.md).
 
 ---
 
@@ -216,7 +224,7 @@ Los modelos `TipoActividad` y `EventoLunar`, y la carga de los datos, siguen pen
 Estos modelos no completan ni verifican el contenido de las 18 fichas.
 
 La creación de comunidad guarda comunidad y pertenencia del creador en una
-transacción. El huerto se guardará al completar su primera configuración válida;
+transacción. El huerto se guarda al completar su primera configuración válida;
 antes puede no existir. No se generan filas relacionadas mediante señales automáticas.
 
 Los modelos validan los cambios de responsable/pertenencia, las categorías de las
@@ -225,7 +233,7 @@ los servicios deben llamar a `full_clean()` antes de guardar: `save()` y `object
 no la ejecutan por sí solos. Las claves únicas y las restricciones de área/constancia
 también están protegidas en SQLite.
 
-El configurador pendiente deberá validar las listas recibidas de diseños y abonos:
+El configurador valida las listas recibidas de diseños y abonos:
 al menos una opción de cada categoría, antes de guardarlas en la misma transacción.
 `limit_choices_to` filtra los formularios, pero no protege una escritura directa en esas
 relaciones múltiples. Los permisos y el código de invitación se comprueban en los servicios de comunidad;
@@ -258,7 +266,32 @@ mensaje para revisar o reintentar; otros errores de base no se ocultan como vali
 
 Las pruebas de comunidades incluyen los modelos B2-01, creación/unión/edición, aislamiento
 entre comunidades, privacidad, métodos HTTP y CSRF. Se ejecutan con
-`python manage.py test comunidades`. El resto de las reglas del huerto continúa en B2-03/B2-04.
+`python manage.py test comunidades`.
+
+### Configurador y selección de plantas (B2-03/B2-04)
+
+Desde **Mi comunidad**, abrir **Ver el huerto de la comunidad**. El responsable puede guardar
+provincia, parroquia, dirección manual, área positiva, varios diseños y abonos y una opción
+de cerca, suelo y agua. Las opciones se filtran por categoría en el formulario y se vuelven
+a validar en el servicio. Configuración y relaciones múltiples se guardan juntas; al reabrir
+el formulario se conservan las selecciones. Actualizar no reemplaza el huerto ni su maestro.
+
+| Ruta | Función |
+|---|---|
+| `/comunidades/huerto/` | Consultar configuración y plantas de la comunidad propia. |
+| `/comunidades/huerto/configurar/` | Crear o actualizar la configuración, solo por el responsable. |
+| `/comunidades/huerto/plantas/elegir/` | Añadir una especie disponible con un método de siembra. |
+| `/comunidades/huerto/plantas/<id>/metodo/` | Cambiar únicamente el método de una selección propia sin historial. |
+| `/comunidades/huerto/plantas/<id>/retirar/` | Mostrar confirmación por GET y retirar por POST si no tiene historial. |
+
+La consulta no acepta un ID de huerto externo. Los IDs de selección se buscan dentro del huerto
+del responsable; un ID ajeno responde 404. La especie no se repite en un mismo huerto y otra
+comunidad puede elegirla de forma independiente. Retirar no elimina la ficha del catálogo.
+Las operaciones de escritura incluyen POST y CSRF.
+
+No se añaden datos definitivos del catálogo como parte de estas tareas de Bryan: las opciones,
+las fichas y su carga pertenecen a las entregas de Matthew, Guillermo y Juan. El producto sigue
+requiriendo las 18 especies; usar unas pocas especies en pruebas no recorta ese requisito.
 
 ### Contrato con actividades para proteger el historial
 
@@ -277,13 +310,19 @@ planta = models.ForeignKey(
 
 `null=True` permite las actividades generales. La relación inversa debe incluir todo el
 historial, también los registros anulados. `PlantaHuerto.tiene_historial` consulta esa
-relación y `clean()` rechaza cambiar el método si ya hay actividades. `PROTECT` impedirá
+relación mediante el gestor base, sin excluir anuladas, y `clean()` rechaza cambiar el método
+si ya hay actividades. Los servicios también bloquean el retiro. `PROTECT` impedirá
 borrar una selección referenciada por actividades.
 
-Hasta incorporar `Actividad`, aún no existe historial de actividades. La regla de cambio
-de método tiene una prueba unitaria; la comprobación integrada con registros activos y
-anulados, los permisos y la retirada de selecciones se completarán en B2-04. Comunidades
-no importa el módulo actividades: usa la relación inversa que Django añadirá.
+`comunidades/checks.py` usa el registro de aplicaciones de Django para verificar, cuando exista
+`Actividad`, que su campo `planta` tenga esta relación, sea opcional y proteja el borrado.
+Si no cumple, `manage.py check` informa `comunidades.E001`. No se importa el modelo de actividades.
+
+Hasta incorporar `Actividad`, aún no existe historial de actividades en el producto. Una prueba
+de contrato crea una tabla temporal con la relación prevista y comprueba registros activos y
+anulados, incluso con un gestor habitual que oculta anuladas. Los servicios y las pantallas
+rechazan el cambio de método y el retiro en ambos casos. Esa prueba no implementa el modelo de
+Fernando ni sustituye el recorrido final con sus servicios de registro y anulación.
 
 ## 4. Uso diario
 

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block titulo %}Configurar huerto · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<h1>Configurar huerto</h1>
+<p>Indica la ubicación, el área y las opciones de tu huerto. Se recomienda orientarlo de Este a Oeste.</p>
+{% if form.categorias_pendientes %}
+  <p class="recomendacion" role="status">Aún faltan opciones disponibles de:
+    {{ form.categorias_pendientes|join:", " }}. Podrás guardar cuando estén disponibles.</p>
+{% endif %}
+{% include "componentes/errores.html" with form=form %}
+<form method="post" action="{% url 'comunidades:configurar_huerto' %}" class="formulario">
+  {% csrf_token %}
+  <fieldset>
+    <legend>Ubicación y tamaño</legend>
+    <div class="cuadricula">
+      <div class="campo"><label for="{{ form.provincia.id_for_label }}">Provincia</label>{{ form.provincia }}</div>
+      <div class="campo"><label for="{{ form.parroquia.id_for_label }}">Parroquia</label>{{ form.parroquia }}</div>
+      <div class="campo ancho-completo"><label for="{{ form.direccion.id_for_label }}">Dirección</label>{{ form.direccion }}</div>
+      <div class="campo"><label for="{{ form.area_m2.id_for_label }}">Área en m²</label>{{ form.area_m2 }}</div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Diseños</legend>
+    <p>Elige uno o varios diseños.</p>
+    {{ form.disenos }}
+  </fieldset>
+  <fieldset>
+    <legend>Opciones del lugar</legend>
+    <div class="campo"><label for="{{ form.cerca.id_for_label }}">Cerca</label>{{ form.cerca }}</div>
+    <div class="campo"><label for="{{ form.suelo.id_for_label }}">Suelo</label>{{ form.suelo }}</div>
+    <div class="campo"><label for="{{ form.fuente_agua.id_for_label }}">Fuente de agua</label>{{ form.fuente_agua }}</div>
+  </fieldset>
+  <fieldset>
+    <legend>Abonos</legend>
+    <p>Elige uno o varios abonos.</p>
+    {{ form.abonos }}
+  </fieldset>
+  <div class="acciones">
+    <button type="submit" {% if form.categorias_pendientes %}disabled{% endif %}>Guardar configuración</button>
+    <a href="{% url 'comunidades:mi_huerto' %}">Volver al huerto</a>
+  </div>
+</form>
+{% endblock %}

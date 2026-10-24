@@ -4,9 +4,10 @@ from unittest.mock import PropertyMock, patch
 
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import PermissionDenied, ValidationError
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, connection, models, transaction
 from django.db.models.deletion import ProtectedError
-from django.test import Client, TestCase
+from django.test import Client, TestCase, TransactionTestCase
+from django.test.utils import isolate_apps
 from django.urls import reverse
 from django.utils import timezone
 
@@ -15,10 +16,15 @@ from cuentas.models import Usuario
 
 from .models import Comunidad, Huerto, MarcaMaterial, Miembro, PlantaHuerto
 from .servicios import (
+    cambiar_metodo_siembra,
+    configurar_huerto,
     crear_comunidad,
     editar_comunidad,
+    elegir_planta,
     listar_miembros,
     obtener_comunidad,
+    obtener_huerto,
+    retirar_planta,
     unirse_comunidad,
 )
 
@@ -644,3 +650,390 @@ class PantallasComunidadTests(TestCase):
         self.assertEqual(self.client.post(reverse("comunidades:mi_comunidad")).status_code, 405)
         for nombre in ("crear", "unirse", "editar"):
             self.assertEqual(self.client.delete(reverse("comunidades:" + nombre)).status_code, 405)
+
+
+def preparar_datos_configurador(destino):
+    """Datos ficticios exclusivos de la base temporal de las pruebas."""
+    destino.responsable = crear_usuario("responsable_configuracion")
+    destino.participante = crear_usuario("participante_configuracion")
+    destino.otro_responsable = crear_usuario("responsable_ajeno_configuracion")
+    destino.sin_comunidad = crear_usuario("sin_comunidad_configuracion")
+    destino.comunidad = crear_comunidad(
+        actor=destino.responsable,
+        **{k: v for k, v in datos_comunidad(destino.responsable).items() if k != "responsable"},
+    )
+    destino.otra_comunidad = crear_comunidad(
+        actor=destino.otro_responsable,
+        **{k: v for k, v in datos_comunidad(destino.otro_responsable).items() if k != "responsable"},
+    )
+    unirse_comunidad(
+        actor=destino.participante, codigo_invitacion=destino.comunidad.codigo_invitacion,
+    )
+    destino.opciones = {}
+    for categoria in OpcionHuerto.Categoria.values:
+        destino.opciones[categoria] = [
+            OpcionHuerto.objects.create(
+                codigo=f"{categoria}_prueba_{numero}", categoria=categoria,
+                nombre=f"{categoria} de prueba {numero}",
+            ) for numero in (1, 2)
+        ]
+    destino.planta = Planta.objects.create(codigo="especie_prueba_1", nombre_comun="Especie uno")
+    destino.otra_planta = Planta.objects.create(codigo="especie_prueba_2", nombre_comun="Especie dos")
+
+
+def datos_configuracion(opciones, **cambios):
+    datos = {
+        "provincia": "Provincia de prueba", "parroquia": "Parroquia de prueba",
+        "direccion": "Dirección ficticia", "area_m2": Decimal("12.50"),
+        "disenos": opciones["diseno"], "abonos": opciones["abono"],
+        "cerca": opciones["cerca"][0], "suelo": opciones["suelo"][0],
+        "fuente_agua": opciones["agua"][0],
+    }
+    datos.update(cambios)
+    return datos
+
+
+class ConfiguracionSeleccionServiciosTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        preparar_datos_configurador(cls)
+
+    def configurar(self, **cambios):
+        return configurar_huerto(actor=self.responsable, **datos_configuracion(self.opciones, **cambios))
+
+    def test_configuracion_persiste_y_reenvio_actualiza_el_mismo_huerto(self):
+        huerto = self.configurar()
+        consultado = obtener_huerto(actor=self.participante)
+        self.assertEqual(consultado.pk, huerto.pk)
+        self.assertEqual(consultado.area_m2, Decimal("12.50"))
+        self.assertEqual(set(consultado.disenos.all()), set(self.opciones["diseno"]))
+        self.assertEqual(set(consultado.abonos.all()), set(self.opciones["abono"]))
+        actualizado = self.configurar(
+            direccion="Otra dirección ficticia", disenos=self.opciones["diseno"][:1],
+        )
+        self.assertEqual(actualizado.pk, huerto.pk)
+        self.assertEqual(Huerto.objects.filter(comunidad=self.comunidad).count(), 1)
+        self.assertEqual(actualizado.disenos.count(), 1)
+
+    def test_area_y_ubicacion_invalidas_no_crean_un_huerto(self):
+        for cambios in (
+            {"area_m2": Decimal("0")}, {"area_m2": Decimal("-2")},
+            {"provincia": "  "}, {"parroquia": ""}, {"direccion": "  "},
+        ):
+            with self.subTest(cambios=cambios), self.assertRaises(ValidationError):
+                self.configurar(**cambios)
+        self.assertFalse(Huerto.objects.exists())
+
+    def test_categorias_y_listas_vacias_se_rechazan_tambien_sin_formulario(self):
+        for campo, opcion in (
+            ("cerca", self.opciones["suelo"][0]),
+            ("suelo", self.opciones["agua"][0]),
+            ("fuente_agua", self.opciones["cerca"][0]),
+            ("disenos", self.opciones["abono"]),
+            ("abonos", self.opciones["diseno"]),
+            ("disenos", []), ("abonos", []),
+        ):
+            with self.subTest(campo=campo), self.assertRaises(ValidationError) as error:
+                self.configurar(**{campo: opcion})
+            self.assertIn(campo, error.exception.message_dict)
+        self.assertFalse(Huerto.objects.exists())
+
+    def test_actualizacion_invalida_conserva_configuracion_y_relaciones(self):
+        huerto = self.configurar()
+        with self.assertRaises(ValidationError):
+            self.configurar(direccion="Cambio que no debe persistir", abonos=[])
+        huerto.refresh_from_db()
+        self.assertEqual(huerto.direccion, "Dirección ficticia")
+        self.assertEqual(set(huerto.abonos.all()), set(self.opciones["abono"]))
+
+    def test_actualizar_configuracion_no_borra_selecciones_ni_nombramiento(self):
+        huerto = self.configurar()
+        seleccion = elegir_planta(
+            actor=self.responsable, planta=self.planta, metodo_siembra=MetodoSiembra.SEMILLAS,
+        )
+        # La constancia es un dato de modelo; el nombramiento por puntos es de actividades.
+        huerto.maestro = self.participante.miembro
+        huerto.maestro_motivo = "Constancia ficticia para probar su conservación."
+        huerto.maestro_nombrado_por = self.responsable
+        huerto.maestro_fecha = timezone.now()
+        huerto.save()
+        self.configurar(area_m2=Decimal("20.00"))
+        huerto.refresh_from_db()
+        self.assertEqual(huerto.maestro_id, self.participante.miembro.pk)
+        self.assertTrue(huerto.maestro_motivo)
+        self.assertTrue(PlantaHuerto.objects.filter(pk=seleccion.pk).exists())
+
+    def test_participante_y_persona_sin_comunidad_no_pueden_configurar(self):
+        for actor in (self.participante, self.sin_comunidad, AnonymousUser()):
+            with self.subTest(actor=actor), self.assertRaises(PermissionDenied):
+                configurar_huerto(actor=actor, **datos_configuracion(self.opciones))
+        self.assertFalse(Huerto.objects.exists())
+
+    def test_no_se_elige_una_planta_antes_de_configurar(self):
+        with self.assertRaises(ValidationError):
+            elegir_planta(actor=self.responsable, planta=self.planta, metodo_siembra=MetodoSiembra.SEMILLAS)
+        self.assertFalse(PlantaHuerto.objects.exists())
+
+    def test_especie_unica_por_huerto_y_metodo_valido(self):
+        self.configurar()
+        elegir_planta(actor=self.responsable, planta=self.planta, metodo_siembra=MetodoSiembra.SEMILLAS)
+        for planta, metodo in (
+            (self.planta, MetodoSiembra.ESQUEJES), (self.otra_planta, "inventado"),
+        ):
+            with self.subTest(metodo=metodo), self.assertRaises(ValidationError):
+                elegir_planta(actor=self.responsable, planta=planta, metodo_siembra=metodo)
+        configurar_huerto(actor=self.otro_responsable, **datos_configuracion(self.opciones))
+        elegir_planta(actor=self.otro_responsable, planta=self.planta, metodo_siembra=MetodoSiembra.ESTACAS)
+        self.assertEqual(PlantaHuerto.objects.filter(planta=self.planta).count(), 2)
+
+    def test_cambio_y_retiro_sin_historial_conservan_la_ficha_del_catalogo(self):
+        self.configurar()
+        seleccion = elegir_planta(
+            actor=self.responsable, planta=self.planta, metodo_siembra=MetodoSiembra.SEMILLAS,
+        )
+        cambiar_metodo_siembra(
+            actor=self.responsable, seleccion_id=seleccion.pk, metodo_siembra=MetodoSiembra.ESQUEJES,
+        )
+        seleccion.refresh_from_db()
+        self.assertEqual(seleccion.metodo_siembra, MetodoSiembra.ESQUEJES)
+        retirar_planta(actor=self.responsable, seleccion_id=seleccion.pk)
+        self.assertFalse(PlantaHuerto.objects.filter(pk=seleccion.pk).exists())
+        self.assertTrue(Planta.objects.filter(pk=self.planta.pk).exists())
+
+    def test_seleccion_ajena_no_se_consulta_modifica_ni_retira(self):
+        self.configurar()
+        configurar_huerto(actor=self.otro_responsable, **datos_configuracion(self.opciones))
+        seleccion = elegir_planta(
+            actor=self.otro_responsable, planta=self.planta, metodo_siembra=MetodoSiembra.SEMILLAS,
+        )
+        with self.assertRaises(PlantaHuerto.DoesNotExist):
+            cambiar_metodo_siembra(
+                actor=self.responsable, seleccion_id=seleccion.pk, metodo_siembra=MetodoSiembra.ESTACAS,
+            )
+        with self.assertRaises(PlantaHuerto.DoesNotExist):
+            retirar_planta(actor=self.responsable, seleccion_id=seleccion.pk)
+        self.assertIsNone(obtener_huerto(actor=self.sin_comunidad))
+        seleccion.refresh_from_db()
+        self.assertEqual(seleccion.metodo_siembra, MetodoSiembra.SEMILLAS)
+
+
+class ConfiguracionSeleccionPantallasTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        preparar_datos_configurador(cls)
+
+    def datos_post(self):
+        datos = datos_configuracion(self.opciones)
+        for campo in ("cerca", "suelo", "fuente_agua"):
+            datos[campo] = datos[campo].pk
+        for campo in ("disenos", "abonos"):
+            datos[campo] = [opcion.pk for opcion in datos[campo]]
+        return datos
+
+    def preparar_seleccion(self, actor=None):
+        actor = actor or self.responsable
+        configurar_huerto(actor=actor, **datos_configuracion(self.opciones))
+        return elegir_planta(actor=actor, planta=self.planta, metodo_siembra=MetodoSiembra.SEMILLAS)
+
+    def test_rutas_de_huerto_exigen_sesion(self):
+        for nombre, kwargs in (
+            ("mi_huerto", {}), ("configurar_huerto", {}), ("elegir_planta", {}),
+            ("cambiar_metodo", {"seleccion_id": 1}), ("retirar_planta", {"seleccion_id": 1}),
+        ):
+            with self.subTest(pantalla=nombre):
+                url = reverse("comunidades:" + nombre, kwargs=kwargs)
+                self.assertRedirects(self.client.get(url), reverse("cuentas:login") + "?next=" + url)
+
+    def test_configurar_por_post_y_reabrir_conserva_todos_los_valores(self):
+        self.client.force_login(self.responsable)
+        url = reverse("comunidades:configurar_huerto")
+        self.assertEqual(self.client.get(url).status_code, 200)
+        self.assertFalse(Huerto.objects.exists())
+        response = self.client.post(url, {
+            **self.datos_post(), "comunidad": self.otra_comunidad.pk,
+            "maestro": self.participante.miembro.pk, "maestro_motivo": "No aceptado",
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_huerto"))
+        huerto = Huerto.objects.get(comunidad=self.comunidad)
+        self.assertIsNone(huerto.maestro)
+        form = self.client.get(url).context["form"]
+        self.assertEqual(form["provincia"].value(), "Provincia de prueba")
+        self.assertEqual(Decimal(form["area_m2"].value()), Decimal("12.50"))
+        for campo in ("disenos", "abonos"):
+            self.assertEqual(set(form[campo].value()), set(self.datos_post()[campo]))
+        self.assertFalse(Huerto.objects.filter(comunidad=self.otra_comunidad).exists())
+
+    def test_opcion_de_categoria_incorrecta_no_pasa_el_formulario(self):
+        self.client.force_login(self.responsable)
+        datos = {**self.datos_post(), "disenos": [self.opciones["abono"][0].pk]}
+        response = self.client.post(reverse("comunidades:configurar_huerto"), datos)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("disenos", response.context["form"].errors)
+        self.assertFalse(Huerto.objects.exists())
+
+    def test_catalogo_vacio_muestra_ausencia_sin_inventar_opciones(self):
+        OpcionHuerto.objects.all().delete()
+        self.client.force_login(self.responsable)
+        response = self.client.get(reverse("comunidades:configurar_huerto"))
+        self.assertContains(response, "Aún faltan opciones disponibles")
+        self.assertContains(response, 'disabled')
+        self.assertEqual(len(response.context["form"].categorias_pendientes), 5)
+
+    def test_elegir_antes_de_configurar_lleva_al_configurador(self):
+        self.client.force_login(self.responsable)
+        self.assertRedirects(
+            self.client.get(reverse("comunidades:elegir_planta")),
+            reverse("comunidades:configurar_huerto"),
+        )
+
+    def test_catalogo_de_plantas_vacio_informa_y_no_crea_selecciones(self):
+        configurar_huerto(actor=self.responsable, **datos_configuracion(self.opciones))
+        Planta.objects.all().delete()
+        self.client.force_login(self.responsable)
+        response = self.client.get(reverse("comunidades:elegir_planta"))
+        self.assertContains(response, "Aún no hay especies disponibles en el catálogo.")
+        self.assertFalse(response.context["hay_disponibles"])
+        self.assertFalse(PlantaHuerto.objects.exists())
+
+    def test_elegir_no_duplica_y_no_acepta_huerto_inyectado(self):
+        configurar_huerto(actor=self.responsable, **datos_configuracion(self.opciones))
+        otro = configurar_huerto(actor=self.otro_responsable, **datos_configuracion(self.opciones))
+        self.client.force_login(self.responsable)
+        url = reverse("comunidades:elegir_planta")
+        datos = {"planta": self.planta.pk, "metodo_siembra": MetodoSiembra.ESQUEJES, "huerto": otro.pk}
+        self.assertRedirects(self.client.post(url, datos), reverse("comunidades:mi_huerto"))
+        response = self.client.post(url, datos)
+        self.assertEqual(response.status_code, 200)
+        seleccion = PlantaHuerto.objects.get(planta=self.planta)
+        self.assertEqual(seleccion.huerto.comunidad, self.comunidad)
+        self.assertNotIn(self.planta, response.context["form"].fields["planta"].queryset)
+
+    def test_cambiar_y_retirar_requieren_post_y_conservan_identidad(self):
+        seleccion = self.preparar_seleccion()
+        self.client.force_login(self.responsable)
+        url = reverse("comunidades:cambiar_metodo", args=[seleccion.pk])
+        response = self.client.post(url, {
+            "metodo_siembra": MetodoSiembra.PLANTULAS, "planta": self.otra_planta.pk,
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_huerto"))
+        seleccion.refresh_from_db()
+        self.assertEqual(seleccion.planta, self.planta)
+        self.assertEqual(seleccion.metodo_siembra, MetodoSiembra.PLANTULAS)
+        url = reverse("comunidades:retirar_planta", args=[seleccion.pk])
+        self.assertEqual(self.client.get(url).status_code, 200)
+        self.assertTrue(PlantaHuerto.objects.filter(pk=seleccion.pk).exists())
+        self.assertRedirects(self.client.post(url), reverse("comunidades:mi_huerto"))
+        self.assertTrue(Planta.objects.filter(pk=self.planta.pk).exists())
+
+    def test_participante_solo_consulta_y_post_directo_no_cambia_el_huerto(self):
+        seleccion = self.preparar_seleccion()
+        self.client.force_login(self.participante)
+        response = self.client.get(reverse("comunidades:mi_huerto"))
+        self.assertContains(response, self.planta.nombre_comun)
+        self.assertNotContains(response, reverse("comunidades:configurar_huerto"))
+        for nombre, kwargs in (
+            ("configurar_huerto", {}), ("elegir_planta", {}),
+            ("cambiar_metodo", {"seleccion_id": seleccion.pk}),
+            ("retirar_planta", {"seleccion_id": seleccion.pk}),
+        ):
+            for metodo in (self.client.get, self.client.post):
+                with self.subTest(ruta=nombre, metodo=metodo.__name__):
+                    self.assertEqual(metodo(reverse("comunidades:" + nombre, kwargs=kwargs)).status_code, 403)
+
+    def test_otro_responsable_no_accede_a_una_seleccion_ajena_por_id(self):
+        self.preparar_seleccion()
+        ajena = self.preparar_seleccion(actor=self.otro_responsable)
+        self.client.force_login(self.responsable)
+        for nombre in ("cambiar_metodo", "retirar_planta"):
+            url = reverse("comunidades:" + nombre, args=[ajena.pk])
+            self.assertEqual(self.client.get(url).status_code, 404)
+            self.assertEqual(self.client.post(url, {"metodo_siembra": "semillas"}).status_code, 404)
+
+    def test_escrituras_sin_csrf_y_metodos_no_permitidos_se_rechazan(self):
+        seleccion = self.preparar_seleccion()
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.responsable)
+        for nombre, kwargs in (
+            ("configurar_huerto", {}), ("elegir_planta", {}),
+            ("cambiar_metodo", {"seleccion_id": seleccion.pk}),
+            ("retirar_planta", {"seleccion_id": seleccion.pk}),
+        ):
+            url = reverse("comunidades:" + nombre, kwargs=kwargs)
+            self.assertEqual(client.post(url).status_code, 403)
+            self.client.force_login(self.responsable)
+            self.assertEqual(self.client.delete(url).status_code, 405)
+        self.assertTrue(PlantaHuerto.objects.filter(pk=seleccion.pk).exists())
+
+
+class ContratoHistorialSeleccionTests(TransactionTestCase):
+    @isolate_apps("comunidades")
+    def test_registros_reales_incluidos_anulados_bloquean_cambio_y_retiro(self):
+        """Una tabla temporal prueba el contrato sin crear el modelo de Fernando."""
+        from django.db.models.options import Options
+        from .checks import comprobar_contrato_actividades
+
+        preparar_datos_configurador(self)
+        configurar_huerto(actor=self.responsable, **datos_configuracion(self.opciones))
+        seleccion = elegir_planta(
+            actor=self.responsable, planta=self.planta, metodo_siembra=MetodoSiembra.SEMILLAS,
+        )
+        anterior = getattr(PlantaHuerto, "actividades", None)
+        Options.default_apps.register_model("comunidades", PlantaHuerto)
+
+        class SoloActivos(models.Manager):
+            def get_queryset(self):
+                return super().get_queryset().filter(anulado=False)
+
+        class RegistroContrato(models.Model):
+            planta = models.ForeignKey(
+                PlantaHuerto, on_delete=models.PROTECT, related_name="actividades",
+                null=True, blank=True,
+            )
+            anulado = models.BooleanField(default=False)
+            objects = SoloActivos()
+
+            class Meta:
+                app_label = "comunidades"
+                db_table = "prueba_temporal_historial_b2"
+
+        try:
+            with connection.schema_editor() as editor:
+                editor.create_model(RegistroContrato)
+            registro = RegistroContrato.objects.create(planta=seleccion)
+            self.client.force_login(self.responsable)
+            for anulado in (False, True):
+                registro.anulado = anulado
+                registro.save(update_fields=["anulado"])
+                with self.subTest(anulado=anulado):
+                    self.assertTrue(seleccion.tiene_historial)
+                    if anulado:
+                        self.assertFalse(seleccion.actividades.exists())
+                    with self.assertRaises(ValidationError):
+                        cambiar_metodo_siembra(
+                            actor=self.responsable, seleccion_id=seleccion.pk,
+                            metodo_siembra=MetodoSiembra.ESQUEJES,
+                        )
+                    with self.assertRaises(ValidationError):
+                        retirar_planta(actor=self.responsable, seleccion_id=seleccion.pk)
+                    for nombre in ("cambiar_metodo", "retirar_planta"):
+                        response = self.client.post(
+                            reverse("comunidades:" + nombre, args=[seleccion.pk]),
+                            {"metodo_siembra": MetodoSiembra.ESQUEJES},
+                        )
+                        self.assertContains(response, "con historial")
+                    seleccion.refresh_from_db()
+                    self.assertEqual(seleccion.metodo_siembra, MetodoSiembra.SEMILLAS)
+
+            with patch("comunidades.checks.apps.get_model", return_value=RegistroContrato):
+                self.assertEqual(comprobar_contrato_actividades(None), [])
+                campo = RegistroContrato._meta.get_field("planta")
+                campo.remote_field.on_delete = models.CASCADE
+                self.assertEqual(comprobar_contrato_actividades(None)[0].id, "comunidades.E001")
+                campo.remote_field.on_delete = models.PROTECT
+        finally:
+            with connection.schema_editor() as editor:
+                editor.delete_model(RegistroContrato)
+            if anterior is None:
+                delattr(PlantaHuerto, "actividades")
+            else:
+                PlantaHuerto.actividades = anterior

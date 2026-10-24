@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cambiar método de siembra · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<h1>Cambiar método de siembra</h1>
+<p>Especie: {{ seleccion.planta.nombre_comun }}. Solo se cambia el método si no existe historial.</p>
+{% if con_historial %}<p class="recomendacion">Esta selección conserva historial y su método no puede cambiarse.</p>{% endif %}
+{% include "componentes/errores.html" with form=form %}
+<form method="post" action="{% url 'comunidades:cambiar_metodo' seleccion.pk %}" class="formulario">
+  {% csrf_token %}
+  <fieldset {% if con_historial %}disabled{% endif %}>
+    <legend>Nuevo método</legend>
+    <div class="campo"><label for="{{ form.metodo_siembra.id_for_label }}">Método de siembra</label>{{ form.metodo_siembra }}</div>
+    <button type="submit">Guardar método</button>
+  </fieldset>
+  <a href="{% url 'comunidades:mi_huerto' %}">Volver al huerto</a>
+</form>
+{% endblock %}

@@ -7,6 +7,7 @@
   <div class="introduccion">
     <h1>{{ comunidad.nombre }}</h1>
     <p>{{ comunidad.get_tipo_display }} · Tu rol: {% if puede_editar %}responsable{% else %}participante{% endif %}.</p>
+    <p><a href="{% url 'comunidades:mi_huerto' %}">Ver el huerto de la comunidad</a></p>
   </div>
   <section class="formulario" aria-labelledby="datos-comunidad">
     <h2 id="datos-comunidad">Contacto de la comunidad</h2>

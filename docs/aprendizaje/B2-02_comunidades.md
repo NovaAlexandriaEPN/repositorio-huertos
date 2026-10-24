@@ -214,7 +214,7 @@ No añadimos un repositorio genérico, una API o una jerarquía de clases adicio
 
 - **B2-01:** están los cinco modelos y sus migraciones. Fernando puede referenciar `Huerto`, `Miembro` y `PlantaHuerto` al construir `Actividad`.
 - **B2-02:** crear, unirse, consultar y editar comunidad están implementados y comprobados.
-- **B2-03:** sigue configurar el huerto: ubicación manual, área y opciones de las categorías correctas, solo por el responsable.
-- **B2-04:** después, elegir plantas y conectar las protecciones del historial con `Actividad`.
+- **B2-03:** implementado el configurador con ubicación manual, área y opciones de las categorías correctas, solo por el responsable.
+- **B2-04:** implementada la selección de plantas, el cambio de método y el retiro sin historial. Su contrato con actividades se comprueba con registros temporales de prueba.
 
-La protección integrada con registros de actividades activos o anulados se verificará cuando exista ese modelo; no se da por terminada como parte de B2-02.
+Consulta [la guía de B2-03 y B2-04](B2-03_B2-04_huerto_y_plantas.md) para entender y probar esas operaciones. La comprobación final con el modelo y los servicios de Fernando se ejecutará cuando estén integrados. El contenido definitivo del catálogo y su carga siguen siendo entregas separadas.

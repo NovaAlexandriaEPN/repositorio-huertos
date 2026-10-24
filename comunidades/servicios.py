@@ -1,13 +1,18 @@
 import re
 import sqlite3
+from collections.abc import Iterable
 from contextlib import contextmanager
+from decimal import Decimal
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import IntegrityError, OperationalError, transaction
-from django.db.models import F
+from django.db.models import F, Prefetch
+from django.db.models.deletion import ProtectedError
 
-from .models import Comunidad, Miembro
+from catalogo.models import OpcionHuerto, Planta
+
+from .models import Comunidad, Huerto, Miembro, PlantaHuerto
 
 
 def _exigir_actor_activo(actor):
@@ -38,8 +43,8 @@ def _escritura_atomica():
             yield
     except IntegrityError as error:
         raise ValidationError(
-            "No se pudo guardar la operación. Actualiza la página y comprueba "
-            "si ya perteneces a una comunidad antes de intentarlo de nuevo."
+            "No se pudo guardar la operación porque los datos entraron en conflicto. "
+            "Actualiza la página y comprueba el resultado antes de intentarlo de nuevo."
         ) from error
     except OperationalError as error:
         codigo = getattr(error.__cause__, "sqlite_errorcode", None)
@@ -133,3 +138,121 @@ def editar_comunidad(
             "nombre", "tipo", "contacto_nombre", "contacto_telefono", "contacto_correo",
         ])
     return comunidad
+
+
+def obtener_huerto(*, actor) -> Huerto | None:
+    """Consultar el huerto propio y sus selecciones sin aceptar IDs de otra comunidad."""
+    comunidad = obtener_comunidad(actor=actor)
+    if comunidad is None:
+        return None
+    return (
+        Huerto.objects.filter(comunidad=comunidad)
+        .select_related("cerca", "suelo", "fuente_agua")
+        .prefetch_related(
+            "disenos", "abonos",
+            Prefetch(
+                "plantas",
+                queryset=PlantaHuerto.objects.select_related("planta").order_by(
+                    "planta__nombre_comun", "pk"
+                ),
+            ),
+        )
+        .first()
+    )
+
+
+def _opciones_multiples_validas(
+    opciones: Iterable[OpcionHuerto], *, categoria: str, campo: str,
+) -> list[OpcionHuerto]:
+    opciones = list(opciones)
+    if not opciones or any(
+        not isinstance(opcion, OpcionHuerto) or opcion.pk is None for opcion in opciones
+    ):
+        raise ValidationError({campo: "Selecciona al menos una opción válida."})
+    identificadores = {opcion.pk for opcion in opciones}
+    guardadas = list(OpcionHuerto.objects.filter(pk__in=identificadores, categoria=categoria))
+    if len(guardadas) != len(identificadores):
+        raise ValidationError({campo: "Todas las opciones deben ser de la categoría correspondiente."})
+    return guardadas
+
+
+def configurar_huerto(
+    *, actor, provincia: str, parroquia: str, direccion: str, area_m2: Decimal,
+    disenos: Iterable[OpcionHuerto], cerca: OpcionHuerto, suelo: OpcionHuerto,
+    fuente_agua: OpcionHuerto, abonos: Iterable[OpcionHuerto],
+) -> Huerto:
+    """Crear o actualizar la configuración y sus relaciones como una sola operación."""
+    with _escritura_atomica():
+        comunidad = obtener_comunidad_editable(actor=actor)
+        disenos_validos = _opciones_multiples_validas(
+            disenos, categoria=OpcionHuerto.Categoria.DISENO, campo="disenos"
+        )
+        abonos_validos = _opciones_multiples_validas(
+            abonos, categoria=OpcionHuerto.Categoria.ABONO, campo="abonos"
+        )
+        huerto = Huerto.objects.filter(comunidad=comunidad).first()
+        if huerto is None:
+            huerto = Huerto(comunidad=comunidad)
+        huerto.provincia = provincia.strip()
+        huerto.parroquia = parroquia.strip()
+        huerto.direccion = direccion.strip()
+        huerto.area_m2 = area_m2
+        huerto.cerca = cerca
+        huerto.suelo = suelo
+        huerto.fuente_agua = fuente_agua
+        huerto.full_clean()
+        if huerto.pk:
+            huerto.save(update_fields=[
+                "provincia", "parroquia", "direccion", "area_m2",
+                "cerca", "suelo", "fuente_agua",
+            ])
+        else:
+            huerto.save()
+        huerto.disenos.set(disenos_validos)
+        huerto.abonos.set(abonos_validos)
+    return huerto
+
+
+def _huerto_editable(*, actor) -> Huerto:
+    comunidad = obtener_comunidad_editable(actor=actor)
+    huerto = Huerto.objects.filter(comunidad=comunidad).first()
+    if huerto is None:
+        raise ValidationError("Configura el huerto antes de elegir plantas.")
+    return huerto
+
+
+def obtener_seleccion_editable(*, actor, seleccion_id: int) -> PlantaHuerto:
+    huerto = _huerto_editable(actor=actor)
+    # Un ID válido de otra comunidad tampoco permite consultar ni modificar la selección.
+    return PlantaHuerto.objects.select_related("planta").get(pk=seleccion_id, huerto=huerto)
+
+
+def elegir_planta(*, actor, planta: Planta, metodo_siembra: str) -> PlantaHuerto:
+    with _escritura_atomica():
+        huerto = _huerto_editable(actor=actor)
+        seleccion = PlantaHuerto(huerto=huerto, planta=planta, metodo_siembra=metodo_siembra)
+        seleccion.full_clean()
+        seleccion.save()
+    return seleccion
+
+
+def cambiar_metodo_siembra(*, actor, seleccion_id: int, metodo_siembra: str) -> PlantaHuerto:
+    with _escritura_atomica():
+        seleccion = obtener_seleccion_editable(actor=actor, seleccion_id=seleccion_id)
+        if seleccion.tiene_historial:
+            raise ValidationError("No se cambia el método de una selección con historial, incluso anulado.")
+        seleccion.metodo_siembra = metodo_siembra
+        seleccion.full_clean()
+        seleccion.save(update_fields=["metodo_siembra"])
+    return seleccion
+
+
+def retirar_planta(*, actor, seleccion_id: int) -> None:
+    with _escritura_atomica():
+        seleccion = obtener_seleccion_editable(actor=actor, seleccion_id=seleccion_id)
+        if seleccion.tiene_historial:
+            raise ValidationError("No se retira una selección con historial, incluso anulado.")
+        try:
+            seleccion.delete()
+        except ProtectedError as error:
+            raise ValidationError("No se retira una selección que conserva registros relacionados.") from error

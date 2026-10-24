@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block titulo %}Huerto de {{ comunidad.nombre }} · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<h1>Huerto de {{ comunidad.nombre }}</h1>
+<p><a href="{% url 'comunidades:mi_comunidad' %}">Volver a la comunidad</a></p>
+{% if huerto %}
+  <section class="formulario" aria-labelledby="configuracion-huerto">
+    <h2 id="configuracion-huerto">Configuración</h2>
+    <dl class="datos-comunidad">
+      <dt>Ubicación</dt><dd>{{ huerto.provincia }}, {{ huerto.parroquia }} · {{ huerto.direccion }}</dd>
+      <dt>Área</dt><dd>{{ huerto.area_m2 }} m²</dd>
+      <dt>Diseños</dt><dd>{% for opcion in huerto.disenos.all %}{{ opcion.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+      <dt>Cerca</dt><dd>{{ huerto.cerca.nombre }}</dd>
+      <dt>Suelo</dt><dd>{{ huerto.suelo.nombre }}</dd>
+      <dt>Fuente de agua</dt><dd>{{ huerto.fuente_agua.nombre }}</dd>
+      <dt>Abonos</dt><dd>{% for opcion in huerto.abonos.all %}{{ opcion.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}</dd>
+    </dl>
+    {% if puede_editar %}<p><a href="{% url 'comunidades:configurar_huerto' %}">Editar configuración</a></p>{% endif %}
+  </section>
+  <section class="constancia" aria-labelledby="plantas-huerto">
+    <h2 id="plantas-huerto">Plantas elegidas</h2>
+    {% if puede_editar %}<p><a href="{% url 'comunidades:elegir_planta' %}">Elegir una especie</a></p>{% endif %}
+    <ul class="plantas-huerto">
+      {% for seleccion in selecciones %}
+        <li>
+          <h3>{{ seleccion.planta.nombre_comun }}</h3>
+          <p>Método de siembra: {{ seleccion.get_metodo_siembra_display }}.</p>
+          {% if seleccion.tiene_historial %}
+            <p>Conserva historial. Su método no se puede cambiar y la selección no se puede retirar.</p>
+          {% elif puede_editar %}
+            <div class="acciones">
+              <a href="{% url 'comunidades:cambiar_metodo' seleccion.pk %}">Cambiar método</a>
+              <a href="{% url 'comunidades:retirar_planta' seleccion.pk %}">Retirar del huerto</a>
+            </div>
+          {% endif %}
+        </li>
+      {% empty %}
+        <li>Aún no se han elegido plantas.</li>
+      {% endfor %}
+    </ul>
+  </section>
+{% else %}
+  <p>El huerto aún no está configurado.</p>
+  {% if puede_editar %}
+    <p><a href="{% url 'comunidades:configurar_huerto' %}">Configurar el huerto</a></p>
+  {% else %}
+    <p>El responsable de la comunidad puede completar su configuración.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}
