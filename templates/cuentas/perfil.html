@@ -6,6 +6,7 @@
 <div class="introduccion">
   <h1>Mi perfil</h1>
   <p>Consulta y actualiza tus datos. Solo tú puedes ver y editar tu fecha de nacimiento y género.</p>
+  <p><a href="{% url 'comunidades:mi_comunidad' %}">Continuar a mi comunidad</a></p>
 </div>
 
 {% include "componentes/errores.html" with form=form %}

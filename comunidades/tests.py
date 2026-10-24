@@ -13,6 +13,7 @@ from django.utils import timezone
 
 from catalogo.models import Material, MetodoSiembra, OpcionHuerto, Planta
 from cuentas.models import Usuario
+from cuentas.aviso import AVISO_DATOS_VERSION
 
 from .models import Comunidad, Huerto, MarcaMaterial, Miembro, PlantaHuerto
 from .servicios import (
@@ -1037,3 +1038,96 @@ class ContratoHistorialSeleccionTests(TransactionTestCase):
                 delattr(PlantaHuerto, "actividades")
             else:
                 PlantaHuerto.actividades = anterior
+
+
+class RecorridoInicialIntegradoTests(TestCase):
+    """Comprobación de desarrollo: formularios reales y una misma base temporal."""
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.opciones = {
+            categoria: OpcionHuerto.objects.create(
+                codigo=f"{categoria}_recorrido", categoria=categoria,
+                nombre=f"{categoria} de prueba",
+            ) for categoria in OpcionHuerto.Categoria.values
+        }
+        cls.planta = Planta.objects.create(
+            codigo="especie_recorrido", nombre_comun="Especie de prueba del recorrido",
+        )
+
+    def enviar(self, cliente, ruta, datos):
+        pagina = cliente.get(ruta)
+        self.assertEqual(pagina.status_code, 200)
+        return cliente.post(ruta, {
+            **datos, "csrfmiddlewaretoken": cliente.cookies["csrftoken"].value,
+        })
+
+    def registrar_y_entrar(self, cliente, username):
+        clave_prueba = "Recorrido!Semilla82Valida"
+        response = self.enviar(cliente, reverse("cuentas:registro"), {
+            "username": username, "nombre_completo": username,
+            "fecha_nacimiento": "2000-01-02", "genero": "",
+            "talentos_ancestrales": "", "password1": clave_prueba,
+            "password2": clave_prueba, "acepta_aviso": "on",
+            "aviso_version": AVISO_DATOS_VERSION,
+        })
+        self.assertRedirects(response, reverse("cuentas:login"))
+        response = self.enviar(cliente, reverse("cuentas:login"), {
+            "username": username, "password": clave_prueba,
+        })
+        self.assertRedirects(response, reverse("cuentas:perfil"))
+        return Usuario.objects.get(username=username)
+
+    def test_recorrido_completo_registro_sesion_comunidad_huerto_y_seleccion(self):
+        responsable = Client(enforce_csrf_checks=True)
+        participante = Client(enforce_csrf_checks=True)
+        ana = self.registrar_y_entrar(responsable, "ana_recorrido")
+        perfil = responsable.get(reverse("cuentas:perfil"))
+        self.assertContains(perfil, "Continuar a mi comunidad")
+        self.assertRedirects(responsable.get(reverse("inicio")), reverse("comunidades:mi_comunidad"))
+        response = self.enviar(responsable, reverse("comunidades:crear"), {
+            "nombre": "Comunidad del recorrido", "tipo": Comunidad.Tipo.FAMILIA,
+            "contacto_nombre": "Ana de prueba", "contacto_telefono": "0991234567",
+            "contacto_correo": "ana@example.com",
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_comunidad"))
+        comunidad = Comunidad.objects.get(responsable=ana)
+        response = self.enviar(responsable, reverse("comunidades:configurar_huerto"), {
+            "provincia": "Provincia de prueba", "parroquia": "Parroquia de prueba",
+            "direccion": "Dirección ficticia", "area_m2": "12.50",
+            "disenos": [self.opciones["diseno"].pk], "abonos": [self.opciones["abono"].pk],
+            "cerca": self.opciones["cerca"].pk, "suelo": self.opciones["suelo"].pk,
+            "fuente_agua": self.opciones["agua"].pk,
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_huerto"))
+        response = self.enviar(responsable, reverse("comunidades:elegir_planta"), {
+            "planta": self.planta.pk, "metodo_siembra": MetodoSiembra.SEMILLAS,
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_huerto"))
+        huerto = Huerto.objects.get(comunidad=comunidad)
+        self.assertTrue(PlantaHuerto.objects.filter(huerto=huerto, planta=self.planta).exists())
+        luis = self.registrar_y_entrar(participante, "luis_recorrido")
+        response = self.enviar(participante, reverse("comunidades:unirse"), {
+            "codigo_invitacion": comunidad.codigo_invitacion,
+        })
+        self.assertRedirects(response, reverse("comunidades:mi_comunidad"))
+        self.assertEqual(luis.miembro.comunidad, comunidad)
+        self.assertContains(participante.get(reverse("comunidades:mi_huerto")), self.planta.nombre_comun)
+        self.assertEqual(Comunidad.objects.count(), 1)
+        self.assertEqual(Huerto.objects.count(), 1)
+        self.assertEqual(Miembro.objects.filter(comunidad=comunidad).count(), 2)
+        self.assertEqual(participante.post(reverse("comunidades:configurar_huerto"), {
+            "csrfmiddlewaretoken": participante.cookies["csrftoken"].value,
+        }).status_code, 403)
+        response = participante.post(reverse("cuentas:logout"), {
+            "csrfmiddlewaretoken": participante.cookies["csrftoken"].value,
+        })
+        self.assertRedirects(response, reverse("cuentas:login"))
+        destino = reverse("comunidades:mi_huerto")
+        self.assertRedirects(participante.get(destino), reverse("cuentas:login") + "?next=" + destino)
+
+    def test_inicio_exige_sesion_y_no_acepta_escrituras(self):
+        self.assertRedirects(self.client.get(reverse("inicio")), reverse("cuentas:login") + "?next=/")
+        usuario = crear_usuario("inicio_recorrido")
+        self.client.force_login(usuario)
+        self.assertEqual(self.client.post(reverse("inicio")).status_code, 405)

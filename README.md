@@ -39,6 +39,11 @@ Guía para aprender y probar B2-02: [Crear, unirse y editar comunidad](docs/apre
 
 Guía de B2-03/B2-04: [Configurar huerto y elegir plantas](docs/aprendizaje/B2-03_B2-04_huerto_y_plantas.md).
 
+B3-01 conecta el recorrido de registro, sesión, comunidad, huerto y selección. La entrada `/`
+lleva a la comunidad propia tras exigir sesión. El recorrido con dos cuentas y CSRF se comprueba
+en una misma base temporal: [guía de integración](docs/aprendizaje/B3-01_recorrido_integrado.md).
+Estas comprobaciones de desarrollo no son la ejecución formal de los casos de noviembre.
+
 ---
 
 ## Contenido
