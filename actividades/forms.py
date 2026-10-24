@@ -28,12 +28,12 @@ class RegistroActividadForm(forms.Form):
         label="Planta del huerto",
         queryset=None,
         required=False,
-        empty_label="Todo el huerto (diseño o ritual)",
-        help_text="Diseño y ritual se registran para todo el huerto; las demás actividades, para una planta.",
+        empty_label="Todo el huerto (preparación, diseño o ritual)",
+        help_text="Preparación, diseño y ritual se registran para todo el huerto; las demás actividades, para una planta.",
     )
-    fecha = forms.DateField(
-        label="Fecha en que se realizó",
-        widget=forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d"),
+    fecha = forms.DateTimeField(
+        label="Fecha y hora en que se realizó (Ecuador)",
+        widget=forms.DateTimeInput(attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"),
     )
     detalles = forms.CharField(
         label="Observaciones",
@@ -52,11 +52,11 @@ class RegistroActividadForm(forms.Form):
         )
         if not self.is_bound:
             self.fields["uuid"].initial = uuid.uuid4()
-            self.fields["fecha"].initial = timezone.localdate()
+            self.fields["fecha"].initial = timezone.localtime().replace(second=0, microsecond=0)
 
     def clean_fecha(self):
         fecha = self.cleaned_data["fecha"]
-        if fecha > timezone.localdate():
+        if fecha > timezone.now():
             raise forms.ValidationError("La fecha no puede ser futura.")
         return fecha
 
@@ -65,7 +65,7 @@ class RegistroActividadForm(forms.Form):
         tipo = datos.get("tipo")
         planta = datos.get("planta")
         if tipo in Actividad.TIPOS_GENERALES and planta is not None:
-            self.add_error("planta", "Diseño y ritual se registran para todo el huerto: deja la planta vacía.")
+            self.add_error("planta", "Preparación, diseño y ritual se registran para todo el huerto: deja la planta vacía.")
         elif tipo and tipo not in Actividad.TIPOS_GENERALES and planta is None:
             self.add_error("planta", "Elige la planta sobre la que se hizo esta actividad.")
         return datos
@@ -76,7 +76,7 @@ class AnulacionActividadForm(forms.Form):
 
     motivo = forms.CharField(
         label="Motivo de la anulación",
-        min_length=5,
+        min_length=1,
         max_length=500,
         widget=forms.Textarea(attrs={"rows": 3}),
         help_text="Queda guardado junto con tu usuario y la fecha.",
@@ -93,7 +93,7 @@ class NombramientoMaestroForm(forms.Form):
     candidato = forms.ModelChoiceField(label="Nuevo Maestro", queryset=Miembro.objects.none())
     motivo = forms.CharField(
         label="Motivo del nombramiento",
-        min_length=5,
+        min_length=1,
         max_length=500,
         widget=forms.Textarea(attrs={"rows": 3}),
         help_text="Explica por qué esta persona puede guiar la siembra y el cuidado del huerto.",

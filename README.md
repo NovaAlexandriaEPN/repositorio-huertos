@@ -15,44 +15,29 @@ Proyecto de **Calidad de Software (ISWD652, período 2026B)**.
 
 ## Estado actual del proyecto
 
-En esta rama están disponibles el modelo `Usuario`, su primera migración, el registro con
-consentimiento, el inicio/cierre de sesión y la consulta/edición del perfil propio.
-Funcionan `migrate`, `runserver` y las pruebas automatizadas.
+La rama `bryan` integra cuentas y comunidades de Bryan, actividades de Fernando,
+las seis fichas/fotos de Juan y el diseño con Bootstrap local de Doménica. Las reglas
+de actividades se corrigieron contra el alcance V1 y las tareas de la página.
 
-Los cinco modelos compartidos de B2-01 están definidos: `Comunidad`, `Miembro`, `Huerto`,
-`PlantaHuerto` y `MarcaMaterial`, con sus migraciones. El catálogo aporta `OpcionHuerto`,
-`Planta` y `Material` como dependencias.
-Crear comunidad, unirse por código, consultar miembros y editar los datos de la comunidad
-ya funcionan en `/comunidades/` (B2-02). Solo el responsable puede editar; cada cuenta
-mantiene una única pertenencia. La lista de miembros no muestra nacimiento ni género.
-El configurador del huerto (B2-03) y la selección de plantas (B2-04) están implementados.
-Solo el responsable configura, elige, cambia métodos o retira selecciones. Los miembros
-consultan el huerto propio. El marcado de materiales compartidos está disponible para
-todos sus miembros. El modelo y las funciones de actividades siguen pendientes.
-El comando `cargar_catalogo` todavía no está implementado.
+Funcionan registro y consentimiento, sesión y perfil privado, comunidad por código,
+configuración, selección protegida por historial, materiales, registro y anulación
+de actividades, puntos, progreso, maestro y consultas del catálogo entregado.
 
-La base local puede no tener todavía las opciones, materiales y las 18 fichas del catálogo. Las pantallas
-informan cuando faltan datos; las pruebas usan contenido ficticio en una base temporal.
-La integración final con el modelo `Actividad` se comprueba cuando ese modelo esté disponible.
+`cargar_catalogo` ya carga las seis fichas recibidas, los 13 tipos con sus reglas,
+23 opciones y seis recomendaciones iniciales de materiales. No duplica ni sobrescribe
+registros existentes. Siguen pendientes doce fichas, las guías ampliadas y sus fuentes,
+los eventos lunares verificados y la revisión de materiales. V1 mantiene las 18 especies.
 
-Guía para aprender y probar B2-02: [Crear, unirse y editar comunidad](docs/aprendizaje/B2-02_comunidades.md).
+La revisión de integración, los commits de origen, las correcciones y los pendientes
+están en [integracion_equipo.md](docs/v1/integracion_equipo.md). Las 160 pruebas de
+desarrollo pasan; los casos formales y la base ficticia de demo siguen pendientes.
 
-Guía de B2-03/B2-04: [Configurar huerto y elegir plantas](docs/aprendizaje/B2-03_B2-04_huerto_y_plantas.md).
-
-B3-01 conecta el recorrido de registro, sesión, comunidad, huerto y selección. La entrada `/`
-lleva a la comunidad propia tras exigir sesión. El recorrido con dos cuentas y CSRF se comprueba
-en una misma base temporal: [guía de integración](docs/aprendizaje/B3-01_recorrido_integrado.md).
-Estas comprobaciones de desarrollo no son la ejecución formal de los casos de noviembre.
-
-B3-02 comprueba los permisos y conecta materiales compartidos. Los miembros pueden guardar
-disponibilidad en su propio huerto; las recomendaciones se filtran por sus métodos de siembra.
-La [guía de materiales](docs/aprendizaje/B3-02_permisos_y_materiales.md) documenta las funciones
-y variables de plantilla que sirven para integrar el trabajo de Juan y Doménica.
-
-B3-03 reúne las comprobaciones de privacidad, pertenencia única e historial en los `tests.py`
-existentes: [guía de pruebas propias](docs/aprendizaje/B3-03_pruebas_reglas_propias.md).
-El [apartado de implementación de cuentas y comunidades](docs/v1/implementacion_cuentas_comunidades.md)
-contiene el texto de B3-04 para incorporarlo al borrador del informe.
+Guías de Bryan: [comunidades](docs/aprendizaje/B2-02_comunidades.md),
+[huerto y plantas](docs/aprendizaje/B2-03_B2-04_huerto_y_plantas.md),
+[recorrido inicial](docs/aprendizaje/B3-01_recorrido_integrado.md),
+[materiales](docs/aprendizaje/B3-02_permisos_y_materiales.md) y
+[pruebas propias](docs/aprendizaje/B3-03_pruebas_reglas_propias.md).
+Esas guías documentan cada etapa; el estado integrado vigente es el de esta sección.
 
 ---
 
@@ -77,7 +62,7 @@ contiene el texto de B3-04 para incorporarlo al borrador del informe.
 | Django | **5.2.18 (LTS)** | Fijado exactamente en `requirements.txt`. |
 | Base de datos | SQLite | Incluida en Python. Transacciones `IMMEDIATE`, espera de 5 s. |
 | tzdata | 2026.5 | Zona horaria `America/Guayaquil` en Windows. |
-| Interfaz actual | Plantillas Django + CSS local | Bootstrap 5.3 está previsto; sus archivos aún no están incorporados. |
+| Interfaz | Plantillas Django + Bootstrap 5.3.8 + CSS local | Recursos incorporados; no necesita CDN. |
 | Pruebas | Django `TestCase` + `manage.py test` | Un `tests.py` por aplicación. |
 
 ## 2. Requisitos previos
@@ -170,12 +155,14 @@ Comprueba que está cargada en esta terminal:
 ```powershell
 & .\.venv\Scripts\python.exe manage.py check
 & .\.venv\Scripts\python.exe manage.py migrate
+& .\.venv\Scripts\python.exe manage.py cargar_catalogo
 ```
 
-Esto crea la base local con las tablas de Django y los modelos disponibles de cuentas,
-catálogo y comunidades.
-`& .\.venv\Scripts\python.exe manage.py cargar_catalogo` se ejecutará cuando esté implementado: deberá cargar las
-18 plantas, 13 guías, opciones, materiales y eventos lunares sin duplicar datos ni borrar historial.
+Esto crea las tablas de los cuatro módulos y carga el contenido entregado. Las advertencias
+del comando identifican fichas y eventos pendientes. Repetirlo no reemplaza datos anteriores.
+Si ya usaste las actividades de la entrega original de Fernando y guardaste registros,
+la migración se detiene para no convertirlos con reglas equivocadas. Conserva esa base y
+consulta [la nota de migración](docs/v1/integracion_equipo.md#migraciones-y-bases-que-ya-usaron-la-entrega-anterior).
 
 ### 3.6 Levantar el servidor
 
@@ -242,8 +229,9 @@ llevan cabeceras para evitar almacenar las páginas personales en caché.
   Grupos: `herramientas`, `siembra`, `abonos`. Una lista de métodos vacía indica que es
   común a todos los métodos; una lista no vacía usa los códigos de `MetodoSiembra`.
 
-Los modelos `TipoActividad` y `EventoLunar`, y la carga de los datos, siguen pendientes.
-Estos modelos no completan ni verifican el contenido de las 18 fichas.
+`TipoActividad` contiene las 13 reglas y sus guías de consulta; `EventoLunar` admite los
+eventos verificados. Sus migraciones y el comando de carga están implementados. El
+contenido de las fichas y las guías conserva los pendientes de integración indicados arriba.
 
 La creación de comunidad guarda comunidad y pertenencia del creador en una
 transacción. El huerto se guarda al completar su primera configuración válida;
@@ -260,7 +248,7 @@ al menos una opción de cada categoría, antes de guardarlas en la misma transac
 `limit_choices_to` filtra los formularios, pero no protege una escritura directa en esas
 relaciones múltiples. Los permisos y el código de invitación se comprueban en los servicios de comunidad;
 el código se genera automáticamente, es único y no es una credencial de inicio de sesión.
-Las reglas de puntos y el mínimo de 100 para nombrar maestro se implementarán en actividades.
+Las reglas de puntos y el mínimo de 100 para nombrar maestro se aplican en actividades.
 
 ### Crear, unirse y editar comunidad (B2-02)
 
@@ -337,7 +325,7 @@ La guía B3-02 documenta los contratos de formulario y plantilla para la integra
 `Actividad.planta` debe apuntar a la selección `PlantaHuerto`, no a la especie del catálogo:
 
 ```python
-# Dentro del futuro modelo Actividad:
+# Relación implementada en Actividad:
 planta = models.ForeignKey(
     "comunidades.PlantaHuerto",
     on_delete=models.PROTECT,
@@ -357,11 +345,9 @@ borrar una selección referenciada por actividades.
 `Actividad`, que su campo `planta` tenga esta relación, sea opcional y proteja el borrado.
 Si no cumple, `manage.py check` informa `comunidades.E001`. No se importa el modelo de actividades.
 
-Hasta incorporar `Actividad`, aún no existe historial de actividades en el producto. Una prueba
-de contrato crea una tabla temporal con la relación prevista y comprueba registros activos y
-anulados, incluso con un gestor habitual que oculta anuladas. Los servicios y las pantallas
-rechazan el cambio de método y el retiro en ambos casos. Esa prueba no implementa el modelo de
-Fernando ni sustituye el recorrido final con sus servicios de registro y anulación.
+`Actividad` ya está incorporada. Además de la prueba de contrato con una tabla temporal,
+las pruebas de integración registran y anulan una siembra mediante los servicios reales
+y comprueban que su historial sigue bloqueando el cambio de método y el retiro.
 
 ## 4. Uso diario
 
@@ -428,12 +414,9 @@ petición y respuesta.
 
 ### Bootstrap local
 
-La interfaz actual carga `static/css/estilos.css`. La carpeta `static/vendor/bootstrap/`
-contiene por ahora un archivo de reserva `.gitkeep`. Para incorporar Bootstrap 5.3 según
-el diseño previsto, Doménica puede:
-
-1. Descargar *Compiled CSS and JS* de <https://getbootstrap.com/docs/5.3/getting-started/download/>.
-2. Copiar `css/bootstrap.min.css` y `js/bootstrap.bundle.min.js` a `static/vendor/bootstrap/`.
+Se incluye Bootstrap 5.3.8 en `static/vendor/bootstrap/`, con su cabecera de licencia.
+`base.html` carga su CSS y después `static/css/estilos.css`. El menú y las pantallas
+no dependen de una CDN. Los formularios y los menús de cuenta funcionan sin JavaScript.
 
 ## 7. Reglas de trabajo con Git
 
@@ -479,3 +462,14 @@ Copy-Item -LiteralPath db.sqlite3 -Destination $respaldoHuertos
 
 El archivo [`docs/v1/demo.md`](docs/v1/demo.md) está reservado para el guion de la demo;
 todavía no contiene un guion completo.
+
+## Integración del 24 de octubre
+
+La suite actual ejecuta 160 pruebas con resultado OK, incluidas las reglas de actividades
+y su ciclo completo desde formularios. La carga repetida se comprueba sin cambiar
+historial ni maestro. Para arrancar esta integración tras actualizar bryan: cargar la
+clave local, ejecutar `migrate`, `cargar_catalogo` y `runserver`. La comprobación anterior
+de 122 pruebas corresponde a la versión previa de cuentas/comunidades.
+
+La instalación actual se verifica además en una copia temporal de las fuentes y una
+base vacía. Esto no sustituye comprobar el arranque en otro computador del equipo.

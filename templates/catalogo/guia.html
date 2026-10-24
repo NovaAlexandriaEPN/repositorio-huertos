@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Guía de actividades{% endblock %}
+{% block contenido %}
+<h1>Guía de actividades</h1>
+<p>Son 13 actividades: 3 del huerto y 10 por planta. Las instrucciones ampliadas, materiales y recomendaciones del curso aún requieren completar su entrega.</p>
+<p>Son obligatorios 15 días de preparación a siembra y 10 de inicio de secado a empaquetado. Las horas y fases lunares son recomendaciones.</p>
+{% for guia in guias %}<section class="tarjeta">
+<h2>{{ guia.nombre }}</h2><p>{{ guia.get_alcance_display }} · {{ guia.puntos_base }} puntos{% if guia.repetible %} al primer registro activo; siguientes: 0{% endif %}.</p>
+<p>{{ guia.instrucciones }}</p><p>Materiales: {{ guia.materiales }}</p><p>{{ guia.precauciones }}</p>
+<p>Hora recomendada: {{ guia.hora_recomendada|default:"Pendiente de verificar" }}. Fase: {{ guia.fase_recomendada|default:"Pendiente de verificar" }}.</p>
+<ul>{% for fuente in guia.fuentes %}<li>{{ fuente.titulo }}. {{ fuente.referencia }}</li>{% endfor %}</ul>
+</section>{% empty %}<p>No se han cargado actividades.</p>{% endfor %}
+{% endblock %}

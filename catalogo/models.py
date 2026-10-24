@@ -149,3 +149,65 @@ class Material(models.Model):
 
     def __str__(self) -> str:
         return self.nombre
+
+
+class TipoActividad(models.Model):
+    """Guía fija. Las recompensas históricas se copian a cada actividad."""
+
+    class Codigo(models.TextChoices):
+        PREPARACION = "preparacion", "Preparación de la tierra"
+        DISENO = "diseno", "Elaboración del diseño"
+        RITUAL = "ritual", "Ritual de siembra"
+        SIEMBRA = "siembra", "Siembra"
+        SENALETICA = "senaletica", "Señalética"
+        CUIDADOS = "cuidados", "Cuidados de crecimiento"
+        RIEGO = "riego", "Riego"
+        BANO = "bano", "Baño de la planta"
+        GRATITUD = "gratitud", "Ritual de gratitud"
+        COSECHA = "cosecha", "Cosecha"
+        LIMPIEZA = "limpieza", "Limpieza de plantas"
+        SECADO = "secado", "Secado"
+        EMPAQUETADO = "empaquetado", "Empaquetado y etiquetado"
+
+    codigo = models.CharField(max_length=20, choices=Codigo.choices, unique=True)
+    nombre = models.CharField(max_length=100)
+    alcance = models.CharField(max_length=6, choices=[("huerto", "Huerto"), ("planta", "Planta")])
+    puntos_base = models.PositiveSmallIntegerField()
+    repetible = models.BooleanField(default=False)
+    instrucciones = models.TextField(blank=True)
+    materiales = models.TextField(blank=True)
+    precauciones = models.TextField(blank=True)
+    hora_recomendada = models.TextField(blank=True)
+    fase_recomendada = models.TextField(blank=True)
+    fuentes = models.JSONField(default=list, blank=True)
+
+    class Meta:
+        ordering = ["pk"]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(codigo__in=[
+                "preparacion", "diseno", "ritual", "siembra", "senaletica", "cuidados",
+                "riego", "bano", "gratitud", "cosecha", "limpieza", "secado", "empaquetado",
+            ]), name="tipo_actividad_codigo_valido"),
+            models.CheckConstraint(condition=models.Q(alcance__in=["huerto", "planta"]), name="tipo_actividad_alcance_valido"),
+        ]
+
+    def __str__(self):
+        return self.nombre
+
+
+class EventoLunar(models.Model):
+    """Instante UTC verificado; no representa una fase inventada para cada día."""
+
+    codigo = models.SlugField(max_length=60, unique=True)
+    tipo = models.CharField(max_length=20, choices=[
+        ("nueva", "Luna nueva"), ("creciente", "Cuarto creciente"),
+        ("llena", "Luna llena"), ("menguante", "Cuarto menguante"),
+    ])
+    instante = models.DateTimeField()
+    fuente = models.URLField(max_length=500)
+
+    class Meta:
+        ordering = ["instante", "pk"]
+
+    def __str__(self):
+        return f"{self.get_tipo_display()} · {self.instante}"

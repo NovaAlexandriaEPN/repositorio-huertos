@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% load static %}
+{% block titulo %}{{ planta.nombre_comun }} · Catálogo{% endblock %}
+{% block contenido %}
+<a href="{% url 'catalogo:lista_plantas' %}">Volver al catálogo</a>
+<h1>{{ planta.nombre_comun }}</h1>
+<p>Información educativa; no reemplaza la atención médica. Los datos y créditos provienen de las referencias de esta ficha.</p>
+{% if planta.imagen_ruta and "imagen_ruta" not in planta.campos_no_verificados %}<img class="foto-planta" src="{% static planta.imagen_ruta %}" alt="{{ planta.nombre_comun }}">{% endif %}
+<dl>{% for etiqueta, valor, pendiente in campos %}
+<dt>{{ etiqueta|capfirst }}{% if pendiente %} (no verificado){% endif %}</dt><dd>{{ valor|default:"No verificado" }}</dd>
+{% endfor %}</dl>
+<h2>Fuentes y créditos</h2>
+<ul>{% for fuente in planta.fuentes %}<li>{{ fuente.autor }}. {% if fuente.url %}<a href="{{ fuente.url }}" rel="noreferrer">{{ fuente.titulo }}</a>{% else %}{{ fuente.titulo }}{% endif %}. {{ fuente.referencia }}</li>{% empty %}<li>Fuentes pendientes.</li>{% endfor %}</ul>
+{% endblock %}

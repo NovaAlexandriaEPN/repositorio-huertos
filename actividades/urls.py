@@ -6,6 +6,7 @@ from . import views
 app_name = "actividades"
 
 urlpatterns = [
+    path("historial/", views.mi_historial, name="mi_historial"),
     path("", views.mi_huerto, name="mi_huerto"),
     path("<int:huerto_id>/", views.huerto_virtual, name="inicio_huerto_virtual"),
     path("<int:huerto_id>/registrar/", views.registrar_actividad, name="registrar_actividad"),

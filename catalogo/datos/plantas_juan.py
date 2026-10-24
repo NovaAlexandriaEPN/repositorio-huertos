@@ -7,7 +7,7 @@ PLANTAS = [
     {
         "codigo": "menta",
         "nombre_comun": "Menta",
-        "nombre_cientifico": "Mentha  xpiperita L.",
+        "nombre_cientifico": 'Mentha × piperita L.',
         "otros_nombres": [],
         "familia": "Lamiaceae",
         "altitud_msnm": "1000-1500",
@@ -27,7 +27,11 @@ PLANTAS = [
             "años ni durante el embarazo o la lactancia, por falta de datos. Consultar a "
             "personal de salud si los síntomas duran más de 2 semanas."
         ),
-        "imagen_ruta": "static/img/plantas/menta.jpg",
+        "imagen_ruta": 'img/plantas/menta.jpg',
+        'imagen_autor': 'F 植生记 (Zhishengji), en Pexels',
+        'imagen_fuente': 'https://www.pexels.com/photo/34296580/',
+        'imagen_licencia': ('Licencia Pexels (https://www.pexels.com/license/). Archivo: '
+         'https://images.pexels.com/photos/34296580/pexels-photo-34296580.jpeg'),
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -90,8 +94,7 @@ PLANTAS = [
         ],
         "campos_no_verificados": [
         ],
-        "observaciones": (
-        ),
+        "observaciones": '',
     },
     {
         "codigo": "hierbabuena",
@@ -116,7 +119,11 @@ PLANTAS = [
             "renal; posible interacción con sedantes y con medicamentos que pueden dañar el "
             "hígado. Consultar a personal de salud antes de usarla."
         ),
-        "imagen_ruta": "static/img/plantas/hierbabuena.jpg",
+        "imagen_ruta": 'img/plantas/hierbabuena.jpg',
+        'imagen_autor': 'Federico Lopez Barrachina',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Hierba_buena.JPG',
+        'imagen_licencia': ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
+         'equipo; se presenta con recorte visual mediante CSS.'),
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -173,17 +180,18 @@ PLANTAS = [
                 "campos": ["altitud_msnm", "ciclo"],
             },
             {
-                "autor": "Federico Lopez Barranchina (Wikimedia Commons)",
+                "autor": 'Federico Lopez Barrachina',
                 "titulo": "Hierba_buena.JPG",
                 "url": "https://commons.wikimedia.org/wiki/File:Hierba_buena.JPG",
-                "referencia": "Licencia CC0 (dominio público). Miniatura usada: https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/Hierba_buena.JPG/1920px-Hierba_buena.JPG",
+                "referencia": ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
+         'equipo; se presenta con recorte visual mediante CSS. Metadatos de Wikimedia Commons '
+         'consultados el 24 de octubre de 2026.'),
                 "campos": ["static/img/plantas/hierbabuena.jpg"],
             },
         ],
         "campos_no_verificados": [
         ],
-        "observaciones": (
-        ),
+        "observaciones": '',
     },
     {
         "codigo": "toronjil",
@@ -210,7 +218,10 @@ PLANTAS = [
             "Consultar a personal de salud si los síntomas duran más de 2 semanas. La USFQ "
             "indica cuidar la dosificación."
         ),
-        "imagen_ruta": "static/img/plantas/toronjil.jpg",
+        "imagen_ruta": 'img/plantas/toronjil.jpg',
+        'imagen_autor': 'Wouterhagens (Wikimedia Commons)',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Citroenkruid.jpg',
+        'imagen_licencia': 'Licencia CC BY 3.0 (exige atribución al autor; no es dominio público).',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -265,10 +276,9 @@ PLANTAS = [
                 "campos": ["static/img/plantas/toronjil.jpg"],
             },
         ],
-        "campos_no_verificados": [
-        ],
-        "observaciones": (
-        ),
+        "campos_no_verificados": ['imagen_ruta', 'imagen_autor', 'imagen_fuente', 'imagen_licencia'],
+        "observaciones": (' Fotografía y créditos recibidos pendientes de verificar en su fuente; no se presenta la '
+         'imagen como identificación confirmada.'),
     },
     {
         "codigo": "oregano",
@@ -298,7 +308,11 @@ PLANTAS = [
             "No se encontró una monografía institucional para esta especie. Consultar a "
             "personal de salud."
         ),
-        "imagen_ruta": "static/img/plantas/oregano.jpg",
+        "imagen_ruta": 'img/plantas/oregano.jpg',
+        'imagen_autor': 'Mariya Muschard (Pexels)',
+        'imagen_fuente': 'https://www.pexels.com/photo/11506322/',
+        'imagen_licencia': ('Licencia Pexels (https://www.pexels.com/license/). Archivo: '
+         'https://images.pexels.com/photos/11506322/pexels-photo-11506322.jpeg'),
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -376,8 +390,7 @@ PLANTAS = [
         ],
         "campos_no_verificados": [
         ],
-        "observaciones": (
-        ),
+        "observaciones": '',
     },
     {
         "codigo": "romero",
@@ -406,7 +419,11 @@ PLANTAS = [
             "salud si los síntomas duran más de 2 semanas (uso oral) o más de 4 semanas (baño). "
             "Estos textos describen preparados de hoja, no el aceite esencial."
         ),
-        "imagen_ruta": "static/img/plantas/romero.jpg",
+        "imagen_ruta": 'img/plantas/romero.jpg',
+        'imagen_autor': 'Christina & Peter (@christina99999, Pexels)',
+        'imagen_fuente': 'https://www.pexels.com/photo/30856378/',
+        'imagen_licencia': ('Licencia Pexels (https://www.pexels.com/license/). Archivo: '
+         'https://images.pexels.com/photos/30856378/pexels-photo-30856378.jpeg'),
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -477,8 +494,7 @@ PLANTAS = [
         ],
         "campos_no_verificados": [
         ],
-        "observaciones": (
-        ),
+        "observaciones": '',
     },
     {
         "codigo": "manzanilla",
@@ -510,7 +526,11 @@ PLANTAS = [
             "usarla. No confundir con la manzanilla romana (Chamaemelum nobile), que es otra "
             "especie."
         ),
-        "imagen_ruta": "static/img/plantas/manzanilla.jpg",
+        "imagen_ruta": 'img/plantas/manzanilla.jpg',
+        'imagen_autor': 'Simplicius',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Kamille_01.jpg',
+        'imagen_licencia': ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
+         'equipo; se presenta con recorte visual mediante CSS.'),
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -569,19 +589,19 @@ PLANTAS = [
                 "campos": ["provincias_ecuador"],
             },
             {
-                "autor": "Simplicus (Wikimedia Commons)",
+                "autor": 'Simplicius',
                 "titulo": "Kamille_01.jpg",
                 "url": "https://commons.wikimedia.org/wiki/File:Kamille_01.jpg",
                 "referencia": (
-                    "Licencia CC BY 3.0 (exige atribución al autor; no es dominio público). "
-                    "Miniatura usada: https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Kamille_01.jpg/1920px-Kamille_01.jpg"
+                    ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
+         'equipo; se presenta con recorte visual mediante CSS. Metadatos de Wikimedia Commons '
+         'consultados el 24 de octubre de 2026.')
                 ),
                 "campos": ["static/img/plantas/manzanilla.jpg"],
             },
         ],
         "campos_no_verificados": [
         ],
-        "observaciones": (
-        ),
+        "observaciones": '',
     },
 ]

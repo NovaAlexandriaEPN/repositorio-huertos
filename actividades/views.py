@@ -9,6 +9,7 @@ Las escrituras usan POST con CSRF.
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
+from django.views.decorators.http import require_GET, require_http_methods
 
 from comunidades.models import Huerto
 
@@ -21,6 +22,7 @@ def _texto_error(error: ValidationError) -> str:
     return " ".join(error.messages)
 
 
+@require_GET
 def mi_huerto(request):
     """Lleva al Huerto Virtual de la comunidad del usuario.
 
@@ -33,6 +35,7 @@ def mi_huerto(request):
     return redirect("actividades:inicio_huerto_virtual", huerto_id=huerto.pk)
 
 
+@require_GET
 def huerto_virtual(request, huerto_id):
     """Huerto Virtual (HU-10): progreso, tarjetas por planta, totales, puntos y Maestro.
 
@@ -44,6 +47,7 @@ def huerto_virtual(request, huerto_id):
     return render(request, "actividades/inicio_huerto_virtual.html", resumen)
 
 
+@require_http_methods(["GET", "POST"])
 def registrar_actividad(request, huerto_id):
     """Registro de actividades (HU-08).
 
@@ -91,6 +95,7 @@ def registrar_actividad(request, huerto_id):
     })
 
 
+@require_GET
 def historial(request, huerto_id):
     """Historial de actividades (HU-10), con filtros por planta, tipo y estado.
 
@@ -121,13 +126,14 @@ def historial(request, huerto_id):
     })
 
 
+@require_http_methods(["GET", "POST"])
 def anular_actividad(request, actividad_id):
     """Anulación con motivo (HU-09).
 
     Recibe: GET (confirmación) o POST con el motivo.
-    Valida: permiso (quien la realizó o el responsable), estado y orden del ciclo.
+    Valida: permiso (solo el responsable), estado y orden del ciclo.
     Guarda: estado ANULADA con motivo, autor y fecha; puede retirar al Maestro.
-    Permiso: ser quien realizó la actividad o el responsable de la comunidad.
+    Permiso: ser el responsable de la comunidad.
     """
     actividad = get_object_or_404(
         Actividad.objects.select_related("huerto__comunidad", "planta__planta", "actor_original"),
@@ -165,6 +171,7 @@ def anular_actividad(request, actividad_id):
     })
 
 
+@require_http_methods(["GET", "POST"])
 def nombrar_maestro(request, huerto_id):
     """Nombramiento o sustitución del Maestro del huerto (HU-11).
 
@@ -206,3 +213,11 @@ def nombrar_maestro(request, huerto_id):
         "huerto": huerto,
         "maestro": huerto.maestro,
     })
+
+
+@require_GET
+def mi_historial(request):
+    huerto = servicios.huerto_del_usuario(request.user)
+    if huerto is None:
+        return redirect("comunidades:mi_huerto")
+    return redirect("actividades:historial_actividades", huerto_id=huerto.pk)

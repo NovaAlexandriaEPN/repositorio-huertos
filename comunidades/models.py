@@ -282,7 +282,7 @@ class PlantaHuerto(models.Model):
         """Incluye actividades anuladas; el historial no se filtra por estado."""
         if not self.pk:
             return False
-        # Actividad añadirá la relación inversa al implementar su modelo.
+        # La relación inversa evita importar el módulo de actividades desde aquí.
         actividades = getattr(self, "actividades", None)
         if actividades is None:
             return False

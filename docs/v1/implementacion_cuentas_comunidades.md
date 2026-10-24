@@ -36,7 +36,7 @@ El huerto se crea al completar su primera configuración válida. Guarda provinc
 
 Una especie se puede elegir una sola vez por huerto y distintas comunidades pueden elegirla de manera independiente. La selección apunta a la ficha del catálogo y no la duplica. Su método de siembra puede cambiarse o la selección puede retirarse únicamente mientras no tenga historial. Retirar la selección conserva la ficha del catálogo.
 
-`PlantaHuerto.tiene_historial` consulta todos los registros relacionados, incluidas actividades anuladas. El modelo rechaza cambiar el método con historial y los servicios bloquean tanto ese cambio como el retiro. El campo previsto `Actividad.planta` debe apuntar a `PlantaHuerto`, usar `PROTECT` y declarar `related_name="actividades"`. El contrato permite las actividades generales mediante una referencia opcional. Una comprobación registrada en Django informa `comunidades.E001` si el modelo de actividades, una vez incorporado, no cumple esa relación. Esta conexión utiliza el registro de aplicaciones y la relación inversa, sin importar `actividades.models` desde comunidades.
+`PlantaHuerto.tiene_historial` consulta todos los registros relacionados, incluidas actividades anuladas. El modelo rechaza cambiar el método con historial y los servicios bloquean tanto ese cambio como el retiro. El campo `Actividad.planta` apunta a `PlantaHuerto`, usar `PROTECT` y declarar `related_name="actividades"`. El contrato permite las actividades generales mediante una referencia opcional. Una comprobación registrada en Django informa `comunidades.E001` si el modelo de actividades no cumple esa relación. Esta conexión utiliza el registro de aplicaciones y la relación inversa, sin importar `actividades.models` desde comunidades.
 
 ## Permisos y materiales compartidos
 
@@ -63,6 +63,7 @@ El [README](../../README.md) contiene los pasos de clonación de `bryan`, creaci
 ```powershell
 & .\.venv\Scripts\python.exe manage.py check
 & .\.venv\Scripts\python.exe manage.py migrate
+& .\.venv\Scripts\python.exe manage.py cargar_catalogo
 & .\.venv\Scripts\python.exe manage.py runserver
 ```
 
@@ -72,10 +73,11 @@ Las pruebas de `cuentas/tests.py` y `comunidades/tests.py` comprueban privacidad
 
 El 24 de octubre de 2026 se verificó una copia temporal de las fuentes `c9e7747` en el mismo computador de desarrollo. Un entorno virtual nuevo instaló las dependencias fijadas y completó las migraciones sobre una base vacía. Las 122 pruebas descubiertas por `manage.py test` terminaron con resultado `OK`. Un servidor WSGI local respondió correctamente para acceso, registro y CSS y redirigió al acceso cuando se solicitó la entrada privada. La revisión de instalación en otro computador permanece pendiente.
 
-La protección de historial se verifica con una tabla temporal que contiene registros activos y anulados. La comprobación incluye el modelo, los servicios y los envíos de formularios abiertos antes de que se registrara la actividad. La integración final con el modelo y los servicios de actividades de Fernando sigue pendiente.
+La protección de historial se verifica con una tabla temporal que contiene registros activos y anulados. La comprobación incluye el modelo, los servicios y los envíos de formularios abiertos antes de que se registrara la actividad. La integración con Actividad ya se comprueba también con registros y anulaciones reales.
+La suite integrada actual contiene 160 pruebas con resultado OK; véase `integracion_equipo.md`.
 
 ## Estado de integración
 
-La implementación de cuentas y comunidades está disponible en `bryan`. El catálogo definitivo, su carga y las funciones de actividades siguen siendo entregas pendientes de integración. El producto conserva el requisito de las 18 especies. Las pruebas emplean contenido ficticio en su base temporal y no completan las fichas ni preparan la base de demo.
+La implementación de cuentas y comunidades está disponible en `bryan`. Se integraron la entrega de actividades corregida, la carga inicial, las seis fichas de Juan y el diseño de Doménica. Permanecen pendientes doce fichas, la guía ampliada, materiales y eventos lunares verificados. El producto conserva el requisito de las 18 especies. Las pruebas emplean contenido ficticio en su base temporal y no completan las fichas ni preparan la base de demo.
 
 La estructura de módulos, los modelos compartidos y los contratos de formulario y plantilla se mantienen según la arquitectura acordada. La incorporación de estas pruebas y de las instrucciones de arranque no requiere modificar esa arquitectura. El informe final deberá incorporar los resultados formales y el recorrido completo cuando estén disponibles las entregas del equipo.

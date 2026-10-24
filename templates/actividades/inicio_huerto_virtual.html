@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block titulo %}Huerto virtual · {{ huerto.comunidad.nombre }}{% endblock %}
 
@@ -27,13 +28,8 @@
 
 <section class="resumen" aria-labelledby="titulo-nivel">
   <h2 id="titulo-nivel">Tus puntos</h2>
-  <p><strong>{{ puntos_usuario }}</strong> puntos · Nivel {{ nivel_usuario.nivel }}: {{ nivel_usuario.nombre }}</p>
-  <progress max="100" value="{{ porcentaje_nivel|stringformat:'.1f' }}" aria-labelledby="titulo-nivel">{{ porcentaje_nivel|stringformat:".1f" }} %</progress>
-  {% if nivel_usuario.siguiente_umbral %}
-    <p class="ayuda">Te faltan {{ nivel_usuario.puntos_restantes }} puntos para el siguiente nivel.</p>
-  {% else %}
-    <p class="ayuda">Alcanzaste el nivel más alto. El nivel no nombra Maestro ni da permisos.</p>
-  {% endif %}
+  <p><strong>{{ puntos_usuario }}</strong> puntos · Nivel: {{ nivel_usuario.nombre }}</p>
+  <p>Aprendiz: menos de 100 puntos. Oficial: desde 100. Maestro: nombramiento del responsable con al menos 100 puntos.</p>
 </section>
 
 <section aria-labelledby="titulo-plantas">
@@ -42,11 +38,13 @@
   <div class="tarjetas">
     {% for tarjeta in tarjetas %}
     <article class="tarjeta">
+      {% if tarjeta.seleccion.planta.imagen_ruta and "imagen_ruta" not in tarjeta.seleccion.planta.campos_no_verificados %}<img class="foto-planta" src="{% static tarjeta.seleccion.planta.imagen_ruta %}" alt="{{ tarjeta.nombre }}" loading="lazy">{% endif %}
       <h3>{{ tarjeta.nombre }}</h3>
       <p class="etiqueta-estado">{{ tarjeta.etapa }}</p>
+      <p>{{ tarjeta.siguiente }}</p>
       <p class="ayuda">Método: {{ tarjeta.metodo }}</p>
       <progress max="100" value="{{ tarjeta.progreso|stringformat:'.1f' }}" aria-label="Progreso de {{ tarjeta.nombre }}">{{ tarjeta.progreso|stringformat:".1f" }} %</progress>
-      <p>{{ tarjeta.hitos|length }} de 6 hitos{% if tarjeta.ultima_actividad %} · Última: {{ tarjeta.ultima_actividad.get_tipo_display }} ({{ tarjeta.ultima_actividad.fecha|date:"d/m/Y" }}){% endif %}</p>
+      <p>{{ tarjeta.hitos|length }} de 6 hitos{% if tarjeta.ultima_actividad %} · Última: {{ tarjeta.ultima_actividad.get_tipo_display }} ({{ tarjeta.ultima_actividad.fecha|date:"d/m/Y H:i" }}){% endif %}</p>
     </article>
     {% endfor %}
   </div>
@@ -67,7 +65,7 @@
 </section>
 
 <section aria-labelledby="titulo-miembros">
-  <h2 id="titulo-miembros">Puntos de la comunidad</h2>
+  <h2 id="titulo-miembros">Puntos de la comunidad: {{ puntos_comunidad }}</h2>
   <div class="tabla-desplazable">
   <table>
     <thead><tr><th scope="col">Miembro</th><th scope="col">Puntos</th><th scope="col">Nivel</th></tr></thead>
@@ -76,7 +74,7 @@
       <tr>
         <td>{{ fila.nombre }}{% if fila.es_responsable %} <span class="etiqueta-estado">Responsable</span>{% endif %}{% if fila.es_maestro %} <span class="etiqueta-estado">Maestro</span>{% endif %}</td>
         <td>{{ fila.puntos }}</td>
-        <td>{{ fila.nivel.nivel }} · {{ fila.nivel.nombre }}</td>
+        <td>{{ fila.nivel.nombre }}</td>
       </tr>
       {% endfor %}
     </tbody>

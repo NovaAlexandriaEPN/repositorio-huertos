@@ -59,8 +59,8 @@
   <tbody>
     {% for act in actividades %}
     <tr>
-      <td>{{ act.fecha|date:"d/m/Y" }}</td>
-      <td>{{ act.get_tipo_display }}{% if act.detalles %}<br><span class="ayuda">{{ act.detalles|truncatechars:80 }}</span>{% endif %}</td>
+      <td>{{ act.fecha|date:"d/m/Y H:i" }}</td>
+      <td>{{ act.get_tipo_display }}{% if act.detalles %}<br><span class="ayuda">{{ act.detalles|linebreaksbr }}</span>{% endif %}</td>
       <td>{{ act.nombre_planta }}</td>
       <td>{{ act.actor_original.get_full_name|default:act.actor_original.username }}</td>
       <td>{{ act.puntos }}</td>
@@ -71,7 +71,7 @@
         {% endif %}
       </td>
       <td>
-        {% if act.es_activa and act.actor_original_id == user.id or act.es_activa and es_responsable %}
+        {% if act.es_activa and es_responsable %}
         <a href="{% url 'actividades:anular_actividad' act.id %}">Anular</a>
         {% endif %}
       </td>
