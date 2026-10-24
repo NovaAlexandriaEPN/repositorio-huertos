@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block titulo %}Materiales compartidos · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<h1>Materiales compartidos</h1>
+<p>Consulta las recomendaciones y marca lo que está disponible para tu comunidad. Todos sus miembros pueden actualizar estas casillas.</p>
+<p>Conserva los materiales en una bodega seca, ventilada y con luz natural.</p>
+<p><a href="{% url 'comunidades:mi_huerto' %}">Volver al huerto</a></p>
+{% regroup materiales by material.get_grupo_display as grupos_materiales %}
+{% for grupo in grupos_materiales %}
+  <section class="constancia">
+    <h2>{{ grupo.grouper }}</h2>
+    <ul class="lista-materiales">
+      {% for fila in grupo.list %}
+        <li>
+          <h3>{{ fila.material.nombre }}</h3>
+          {% if fila.material.recomendacion %}<p>{{ fila.material.recomendacion|linebreaksbr }}</p>{% endif %}
+          {% include "componentes/errores.html" with form=fila.form %}
+          <form method="post" action="{% url 'comunidades:marcar_material' fila.material.pk %}">
+            {% csrf_token %}
+            <div class="aceptacion">
+              {{ fila.form.disponible }}
+              <label for="{{ fila.form.disponible.id_for_label }}">{{ fila.form.disponible.label }}</label>
+            </div>
+            <button type="submit">Guardar disponibilidad</button>
+          </form>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% empty %}
+  <p class="recomendacion" role="status">Aún no hay materiales recomendados disponibles para este huerto.</p>
+{% endfor %}
+{% endblock %}

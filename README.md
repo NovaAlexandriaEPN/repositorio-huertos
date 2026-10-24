@@ -27,11 +27,11 @@ ya funcionan en `/comunidades/` (B2-02). Solo el responsable puede editar; cada 
 mantiene una única pertenencia. La lista de miembros no muestra nacimiento ni género.
 El configurador del huerto (B2-03) y la selección de plantas (B2-04) están implementados.
 Solo el responsable configura, elige, cambia métodos o retira selecciones. Los miembros
-consultan el huerto propio. El marcado de materiales y las funciones de actividades
-siguen pendientes.
+consultan el huerto propio. El marcado de materiales compartidos está disponible para
+todos sus miembros. El modelo y las funciones de actividades siguen pendientes.
 El comando `cargar_catalogo` todavía no está implementado.
 
-La base local puede no tener todavía las opciones y las 18 fichas del catálogo. Las pantallas
+La base local puede no tener todavía las opciones, materiales y las 18 fichas del catálogo. Las pantallas
 informan cuando faltan datos; las pruebas usan contenido ficticio en una base temporal.
 La integración final con el modelo `Actividad` se comprueba cuando ese modelo esté disponible.
 
@@ -43,6 +43,11 @@ B3-01 conecta el recorrido de registro, sesión, comunidad, huerto y selección.
 lleva a la comunidad propia tras exigir sesión. El recorrido con dos cuentas y CSRF se comprueba
 en una misma base temporal: [guía de integración](docs/aprendizaje/B3-01_recorrido_integrado.md).
 Estas comprobaciones de desarrollo no son la ejecución formal de los casos de noviembre.
+
+B3-02 comprueba los permisos y conecta materiales compartidos. Los miembros pueden guardar
+disponibilidad en su propio huerto; las recomendaciones se filtran por sus métodos de siembra.
+La [guía de materiales](docs/aprendizaje/B3-02_permisos_y_materiales.md) documenta las funciones
+y variables de plantilla que sirven para integrar el trabajo de Juan y Doménica.
 
 ---
 
@@ -297,6 +302,23 @@ Las operaciones de escritura incluyen POST y CSRF.
 No se añaden datos definitivos del catálogo como parte de estas tareas de Bryan: las opciones,
 las fichas y su carga pertenecen a las entregas de Matthew, Guillermo y Juan. El producto sigue
 requiriendo las 18 especies; usar unas pocas especies en pruebas no recorta ese requisito.
+
+### Materiales compartidos (B3-02)
+
+Desde el huerto, **Ver materiales compartidos** abre `/comunidades/huerto/materiales/`.
+Responsable y participantes pueden consultar las recomendaciones y guardar la disponibilidad
+con una casilla por material. `metodos_siembra=[]` identifica los materiales comunes;
+los demás se muestran cuando coincide alguno de los métodos elegidos en el huerto.
+
+`listar_materiales(actor=...)` consulta exclusivamente las marcas del huerto propio y no
+crea registros al leer. `marcar_material(actor=..., material_id=..., disponible=...)` valida
+la pertenencia y guarda un valor booleano explícito en una transacción. Los reenvíos conservan
+una sola marca y no invierten su valor. Cambiar los métodos no borra las marcas que dejen
+de mostrarse temporalmente.
+
+El guardado usa POST con CSRF en `/comunidades/huerto/materiales/<material_id>/` y no acepta
+IDs de comunidad o huerto para cambiar el destino. No se administran cantidades ni compras.
+La guía B3-02 documenta los contratos de formulario y plantilla para la integración posterior.
 
 ### Contrato con actividades para proteger el historial
 

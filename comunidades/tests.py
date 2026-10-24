@@ -23,6 +23,8 @@ from .servicios import (
     editar_comunidad,
     elegir_planta,
     listar_miembros,
+    listar_materiales,
+    marcar_material,
     obtener_comunidad,
     obtener_huerto,
     retirar_planta,
@@ -1054,11 +1056,15 @@ class RecorridoInicialIntegradoTests(TestCase):
         cls.planta = Planta.objects.create(
             codigo="especie_recorrido", nombre_comun="Especie de prueba del recorrido",
         )
+        cls.material = Material.objects.create(
+            codigo="material_recorrido", nombre="Material común de prueba",
+            grupo=Material.Grupo.HERRAMIENTAS,
+        )
 
-    def enviar(self, cliente, ruta, datos):
+    def enviar(self, cliente, ruta, datos, *, destino=None):
         pagina = cliente.get(ruta)
         self.assertEqual(pagina.status_code, 200)
-        return cliente.post(ruta, {
+        return cliente.post(destino or ruta, {
             **datos, "csrfmiddlewaretoken": cliente.cookies["csrftoken"].value,
         })
 
@@ -1119,6 +1125,11 @@ class RecorridoInicialIntegradoTests(TestCase):
         self.assertEqual(participante.post(reverse("comunidades:configurar_huerto"), {
             "csrfmiddlewaretoken": participante.cookies["csrftoken"].value,
         }).status_code, 403)
+        response = self.enviar(participante, reverse("comunidades:materiales"), {
+            f"material-{self.material.pk}-disponible": "on",
+        }, destino=reverse("comunidades:marcar_material", args=[self.material.pk]))
+        self.assertRedirects(response, reverse("comunidades:materiales"))
+        self.assertTrue(MarcaMaterial.objects.get(huerto=huerto, material=self.material).disponible)
         response = participante.post(reverse("cuentas:logout"), {
             "csrfmiddlewaretoken": participante.cookies["csrftoken"].value,
         })
@@ -1131,3 +1142,164 @@ class RecorridoInicialIntegradoTests(TestCase):
         usuario = crear_usuario("inicio_recorrido")
         self.client.force_login(usuario)
         self.assertEqual(self.client.post(reverse("inicio")).status_code, 405)
+
+
+class MaterialesCompartidosTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        preparar_datos_configurador(cls)
+        cls.huerto = configurar_huerto(actor=cls.responsable, **datos_configuracion(cls.opciones))
+        cls.otro_huerto = configurar_huerto(
+            actor=cls.otro_responsable, **datos_configuracion(cls.opciones),
+        )
+        cls.seleccion = elegir_planta(
+            actor=cls.responsable, planta=cls.planta, metodo_siembra=MetodoSiembra.SEMILLAS,
+        )
+        cls.comun = Material.objects.create(
+            codigo="pala_compartida", nombre="Pala de prueba", grupo=Material.Grupo.HERRAMIENTAS,
+        )
+        cls.abono = Material.objects.create(
+            codigo="abono_compartido", nombre="Abono de prueba", grupo=Material.Grupo.ABONOS,
+        )
+        cls.semillas = Material.objects.create(
+            codigo="material_semillas", nombre="Material para semillas", grupo=Material.Grupo.SIEMBRA,
+            metodos_siembra=[MetodoSiembra.SEMILLAS],
+        )
+        cls.esquejes = Material.objects.create(
+            codigo="material_esquejes", nombre="Material para esquejes", grupo=Material.Grupo.SIEMBRA,
+            metodos_siembra=[MetodoSiembra.ESQUEJES],
+        )
+
+    def test_lectura_recomienda_por_metodos_y_no_crea_marcas(self):
+        filas = listar_materiales(actor=self.participante)
+        self.assertEqual({fila["material"] for fila in filas}, {self.comun, self.abono, self.semillas})
+        self.assertTrue(all(fila["disponible"] is False for fila in filas))
+        self.assertFalse(MarcaMaterial.objects.exists())
+        otras = listar_materiales(actor=self.otro_responsable)
+        self.assertEqual({fila["material"] for fila in otras}, {self.comun, self.abono})
+
+    def test_participante_y_responsable_comparten_marca_y_reenvio_no_duplica(self):
+        marca = marcar_material(actor=self.participante, material_id=self.comun.pk, disponible=True)
+        reenvio = marcar_material(actor=self.participante, material_id=self.comun.pk, disponible=True)
+        self.assertEqual(marca.pk, reenvio.pk)
+        self.assertEqual(MarcaMaterial.objects.filter(huerto=self.huerto, material=self.comun).count(), 1)
+        filas = listar_materiales(actor=self.responsable)
+        self.assertTrue(next(fila for fila in filas if fila["material"] == self.comun)["disponible"])
+        marcar_material(actor=self.responsable, material_id=self.comun.pk, disponible=False)
+        marca.refresh_from_db()
+        self.assertFalse(marca.disponible)
+
+    def test_disponibilidad_de_otra_comunidad_no_se_lee_ni_sobrescribe(self):
+        ajena = marcar_material(actor=self.otro_responsable, material_id=self.comun.pk, disponible=True)
+        propia = next(fila for fila in listar_materiales(actor=self.participante) if fila["material"] == self.comun)
+        self.assertFalse(propia["disponible"])
+        marcar_material(actor=self.participante, material_id=self.comun.pk, disponible=False)
+        ajena.refresh_from_db()
+        self.assertTrue(ajena.disponible)
+
+    def test_material_ajeno_al_metodo_o_inexistente_no_se_guarda(self):
+        for identificador in (self.esquejes.pk, 999999):
+            with self.subTest(material=identificador), self.assertRaises(Material.DoesNotExist):
+                marcar_material(actor=self.participante, material_id=identificador, disponible=True)
+        self.assertFalse(MarcaMaterial.objects.exists())
+
+    def test_el_servicio_exige_un_booleano_real(self):
+        for valor in ("false", "on", 0, 1, None):
+            with self.subTest(valor=valor), self.assertRaises(ValidationError):
+                marcar_material(actor=self.participante, material_id=self.comun.pk, disponible=valor)
+        self.assertFalse(MarcaMaterial.objects.exists())
+
+    def test_cambio_de_metodo_no_borra_marcas_que_pueden_volver_a_ser_relevantes(self):
+        marca = marcar_material(actor=self.responsable, material_id=self.semillas.pk, disponible=True)
+        cambiar_metodo_siembra(
+            actor=self.responsable, seleccion_id=self.seleccion.pk, metodo_siembra=MetodoSiembra.ESQUEJES,
+        )
+        filas = listar_materiales(actor=self.participante)
+        self.assertNotIn(self.semillas, {fila["material"] for fila in filas})
+        self.assertIn(self.esquejes, {fila["material"] for fila in filas})
+        self.assertTrue(MarcaMaterial.objects.filter(pk=marca.pk).exists())
+        cambiar_metodo_siembra(
+            actor=self.responsable, seleccion_id=self.seleccion.pk, metodo_siembra=MetodoSiembra.SEMILLAS,
+        )
+        fila = next(f for f in listar_materiales(actor=self.participante) if f["material"] == self.semillas)
+        self.assertTrue(fila["disponible"])
+
+    def test_anonimo_cuenta_inactiva_o_sin_comunidad_no_acceden(self):
+        Usuario.objects.filter(pk=self.participante.pk).update(is_active=False)
+        for actor in (AnonymousUser(), self.participante, self.sin_comunidad):
+            with self.subTest(actor=actor):
+                with self.assertRaises(PermissionDenied):
+                    listar_materiales(actor=actor)
+                with self.assertRaises(PermissionDenied):
+                    marcar_material(actor=actor, material_id=self.comun.pk, disponible=True)
+
+    def test_post_ignora_ids_de_huerto_comunidad_o_marca_ajena(self):
+        ajena = marcar_material(actor=self.otro_responsable, material_id=self.comun.pk, disponible=False)
+        self.client.force_login(self.participante)
+        url = reverse("comunidades:marcar_material", args=[self.comun.pk])
+        datos = {
+            f"material-{self.comun.pk}-disponible": "on", "huerto": self.otro_huerto.pk,
+            "comunidad": self.otra_comunidad.pk, "marca": ajena.pk,
+        }
+        self.assertRedirects(self.client.post(url, datos), reverse("comunidades:materiales"))
+        ajena.refresh_from_db()
+        self.assertFalse(ajena.disponible)
+        self.assertTrue(MarcaMaterial.objects.get(huerto=self.huerto, material=self.comun).disponible)
+
+    def test_pagina_de_materiales_usa_formularios_reales_y_csrf(self):
+        cliente = Client(enforce_csrf_checks=True)
+        cliente.force_login(self.participante)
+        pagina_url = reverse("comunidades:materiales")
+        url = reverse("comunidades:marcar_material", args=[self.comun.pk])
+        self.assertEqual(cliente.post(url).status_code, 403)
+        pagina = cliente.get(pagina_url)
+        self.assertContains(pagina, self.comun.nombre)
+        self.assertNotContains(pagina, self.esquejes.nombre)
+        datos = {
+            f"material-{self.comun.pk}-disponible": "on",
+            "csrfmiddlewaretoken": cliente.cookies["csrftoken"].value,
+        }
+        self.assertRedirects(cliente.post(url, datos), pagina_url)
+        pagina = cliente.get(pagina_url)
+        fila = next(f for f in pagina.context["materiales"] if f["material"] == self.comun)
+        self.assertTrue(fila["form"]["disponible"].value())
+        self.assertRedirects(cliente.post(url, {
+            "csrfmiddlewaretoken": cliente.cookies["csrftoken"].value,
+        }), pagina_url)
+        self.assertFalse(MarcaMaterial.objects.get(huerto=self.huerto, material=self.comun).disponible)
+
+    def test_post_de_material_no_recomendado_o_inexistente_responde_404(self):
+        self.client.force_login(self.participante)
+        for identificador in (self.esquejes.pk, 999999):
+            response = self.client.post(reverse("comunidades:marcar_material", args=[identificador]))
+            self.assertEqual(response.status_code, 404)
+
+    def test_catalogo_de_materiales_vacio_se_muestra_sin_crear_datos(self):
+        Material.objects.all().delete()
+        self.client.force_login(self.participante)
+        response = self.client.get(reverse("comunidades:materiales"))
+        self.assertContains(response, "Aún no hay materiales recomendados disponibles para este huerto.")
+        self.assertFalse(MarcaMaterial.objects.exists())
+
+    def test_comunidad_sin_huerto_no_crea_marcas_y_vuelve_al_huerto(self):
+        self.otro_huerto.delete()
+        self.client.force_login(self.otro_responsable)
+        self.assertRedirects(
+            self.client.get(reverse("comunidades:materiales")),
+            reverse("comunidades:mi_huerto"),
+        )
+        self.assertRedirects(
+            self.client.post(reverse("comunidades:marcar_material", args=[self.comun.pk])),
+            reverse("comunidades:mi_huerto"),
+        )
+        self.assertFalse(MarcaMaterial.objects.exists())
+
+    def test_materiales_no_se_modifican_con_get_y_las_rutas_exigen_sesion(self):
+        listado = reverse("comunidades:materiales")
+        guardado = reverse("comunidades:marcar_material", args=[self.comun.pk])
+        for ruta in (listado, guardado):
+            self.assertRedirects(self.client.get(ruta), reverse("cuentas:login") + "?next=" + ruta)
+        self.client.force_login(self.participante)
+        self.assertEqual(self.client.get(guardado).status_code, 405)
+        self.assertEqual(self.client.post(listado).status_code, 405)
+        self.assertFalse(MarcaMaterial.objects.exists())

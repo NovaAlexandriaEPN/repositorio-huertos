@@ -3,10 +3,12 @@ from django.core.exceptions import ValidationError
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
-from django.views.decorators.http import require_GET, require_http_methods
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
+
+from catalogo.models import Material
 
 from .forms import (
-    ComunidadForm, ConfirmarRetiroForm, ElegirPlantaForm, HuertoForm,
+    ComunidadForm, ConfirmarRetiroForm, DisponibilidadMaterialForm, ElegirPlantaForm, HuertoForm,
     MetodoSiembraForm, UnirseComunidadForm,
 )
 from .models import PlantaHuerto
@@ -17,6 +19,8 @@ from .servicios import (
     editar_comunidad,
     elegir_planta,
     listar_miembros,
+    listar_materiales,
+    marcar_material,
     obtener_comunidad,
     obtener_comunidad_editable,
     obtener_huerto,
@@ -221,3 +225,45 @@ def retirar(request, seleccion_id):
     return render(request, "comunidades/retirar_planta.html", {
         "form": form, "seleccion": seleccion, "con_historial": seleccion.tiene_historial,
     })
+
+
+def _pagina_materiales(request, *, material_id=None, form_con_errores=None):
+    try:
+        filas = listar_materiales(actor=request.user)
+    except ValidationError as error:
+        messages.info(request, " ".join(error.messages))
+        return redirect("comunidades:mi_huerto")
+    for fila in filas:
+        identificador = fila["material"].pk
+        if identificador == material_id and form_con_errores is not None:
+            fila["form"] = form_con_errores
+        else:
+            fila["form"] = DisponibilidadMaterialForm(
+                prefix=f"material-{identificador}", initial={"disponible": fila["disponible"]},
+            )
+    return render(request, "comunidades/materiales.html", {"materiales": filas})
+
+
+@never_cache
+@require_GET
+def materiales(request):
+    return _pagina_materiales(request)
+
+
+@never_cache
+@require_POST
+def actualizar_material(request, material_id):
+    form = DisponibilidadMaterialForm(request.POST, prefix=f"material-{material_id}")
+    if form.is_valid():
+        try:
+            marcar_material(
+                actor=request.user, material_id=material_id, **form.cleaned_data,
+            )
+        except Material.DoesNotExist as error:
+            raise Http404("No se encontró ese material entre las recomendaciones del huerto.") from error
+        except ValidationError as error:
+            _mostrar_errores(form, error)
+        else:
+            messages.success(request, "La disponibilidad del material se ha guardado para tu comunidad.")
+            return redirect("comunidades:materiales")
+    return _pagina_materiales(request, material_id=material_id, form_con_errores=form)

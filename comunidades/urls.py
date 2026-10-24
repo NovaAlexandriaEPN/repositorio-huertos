@@ -14,4 +14,6 @@ urlpatterns = [
     path("huerto/plantas/elegir/", views.elegir, name="elegir_planta"),
     path("huerto/plantas/<int:seleccion_id>/metodo/", views.cambiar_metodo, name="cambiar_metodo"),
     path("huerto/plantas/<int:seleccion_id>/retirar/", views.retirar, name="retirar_planta"),
+    path("huerto/materiales/", views.materiales, name="materiales"),
+    path("huerto/materiales/<int:material_id>/", views.actualizar_material, name="marcar_material"),
 ]

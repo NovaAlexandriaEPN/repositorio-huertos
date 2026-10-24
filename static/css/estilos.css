@@ -77,6 +77,9 @@ button:hover { background: #1d452d; }
 .plantas-huerto li { border-bottom: 1px solid #d7dfd5; padding: .75rem 0 1rem; }
 input[type="checkbox"] { accent-color: #285a3d; }
 button:disabled { background: #607365; cursor: not-allowed; }
+.lista-materiales { list-style: none; padding: 0; }
+.lista-materiales li { padding: .5rem 0 1.5rem; border-bottom: 1px solid #d7dfd5; }
+.lista-materiales .aceptacion { margin-top: .5rem; margin-bottom: .75rem; }
 @media (max-width: 600px) {
   .contenido { margin-top: 1.5rem; padding: 0 1rem; }
   .formulario { padding: 1rem; }

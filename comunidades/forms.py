@@ -106,3 +106,9 @@ class MetodoSiembraForm(forms.Form):
 
 class ConfirmarRetiroForm(forms.Form):
     """La confirmación solo envía POST y CSRF; la selección procede de la ruta."""
+
+
+class DisponibilidadMaterialForm(forms.Form):
+    disponible = forms.BooleanField(
+        label="Disponible para la comunidad", required=False,
+    )

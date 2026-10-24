@@ -10,9 +10,9 @@ from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import F, Prefetch
 from django.db.models.deletion import ProtectedError
 
-from catalogo.models import OpcionHuerto, Planta
+from catalogo.models import Material, OpcionHuerto, Planta
 
-from .models import Comunidad, Huerto, Miembro, PlantaHuerto
+from .models import Comunidad, Huerto, MarcaMaterial, Miembro, PlantaHuerto
 
 
 def _exigir_actor_activo(actor):
@@ -256,3 +256,57 @@ def retirar_planta(*, actor, seleccion_id: int) -> None:
             seleccion.delete()
         except ProtectedError as error:
             raise ValidationError("No se retira una selección que conserva registros relacionados.") from error
+
+
+def _huerto_del_miembro(*, actor) -> Huerto:
+    """Los materiales permiten actuar a todos los miembros, no solo al responsable."""
+    huerto = obtener_huerto(actor=actor)
+    if huerto is None:
+        if obtener_comunidad(actor=actor) is None:
+            raise PermissionDenied("Debes pertenecer a una comunidad para consultar sus materiales.")
+        raise ValidationError("El responsable debe configurar el huerto antes de usar sus materiales.")
+    return huerto
+
+
+def _metodos_del_huerto(huerto: Huerto) -> set[str]:
+    return {seleccion.metodo_siembra for seleccion in huerto.plantas.all()}
+
+
+def _material_corresponde(material: Material, metodos: set[str]) -> bool:
+    return not material.metodos_siembra or bool(set(material.metodos_siembra) & metodos)
+
+
+def listar_materiales(*, actor) -> list[dict]:
+    """Recomendaciones y disponibilidad del huerto propio, sin crear marcas al leer."""
+    huerto = _huerto_del_miembro(actor=actor)
+    metodos = _metodos_del_huerto(huerto)
+    marcas = dict(
+        MarcaMaterial.objects.filter(huerto=huerto).values_list("material_id", "disponible")
+    )
+    # El catálogo es pequeño; se filtra en Python para mantener compatibilidad con SQLite.
+    return [
+        {"material": material, "disponible": marcas.get(material.pk, False)}
+        for material in Material.objects.all()
+        if _material_corresponde(material, metodos)
+    ]
+
+
+def marcar_material(*, actor, material_id: int, disponible: bool) -> MarcaMaterial:
+    """Guardar un valor explícito compartido; reenviar no invierte ni duplica la marca."""
+    with _escritura_atomica():
+        huerto = _huerto_del_miembro(actor=actor)
+        if not isinstance(disponible, bool):
+            raise ValidationError({"disponible": "Indica si el material está disponible."})
+        material = Material.objects.get(pk=material_id)
+        if not _material_corresponde(material, _metodos_del_huerto(huerto)):
+            raise Material.DoesNotExist("El material no corresponde a los métodos del huerto.")
+        marca = MarcaMaterial.objects.filter(huerto=huerto, material=material).first()
+        if marca is None:
+            marca = MarcaMaterial(huerto=huerto, material=material)
+        marca.disponible = disponible
+        marca.full_clean()
+        if marca.pk:
+            marca.save(update_fields=["disponible"])
+        else:
+            marca.save()
+    return marca

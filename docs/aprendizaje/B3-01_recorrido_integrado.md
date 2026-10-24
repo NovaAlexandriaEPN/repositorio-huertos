@@ -36,7 +36,9 @@ La comprobación:
 8. Rechaza una operación de responsable intentada por ese participante.
 9. Cierra su sesión y comprueba que pierde el acceso privado.
 
-Los clientes exigen CSRF. No se usa `force_login` para saltar el registro o el inicio de sesión en ese recorrido. Las opciones y la especie de prueba se crean únicamente en la base temporal.
+Los clientes exigen CSRF. No se usa `force_login` para saltar el registro o el inicio de sesión en ese recorrido. Las opciones, la especie y el material de prueba se crean únicamente en la base temporal.
+
+Como parte de [B3-02](B3-02_permisos_y_materiales.md), el recorrido también comprueba que el participante marque un material compartido antes de cerrar sesión.
 
 Es una comprobación automática de desarrollo. No registra una ejecución formal de CP-01 a CP-10 ni escribe resultados en `docs/v1/resultados.md`.
 
