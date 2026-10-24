@@ -1,7 +1,7 @@
 {% if messages %}
 <div class="mensajes" aria-live="polite">
   {% for mensaje in messages %}
-    <p class="mensaje {{ mensaje.tags }}" role="status">{{ mensaje }}</p>
+    <p class="mensaje alert alert-{{ mensaje.level_tag|default:'info' }}" role="status">{{ mensaje }}</p>
   {% endfor %}
 </div>
 {% endif %}
