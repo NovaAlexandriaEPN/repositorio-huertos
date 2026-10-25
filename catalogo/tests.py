@@ -93,14 +93,15 @@ class CargaIntegradaTests(TestCase):
         planta.observaciones = "Corrección interna que no debe reemplazar el comando"
         planta.save(update_fields=["observaciones"])
         call_command("cargar_catalogo", stdout=StringIO())
-        self.assertEqual(Planta.objects.count(), 6)
+        from .datos import PLANTAS
+        self.assertEqual(Planta.objects.count(), len(PLANTAS))
         self.assertEqual(TipoActividad.objects.count(), 13)
         self.assertEqual(OpcionHuerto.objects.count(), 23)
         planta.refresh_from_db()
         self.assertEqual(planta.pk, id_inicial)
         self.assertEqual(planta.observaciones, "Corrección interna que no debe reemplazar el comando")
 
-    def test_seis_fichas_cumplen_formato_y_rutas_locales_con_creditos(self):
+    def test_fichas_cumplen_formato_y_fotos_verificadas_tienen_archivo_y_creditos(self):
         from pathlib import Path
         from django.conf import settings
         from .datos import PLANTAS
@@ -110,6 +111,12 @@ class CargaIntegradaTests(TestCase):
                 self.assertEqual(set(ficha), campos)
                 self.assertIsInstance(ficha["observaciones"], str)
                 Planta(**ficha).full_clean()
+                if "imagen_ruta" in ficha["campos_no_verificados"]:
+                    # Foto pendiente o no verificada: la ficha no la presenta como
+                    # confirmada; si hay ruta, el archivo debe existir.
+                    if ficha["imagen_ruta"]:
+                        self.assertTrue((settings.BASE_DIR / "static" / ficha["imagen_ruta"]).is_file())
+                    continue
                 self.assertTrue((settings.BASE_DIR / "static" / ficha["imagen_ruta"]).is_file())
                 for campo in ("imagen_autor", "imagen_fuente", "imagen_licencia"):
                     self.assertTrue(ficha[campo])
@@ -134,3 +141,21 @@ class CargaIntegradaTests(TestCase):
         fuera = calendario_local(8, date(2026, 8, 1))
         self.assertFalse(fuera["dentro_periodo"])
         self.assertIsNone(fuera["anterior"]); self.assertIsNone(fuera["siguiente"])
+
+
+class EntregaMatthewTests(TestCase):
+    """Contenido de Matthew: fichas, guías, opciones, materiales y luna (M2)."""
+
+    def test_seis_fichas_de_matthew_con_campos_vacios_marcados_como_pendientes(self):
+        from .datos import PLANTAS
+        from .datos.plantas_matthew import PLANTAS as MIAS
+        self.assertEqual({f["codigo"] for f in MIAS},
+                         {"matico", "taraxaco", "marco", "llanten", "ortiga", "violeta"})
+        codigos = [f["codigo"] for f in PLANTAS]
+        self.assertEqual(len(codigos), len(set(codigos)))
+        for ficha in MIAS:
+            with self.subTest(codigo=ficha["codigo"]):
+                self.assertIn(ficha["cualidad_ancestral"], ("caliente", "fria"))
+                for campo, valor in ficha.items():
+                    if campo != "observaciones" and valor in (None, []):
+                        self.assertIn(campo, ficha["campos_no_verificados"])
