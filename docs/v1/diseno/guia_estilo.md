@@ -63,6 +63,15 @@ La foto debe tener su autor, licencia y fuente como las del catálogo (D2-01).
 | Estado | `etiqueta` (salvia) o `etiqueta etiqueta-acento` (durazno) | Siempre con texto, no solo color |
 | Avance | `avance`, `avance-barra`, `avance-relleno` (con `style="width: N%"`), `avance-texto` | El número siempre visible |
 | Lista con bordes | `lista-filas`, `fila`, `fila-texto` | Actividades recientes, historial |
+| Ficha de planta | `ficha` (foto + identificación), `ficha-secciones` (bloques), `ficha-ancha`, `datos-ficha` + `componentes/dato_ficha.html` | Un dato sin valor muestra «No verificado» |
+| Precauciones | `precauciones` | Borde y fondo terracota; siempre con su título visible |
+| Fuentes | `lista-fuentes` | Si la fuente no tiene URL (PDF del aula) se muestra el título sin enlace |
+| Guía de actividad | `guia`, `guia-encabezado`, `guia-pasos`, `plazo-obligatorio`, `guia-detalles`, `lista-chips` | El plazo obligatorio va destacado; hora y fase se marcan como «no obligatorias» |
+| Enlaces de regreso | `volver`, `enlace-flecha` | Flecha de icono, sin texto «←» |
+| Bloques de página | `bloques` (rejilla de `resumen`), `encabezado-seccion`, `vacio`, `tarjeta-opcion` | Mi comunidad, huerto sin configurar |
+| Casillas múltiples | `opciones-multiples` alrededor de un `CheckboxSelectMultiple` | Diseños y abonos como píldoras; la marcada se ve en salvia |
+| Resumen de especie | `componentes/seleccion_resumen.html` | Foto pequeña, nombre y método actual (cambiar método, retirar) |
+| Material | `lista-materiales`, `material`, `material-disponible`, `material-formulario`, `boton-pequeno`, `etiqueta-neutra` | Casilla + botón por material; la etiqueta repite el estado guardado |
 
 Ejemplo de tarjeta de planta:
 
@@ -83,6 +92,14 @@ Ejemplo de tarjeta de planta:
 ```
 
 Los nombres de variables del ejemplo son orientativos; se usan los que entregue la vista.
+
+### Filtros de presentación del catálogo
+
+`{% load presentacion %}` (archivo `catalogo/templatetags/presentacion.py`) solo separa textos guardados para mostrarlos:
+
+- `texto|lineas`: una línea por paso de la guía.
+- `texto|elementos`: materiales escritos como «a; b; c.» en una lista.
+- `texto|licencia`: separa «CC BY-SA 4.0 — https://…» en nombre y enlace.
 
 ## Qué se tomó de la propuesta visual y qué se adaptó
 

@@ -1,0 +1,11 @@
+{% comment %}
+Un dato de la ficha de planta. Recibe:
+  etiqueta – nombre del dato.
+  valor    – texto ya preparado (las listas se unen con join antes de pasarlas).
+  campo    – nombre del campo, para saber si figura en planta.campos_no_verificados.
+Sin valor se muestra «No verificado»; nunca None ni una lista vacía.
+{% endcomment %}
+<div class="dato">
+  <dt>{{ etiqueta }}{% if valor and campo in planta.campos_no_verificados %} <span class="etiqueta etiqueta-acento">No verificado</span>{% endif %}</dt>
+  <dd>{% if valor %}{{ valor|linebreaksbr }}{% else %}<span class="sin-dato">No verificado</span>{% endif %}</dd>
+</div>

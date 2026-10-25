@@ -160,7 +160,8 @@ class EntregaMatthewTests(TestCase):
             with self.subTest(codigo=ficha["codigo"]):
                 self.assertIn(ficha["cualidad_ancestral"], ("caliente", "fria"))
                 for campo, valor in ficha.items():
-                    if campo != "observaciones" and valor in (None, []):
+                    # Una lista de pendientes vacía significa que no queda nada por verificar.
+                    if campo not in ("observaciones", "campos_no_verificados") and valor in (None, []):
                         self.assertIn(campo, ficha["campos_no_verificados"])
 
     def test_trece_guias_completas_y_plazos_obligatorios(self):
@@ -234,8 +235,10 @@ class PantallasCatalogoTests(TestCase):
         self.assertContains(respuesta, 'id="siembra"')
         self.assertContains(respuesta, "Obligatorio: Deben pasar al menos 15 días")
 
-    def test_ficha_de_matthew_marca_foto_pendiente(self):
+    def test_ficha_de_matthew_muestra_foto_con_creditos(self):
         from django.urls import reverse
         respuesta = self.client.get(reverse("catalogo:detalle_planta", args=["ortiga"]))
         self.assertContains(respuesta, "Urtica dioica")
-        self.assertNotContains(respuesta, "<img")
+        self.assertContains(respuesta, 'src="/static/img/plantas/ortiga.jpg"')
+        self.assertContains(respuesta, "Dominicus Johannes Bergsma")
+        self.assertContains(respuesta, "CC BY-SA 4.0")

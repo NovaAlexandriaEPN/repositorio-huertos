@@ -28,10 +28,9 @@ PLANTAS = [
             "personal de salud si los síntomas duran más de 2 semanas."
         ),
         "imagen_ruta": 'img/plantas/menta.jpg',
-        'imagen_autor': 'F 植生记 (Zhishengji), en Pexels',
-        'imagen_fuente': 'https://www.pexels.com/photo/34296580/',
-        'imagen_licencia': ('Licencia Pexels (https://www.pexels.com/license/). Archivo: '
-         'https://images.pexels.com/photos/34296580/pexels-photo-34296580.jpeg'),
+        "imagen_autor": 'Kızıl',
+        "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Mentha_%C3%97_piperita%E2%80%93IMG_6075.jpg',
+        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -82,13 +81,10 @@ PLANTAS = [
                 "campos": ["observaciones"],
             },
             {
-                "autor": "F 植生记 (Zhishengji), en Pexels",
-                "titulo": "Fresh Green Mint Leaves in Natural Light",
-                "url": "https://www.pexels.com/photo/34296580/",
-                "referencia": (
-                    "Licencia Pexels (https://www.pexels.com/license/). "
-                    "Archivo: https://images.pexels.com/photos/34296580/pexels-photo-34296580.jpeg"
-                ),
+                "autor": 'Kızıl',
+                "titulo": 'Mentha × piperita–IMG 6075.jpg',
+                "url": 'https://commons.wikimedia.org/wiki/File:Mentha_%C3%97_piperita%E2%80%93IMG_6075.jpg',
+                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/menta.jpg"],
             },
         ],
@@ -120,10 +116,9 @@ PLANTAS = [
             "hígado. Consultar a personal de salud antes de usarla."
         ),
         "imagen_ruta": 'img/plantas/hierbabuena.jpg',
-        'imagen_autor': 'Federico Lopez Barrachina',
-        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Hierba_buena.JPG',
-        'imagen_licencia': ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
-         'equipo; se presenta con recorte visual mediante CSS.'),
+        "imagen_autor": 'Simon Eugster',
+        "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Minze.jpg',
+        "imagen_licencia": 'CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -180,12 +175,10 @@ PLANTAS = [
                 "campos": ["altitud_msnm", "ciclo"],
             },
             {
-                "autor": 'Federico Lopez Barrachina',
-                "titulo": "Hierba_buena.JPG",
-                "url": "https://commons.wikimedia.org/wiki/File:Hierba_buena.JPG",
-                "referencia": ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
-         'equipo; se presenta con recorte visual mediante CSS. Metadatos de Wikimedia Commons '
-         'consultados el 24 de octubre de 2026.'),
+                "autor": 'Simon Eugster',
+                "titulo": 'Minze.jpg',
+                "url": 'https://commons.wikimedia.org/wiki/File:Minze.jpg',
+                "referencia": 'CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/hierbabuena.jpg"],
             },
         ],
@@ -219,9 +212,9 @@ PLANTAS = [
             "indica cuidar la dosificación."
         ),
         "imagen_ruta": 'img/plantas/toronjil.jpg',
-        'imagen_autor': 'Wouterhagens (Wikimedia Commons)',
-        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Citroenkruid.jpg',
-        'imagen_licencia': 'Licencia CC BY 3.0 (exige atribución al autor; no es dominio público).',
+        "imagen_autor": 'Lazaregagnidze',
+        "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Melissa_officinalis_Bee_Balm,Lemon_Balm_%E1%83%91%E1%83%90%E1%83%A0%E1%83%90%E1%83%9B%E1%83%91%E1%83%9D.JPG',
+        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -269,16 +262,16 @@ PLANTAS = [
                 "campos": ["provincias_ecuador", "parte_utilizada", "usos_documentados", "observaciones"],
             },
             {
-                "autor": "Wouterhagens (Wikimedia Commons)",
-                "titulo": "Citroenkruid.jpg",
-                "url": "https://commons.wikimedia.org/wiki/File:Citroenkruid.jpg",
-                "referencia": "Licencia CC BY 3.0 (exige atribución al autor; no es dominio público).",
+                "autor": 'Lazaregagnidze',
+                "titulo": 'Melissa officinalis Bee Balm,Lemon Balm ბარამბო.JPG',
+                "url": 'https://commons.wikimedia.org/wiki/File:Melissa_officinalis_Bee_Balm,Lemon_Balm_%E1%83%91%E1%83%90%E1%83%A0%E1%83%90%E1%83%9B%E1%83%91%E1%83%9D.JPG',
+                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/toronjil.jpg"],
             },
         ],
-        "campos_no_verificados": ['imagen_ruta', 'imagen_autor', 'imagen_fuente', 'imagen_licencia'],
-        "observaciones": (' Fotografía y créditos recibidos pendientes de verificar en su fuente; no se presenta la '
-         'imagen como identificación confirmada.'),
+        "campos_no_verificados": [
+        ],
+        "observaciones": '',
     },
     {
         "codigo": "oregano",
@@ -309,10 +302,9 @@ PLANTAS = [
             "personal de salud."
         ),
         "imagen_ruta": 'img/plantas/oregano.jpg',
-        'imagen_autor': 'Mariya Muschard (Pexels)',
-        'imagen_fuente': 'https://www.pexels.com/photo/11506322/',
-        'imagen_licencia': ('Licencia Pexels (https://www.pexels.com/license/). Archivo: '
-         'https://images.pexels.com/photos/11506322/pexels-photo-11506322.jpeg'),
+        "imagen_autor": 'David J. Stang',
+        "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Origanum_vulgare_Variegata_0zz.jpg',
+        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -378,13 +370,10 @@ PLANTAS = [
                 "campos": ["observaciones"],
             },
             {
-                "autor": "Mariya Muschard (Pexels)",
-                "titulo": "Oregano Plants Close-Up Photo",
-                "url": "https://www.pexels.com/photo/11506322/",
-                "referencia": (
-                    "Licencia Pexels (https://www.pexels.com/license/). "
-                    "Archivo: https://images.pexels.com/photos/11506322/pexels-photo-11506322.jpeg"
-                ),
+                "autor": 'David J. Stang',
+                "titulo": 'Origanum vulgare Variegata 0zz.jpg',
+                "url": 'https://commons.wikimedia.org/wiki/File:Origanum_vulgare_Variegata_0zz.jpg',
+                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/oregano.jpg"],
             },
         ],
@@ -420,10 +409,9 @@ PLANTAS = [
             "Estos textos describen preparados de hoja, no el aceite esencial."
         ),
         "imagen_ruta": 'img/plantas/romero.jpg',
-        'imagen_autor': 'Christina & Peter (@christina99999, Pexels)',
-        'imagen_fuente': 'https://www.pexels.com/photo/30856378/',
-        'imagen_licencia': ('Licencia Pexels (https://www.pexels.com/license/). Archivo: '
-         'https://images.pexels.com/photos/30856378/pexels-photo-30856378.jpeg'),
+        "imagen_autor": 'David J. Stang',
+        "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Rosmarinus_officinalis_13zz.jpg',
+        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -482,13 +470,10 @@ PLANTAS = [
                 "campos": ["altitud_msnm"],
             },
             {
-                "autor": "Christina & Peter (@christina99999, Pexels)",
-                "titulo": "Close-up of Sunlit Rosemary Plant Outdoors",
-                "url": "https://www.pexels.com/photo/30856378/",
-                "referencia": (
-                    "Licencia Pexels (https://www.pexels.com/license/). "
-                    "Archivo: https://images.pexels.com/photos/30856378/pexels-photo-30856378.jpeg"
-                ),
+                "autor": 'David J. Stang',
+                "titulo": 'Rosmarinus officinalis 13zz.jpg',
+                "url": 'https://commons.wikimedia.org/wiki/File:Rosmarinus_officinalis_13zz.jpg',
+                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/romero.jpg"],
             },
         ],
@@ -527,10 +512,9 @@ PLANTAS = [
             "especie."
         ),
         "imagen_ruta": 'img/plantas/manzanilla.jpg',
-        'imagen_autor': 'Simplicius',
-        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Kamille_01.jpg',
-        'imagen_licencia': ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
-         'equipo; se presenta con recorte visual mediante CSS.'),
+        "imagen_autor": 'Robert Flogaus-Faust',
+        "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Matricaria_chamomilla_2_RF.jpg',
+        "imagen_licencia": 'CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -589,14 +573,10 @@ PLANTAS = [
                 "campos": ["provincias_ecuador"],
             },
             {
-                "autor": 'Simplicius',
-                "titulo": "Kamille_01.jpg",
-                "url": "https://commons.wikimedia.org/wiki/File:Kamille_01.jpg",
-                "referencia": (
-                    ('CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Archivo recibido del '
-         'equipo; se presenta con recorte visual mediante CSS. Metadatos de Wikimedia Commons '
-         'consultados el 24 de octubre de 2026.')
-                ),
+                "autor": 'Robert Flogaus-Faust',
+                "titulo": 'Matricaria chamomilla 2 RF.jpg',
+                "url": 'https://commons.wikimedia.org/wiki/File:Matricaria_chamomilla_2_RF.jpg',
+                "referencia": 'CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/manzanilla.jpg"],
             },
         ],

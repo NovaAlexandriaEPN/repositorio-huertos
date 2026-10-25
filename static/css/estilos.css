@@ -290,25 +290,32 @@ button .icono, .boton .icono { width: 20px; height: 20px; }
 /* --- Tarjetas ----------------------------------------------------------- */
 
 .tarjeta {
-  display: flex; flex-direction: column; min-width: 0;
+  display: flex; flex-direction: column; gap: .35rem; min-width: 0; padding: 1rem 1.1rem;
   background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio-control); overflow: hidden;
 }
-.tarjeta-cuerpo { padding: .9rem 1rem 1rem; display: grid; gap: .35rem; }
+.tarjeta > * { margin: 0; }
+.tarjeta > .foto-planta, .tarjeta > .foto-pendiente { width: calc(100% + 2.2rem); max-width: none; margin: -1rem -1.1rem .6rem; }
+.tarjeta-cuerpo { display: grid; gap: .35rem; }
 .tarjeta-cuerpo > * { margin: 0; }
-.tarjeta h3, .tarjeta-titulo { font-family: var(--serif); font-size: 1.25rem; margin: 0; }
-.nombre-cientifico { font-size: .8rem; font-style: italic; color: var(--apagado); }
-.tarjeta-pie { margin-top: auto; padding: .75rem 1rem; border-top: 1px solid var(--linea); }
+.tarjeta h2, .tarjeta h3, .tarjeta-titulo { font-family: var(--serif); font-size: 1.25rem; margin: 0; }
+.tarjeta h2 a, .tarjeta h3 a { color: var(--tinta); }
+.nombre-cientifico { font-size: .85rem; font-style: italic; color: var(--apagado); }
+.tarjeta-pie { margin: auto -1.1rem -1rem; padding: .75rem 1.1rem; border-top: 1px solid var(--linea); }
+.enlace-flecha { display: inline-flex; align-items: center; gap: .4rem; }
+.enlace-flecha .icono { width: 18px; height: 18px; }
 
 /* Rejilla de tarjetas: 1 columna en celular, hasta 3 o 4 en computador. */
 .rejilla-tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
 
 /* Foto de planta: misma altura en todas las tarjetas, sin deformar. */
-.foto-planta { display: block; width: 100%; height: 150px; object-fit: cover; background: var(--salvia); }
+.foto-planta { display: block; width: 100%; height: 170px; object-fit: cover; background: var(--salvia); }
+.foto-pendiente { display: grid; place-items: center; height: 170px; background: var(--salvia-suave); color: #8b9a85; }
+.foto-pendiente .icono { width: 48px; height: 48px; stroke-width: 1.1; }
 .foto-planta-ficha { height: auto; max-height: 440px; object-fit: contain; border-radius: var(--radio); }
 .atribucion { font-size: .78rem; color: var(--apagado); overflow-wrap: anywhere; }
 
 /* Tarjetas de resumen: icono redondo, número grande con serifa y etiqueta. */
-.rejilla-resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+.rejilla-resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
 .tarjeta-resumen { flex-direction: row; align-items: center; gap: 1.1rem; padding: 1rem 1.25rem; }
 .resumen-icono { display: grid; place-items: center; flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%; background: var(--salvia-suave); color: var(--bosque); }
 .resumen-icono .icono { width: 26px; height: 26px; }
@@ -336,6 +343,114 @@ button .icono, .boton .icono { width: 20px; height: 20px; }
 .fila-texto { display: grid; flex: 1; min-width: 0; }
 .fila-texto strong { font-weight: 600; font-size: .95rem; }
 .fila-texto small { color: var(--apagado); font-size: .8rem; }
+
+/* --- Catálogo: ficha de planta y guía de actividades ------------------- */
+
+.volver { margin: 0 0 1.25rem; }
+.volver a { display: inline-flex; align-items: center; gap: .45rem; }
+.volver .icono { width: 18px; height: 18px; transform: scaleX(-1); }
+.etiquetas { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; }
+a.etiqueta-enlace { text-decoration: none; }
+a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
+.sin-dato { color: var(--apagado); font-style: italic; }
+.tarjeta-resumen p { margin: 0; font-size: .9rem; color: #46514c; }
+
+.ficha { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 2rem; align-items: start; margin-bottom: 2rem; }
+.ficha-foto figure { margin: 0; }
+.ficha-foto .foto-planta-ficha { width: 100%; height: auto; max-height: 520px; object-fit: cover; border-radius: var(--radio); }
+.foto-pendiente-ficha { height: 320px; border-radius: var(--radio); }
+.ficha-foto .atribucion { margin-top: .6rem; }
+.ficha-cientifico { font-size: 1.15rem; margin: 0; }
+.aviso-educativo { padding: .75rem 1rem; border-radius: var(--radio-control); background: var(--salvia-suave); font-size: .9rem; }
+
+.datos-ficha { display: grid; gap: .9rem; margin: 0; }
+.dato dt { font-size: .8rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--apagado); display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.dato dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
+
+.ficha-secciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.ficha-secciones > section { padding: 1.4rem 1.5rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.ficha-secciones h2 { margin-top: 0; font-size: 1.45rem; }
+.ficha-ancha { grid-column: 1 / -1; }
+.precauciones { border-left: 3px solid var(--terracota) !important; background: #fdf3ec !important; }
+.precauciones h2, .precauciones h3 { color: #7d3418; }
+.lista-fuentes { display: grid; gap: .6rem; padding-left: 1.3rem; margin: 0; }
+.lista-fuentes .ayuda { display: block; margin-top: .15rem; }
+
+.indice-guias { margin-bottom: 2rem; }
+.indice-guias ul { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; }
+.guia { scroll-margin-top: 1rem; margin-bottom: 1.5rem; padding: 1.75rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.guia-encabezado { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; margin-bottom: 1rem; }
+.guia-encabezado h2 { margin: 0; font-size: 1.8rem; }
+.guia-pasos { max-width: 70ch; }
+.guia-pasos p { margin: 0 0 .55rem; }
+.plazo-obligatorio { padding: .8rem 1rem; border-radius: var(--radio-control); background: var(--durazno); color: #5e2610; font-weight: 600; }
+.plazo-obligatorio .etiqueta { margin-right: .4rem; background: var(--terracota); color: #fff; }
+.guia-detalles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+.guia-detalles > section { padding: 1rem 1.15rem; border-radius: var(--radio-control); background: var(--marfil); border: 1px solid var(--linea); }
+.guia-detalles h3 { margin: 0 0 .6rem; font-size: 1.1rem; }
+.guia-detalles p { margin: 0; }
+.lista-chips { display: flex; flex-wrap: wrap; gap: .35rem; padding: 0; margin: 0; list-style: none; }
+.lista-chips li { padding: .3rem .7rem; border-radius: 999px; background: var(--salvia-suave); font-size: .85rem; }
+.guia-fuentes { margin-top: .5rem; }
+.volver-arriba { margin: 1rem 0 0; font-size: .85rem; text-align: right; }
+
+/* --- Comunidad, huerto y materiales ----------------------------------- */
+
+.bloques { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
+.bloques > .resumen { margin: 0; }
+.encabezado-seccion { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1rem; }
+.titulo-seccion { margin-top: 0; }
+.datos-dos-columnas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.5rem; }
+.avatar-pequeno { width: 34px; height: 34px; font-size: 1rem; }
+.tarjeta-opcion { display: grid; justify-items: start; gap: .6rem; }
+.tarjeta-opcion h2 { margin: .25rem 0 0; font-size: 1.4rem; }
+.tarjeta-opcion p { margin: 0 0 .5rem; color: var(--apagado); }
+.vacio { display: grid; justify-items: start; gap: .6rem; grid-column: 1 / -1; }
+.vacio h2 { margin: 0; font-size: 1.35rem; }
+.vacio p { margin: 0; color: var(--apagado); }
+.acciones-tarjeta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; }
+.enlace-acento { color: var(--terracota); }
+.enlace-acento:hover { color: #9a3f1e; }
+
+/* Selección múltiple de Django (CheckboxSelectMultiple) como casillas en píldora */
+.opciones-multiples > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+.opciones-multiples label {
+  display: inline-flex; align-items: center; gap: .55rem; margin: 0; padding: .55rem .9rem;
+  border: 1px solid var(--borde-campo); border-radius: 999px; background: rgba(255, 255, 255, .55);
+  color: var(--tinta); font-weight: 500; cursor: pointer;
+}
+.opciones-multiples label:hover { border-color: var(--bosque); }
+.opciones-multiples label:has(input:checked) { background: var(--salvia); border-color: var(--bosque); color: var(--bosque); font-weight: 600; }
+.opciones-multiples input { width: 18px; height: 18px; margin: 0; }
+.cuadricula-tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.explicacion-opciones { margin-top: .6rem; }
+.explicacion-opciones summary { cursor: pointer; color: var(--bosque); font-weight: 600; }
+.explicacion-opciones dl { margin: .6rem 0 0; padding: .75rem 1rem; border-radius: var(--radio-control); background: var(--marfil); }
+.explicacion-opciones dt { font-weight: 600; color: var(--tinta); margin-top: .5rem; }
+.explicacion-opciones dt:first-child { margin-top: 0; }
+.explicacion-opciones dd { margin: .1rem 0 0; }
+
+.seleccion-resumen { display: flex; align-items: center; gap: 1rem; margin: 0 0 1.25rem; padding: .9rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.seleccion-resumen p { margin: 0 0 .25rem; }
+.foto-miniatura { flex-shrink: 0; width: 88px; height: 88px; object-fit: cover; border-radius: var(--radio-control); }
+.foto-miniatura.foto-pendiente .icono { width: 32px; height: 32px; }
+.seleccion-nombre { font-family: var(--serif); font-size: 1.35rem; }
+
+.grupo-materiales { margin-bottom: 2rem; }
+.lista-materiales { display: grid; gap: .75rem; padding: 0; margin: 0; list-style: none; }
+.material {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .75rem 1.25rem;
+  padding: 1rem 1.15rem; border: 1px solid var(--linea); border-left: 3px solid var(--linea); border-radius: var(--radio-control); background: var(--superficie);
+}
+.material-disponible { border-left-color: var(--bosque); }
+.material h3 { margin: 0; font-family: var(--sans); font-size: 1rem; font-weight: 700; letter-spacing: 0; }
+.material .ayuda { margin: .25rem 0 0; }
+.material .errores { grid-column: 1 / -1; margin: 0; }
+.material-formulario { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin: 0; }
+.material-formulario .aceptacion { margin: 0; align-items: center; }
+.material-formulario .aceptacion label { font-size: .9rem; }
+.boton-pequeno { min-height: 38px; padding: .45rem .9rem; font-size: .9rem; }
+.etiqueta-neutra { background: #ecebe4; color: #5f6866; }
 
 /* --- Comunidad y perfil ------------------------------------------------- */
 
@@ -381,6 +496,11 @@ button .icono, .boton .icono { width: 20px; height: 20px; }
   .opcion-menu .icono { width: 18px; height: 18px; }
   .contenido { padding: 1.75rem 1.25rem 3rem; }
   .heroe { grid-template-columns: 1fr 40%; }
+  .ficha { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .guia-detalles { grid-template-columns: minmax(0, 1fr); }
+  .cuadricula-tres { grid-template-columns: minmax(0, 1fr); }
+  .material { grid-template-columns: minmax(0, 1fr) auto; }
+  .material-formulario { grid-column: 1 / -1; }
 }
 
 @media (max-width: 600px) {
@@ -392,17 +512,19 @@ button .icono, .boton .icono { width: 20px; height: 20px; }
   .heroe-texto { padding: 1.4rem; }
   .tarjeta-resumen { padding: .85rem 1rem; }
   .resumen-icono { width: 44px; height: 44px; }
+  .ficha-secciones { grid-template-columns: minmax(0, 1fr); }
+  .datos-dos-columnas { grid-template-columns: minmax(0, 1fr); }
+  .ficha-secciones > section, .guia { padding: 1.15rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
 
-/* Pantallas integradas de comunidad, fichas y actividades. */
-.tarjetas, .cuadricula { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 1rem; }
-.tarjeta, .resumen { border: 1px solid var(--linea); border-radius: var(--radio); padding: 1.25rem; margin: 1rem 0; background: var(--superficie); }
-.ancho-completo { grid-column: 1 / -1; }
-.foto-planta { width: 100%; height: 180px; object-fit: cover; border-radius: .5rem; }
+/* Pantallas integradas de comunidad, fichas y actividades.
+   Las clases que usan las vistas del equipo se adaptan a la guía de estilo. */
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 1rem; }
+.resumen { margin: 0 0 1.25rem; padding: 1.25rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.resumen > :first-child { margin-top: 0; }
 .tabla-desplazable { overflow-x: auto; }
-progress { width: 100%; accent-color: var(--bosque); }
-.acciones { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-top: 1rem; }
+progress { width: 100%; height: .6rem; accent-color: var(--bosque); }

@@ -1,14 +1,101 @@
 {% extends "base.html" %}
-{% block titulo %}Guía de actividades{% endblock %}
+{% load presentacion %}
+
+{% block titulo %}Guía de actividades · Huertos medicinales{% endblock %}
+{% block ancho %}contenido contenido-amplio{% endblock %}
+
 {% block contenido %}
-<h1>Guía de actividades</h1>
-<p>Son 13 actividades: 3 del huerto y 10 por planta. Las instrucciones resumen los lineamientos del MSP (2017) con su página.</p>
-<p>Son obligatorios 15 días de preparación a siembra y 10 de inicio de secado a empaquetado. Las horas y fases lunares son recomendaciones.</p>
-<p>Diseño y ritual son actividades independientes: no es obligatorio registrarlas para poder sembrar. La guía describe las prácticas del material del curso.</p>
-{% for guia in guias %}<section class="tarjeta" id="{{ guia.codigo }}">
-<h2>{{ guia.nombre }}</h2><p>{{ guia.get_alcance_display }} · {{ guia.puntos_base }} puntos{% if guia.repetible %} al primer registro activo; siguientes: 0{% endif %}.</p>
-<p>{{ guia.instrucciones|linebreaksbr }}</p><p>Materiales: {{ guia.materiales }}</p><p>{{ guia.precauciones }}</p>
-<p>Hora recomendada: {{ guia.hora_recomendada|default:"No indicada en la fuente" }} Fase lunar recomendada: {{ guia.fase_recomendada|default:"No indicada en la fuente" }}</p>
-<ul>{% for fuente in guia.fuentes %}<li>{% if fuente.autor %}{{ fuente.autor }}. {% endif %}{{ fuente.titulo }}. {{ fuente.referencia }}</li>{% endfor %}</ul>
-</section>{% empty %}<p>No se han cargado actividades.</p>{% endfor %}
+<div class="introduccion">
+  <h1>Guía de actividades</h1>
+  <p>Son 13 actividades: 3 del huerto y 10 por planta. Las instrucciones resumen los lineamientos del MSP (2017) con su página.</p>
+</div>
+
+<div class="rejilla-resumen">
+  <div class="tarjeta tarjeta-resumen">
+    <span class="resumen-icono resumen-icono-acento"><svg class="icono" aria-hidden="true"><use href="#i-calendario"/></svg></span>
+    <p><strong>Plazos obligatorios.</strong> 15 días de preparación a siembra y 10 de inicio de secado a empaquetado.</p>
+  </div>
+  <div class="tarjeta tarjeta-resumen">
+    <span class="resumen-icono"><svg class="icono" aria-hidden="true"><use href="#i-brote"/></svg></span>
+    <p><strong>Solo recomendaciones.</strong> Las horas y fases lunares orientan, pero no bloquean el registro.</p>
+  </div>
+  <div class="tarjeta tarjeta-resumen">
+    <span class="resumen-icono"><svg class="icono" aria-hidden="true"><use href="#i-libro"/></svg></span>
+    <p><strong>Diseño y ritual</strong> son independientes: no es obligatorio registrarlos para poder sembrar.</p>
+  </div>
+</div>
+
+{% if guias %}
+<nav class="indice-guias" aria-label="Actividades de la guía">
+  <h2 class="titulo-seccion">Actividades</h2>
+  <ul class="list-unstyled">
+    {% for guia in guias %}
+      <li><a class="etiqueta etiqueta-enlace" href="#{{ guia.codigo }}">{{ guia.nombre }}</a></li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}
+
+{% for guia in guias %}
+<article class="guia" id="{{ guia.codigo }}" aria-labelledby="titulo-{{ guia.codigo }}">
+  <header class="guia-encabezado">
+    <h2 id="titulo-{{ guia.codigo }}">{{ guia.nombre }}</h2>
+    <p class="etiquetas">
+      <span class="etiqueta">{% if guia.alcance == "huerto" %}Actividad del huerto{% else %}Actividad por planta{% endif %}</span>
+      <span class="etiqueta etiqueta-acento">{{ guia.puntos_base }} puntos{% if guia.repetible %} al primer registro activo; siguientes: 0{% endif %}</span>
+    </p>
+  </header>
+
+  <div class="guia-pasos">
+    {% for linea in guia.instrucciones|lineas %}
+      {% if forloop.first and linea|slice:":12" == "Obligatorio:" %}
+        <p class="plazo-obligatorio"><span class="etiqueta etiqueta-acento">Plazo obligatorio</span> {{ linea }}</p>
+      {% else %}
+        <p>{{ linea }}</p>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  <div class="guia-detalles">
+    <section>
+      <h3>Materiales</h3>
+      {% with lista=guia.materiales|elementos %}
+        {% if lista %}
+          <ul class="lista-chips">{% for material in lista %}<li>{{ material }}</li>{% endfor %}</ul>
+        {% else %}
+          <p class="sin-dato">No indicados en la fuente.</p>
+        {% endif %}
+      {% endwith %}
+    </section>
+
+    <section class="precauciones">
+      <h3>Precauciones</h3>
+      <p>{{ guia.precauciones|default:"No indicadas en la fuente." }}</p>
+    </section>
+
+    <section class="recomendacion-guia">
+      <h3>Recomendaciones <span class="opcional">(no obligatorias)</span></h3>
+      <dl class="datos-ficha">
+        <div class="dato"><dt>Hora</dt><dd>{{ guia.hora_recomendada|default:"No indicada en la fuente" }}</dd></div>
+        <div class="dato"><dt>Fase lunar</dt><dd>{{ guia.fase_recomendada|default:"No indicada en la fuente" }}</dd></div>
+      </dl>
+    </section>
+  </div>
+
+  <details class="consulta-aviso guia-fuentes">
+    <summary>Fuentes de esta guía</summary>
+    <ol class="lista-fuentes">
+      {% for fuente in guia.fuentes %}
+        <li>{% if fuente.autor %}{{ fuente.autor }}. {% endif %}{% if fuente.url %}<a href="{{ fuente.url }}" rel="noreferrer">{{ fuente.titulo }}</a>{% else %}<cite>{{ fuente.titulo }}</cite>{% endif %}. <span class="ayuda">{{ fuente.referencia }}</span></li>
+      {% empty %}
+        <li>Fuentes pendientes.</li>
+      {% endfor %}
+    </ol>
+  </details>
+
+  <p class="volver-arriba"><a href="#contenido">Volver al inicio</a></p>
+</article>
+{% empty %}
+<p>No se han cargado actividades.</p>
+{% endfor %}
 {% endblock %}

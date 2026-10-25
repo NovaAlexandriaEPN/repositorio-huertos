@@ -3,18 +3,27 @@
 {% block titulo %}Elegir una especie · Huertos medicinales{% endblock %}
 
 {% block contenido %}
-<h1>Elegir una especie</h1>
-<p>Selecciona una especie del catálogo y un método de siembra. Cada especie se elige una sola vez por huerto.</p>
+<p class="volver"><a href="{% url 'comunidades:mi_huerto' %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al huerto</a></p>
+<div class="introduccion">
+  <h1>Elegir una especie</h1>
+  <p>Selecciona una especie del catálogo y un método de siembra. Cada especie se elige una sola vez por huerto.</p>
+</div>
 {% if catalogo_vacio %}
-  <p class="recomendacion" role="status">Aún no hay especies disponibles en el catálogo.</p>
+  <p class="alert alert-warning" role="status">Aún no hay especies disponibles en el catálogo.</p>
 {% elif not hay_disponibles %}
-  <p class="recomendacion" role="status">Tu huerto ya incluye todas las especies disponibles.</p>
+  <p class="alert alert-info" role="status">Tu huerto ya incluye todas las especies disponibles.</p>
 {% endif %}
 {% include "componentes/errores.html" with form=form %}
 <form method="post" action="{% url 'comunidades:elegir_planta' %}" class="formulario">
   {% csrf_token %}
-  <div class="campo"><label for="{{ form.planta.id_for_label }}">Especie del catálogo</label>{{ form.planta }}</div>
-  <div class="campo"><label for="{{ form.metodo_siembra.id_for_label }}">Método de siembra</label>{{ form.metodo_siembra }}</div>
+  <div class="campo">
+    <label for="{{ form.planta.id_for_label }}">Especie del catálogo</label>{{ form.planta }}
+    <div class="ayuda">Puedes revisar cada especie en el <a href="{% url 'catalogo:lista_plantas' %}">catálogo</a> antes de elegirla.</div>
+  </div>
+  <div class="campo">
+    <label for="{{ form.metodo_siembra.id_for_label }}">Método de siembra</label>{{ form.metodo_siembra }}
+    <div class="ayuda">Semillas, estacas, esquejes o plántulas. Una vez que la especie tenga actividades registradas, el método ya no se puede cambiar.</div>
+  </div>
   <div class="acciones">
     <button type="submit" {% if not hay_disponibles %}disabled{% endif %}>Añadir al huerto</button>
     <a href="{% url 'comunidades:mi_huerto' %}">Volver al huerto</a>

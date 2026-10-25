@@ -3,10 +3,14 @@
 {% block titulo %}Configurar huerto · Huertos medicinales{% endblock %}
 
 {% block contenido %}
-<h1>Configurar huerto</h1>
-<p>Indica la ubicación, el área y las opciones de tu huerto. Se recomienda orientarlo de Este a Oeste.</p>
+<p class="volver"><a href="{% url 'comunidades:mi_huerto' %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al huerto</a></p>
+<div class="introduccion">
+  <h1>Configurar huerto</h1>
+  <p>Indica la ubicación, el área y las opciones de tu huerto. Las especies se eligen después, desde el huerto.</p>
+</div>
+<p class="recomendacion">Se recomienda orientar el huerto de Este a Oeste. Es una recomendación, no un requisito para guardar.</p>
 {% if form.categorias_pendientes %}
-  <p class="recomendacion" role="status">Aún faltan opciones disponibles de:
+  <p class="alert alert-warning" role="status">Aún faltan opciones disponibles de:
     {{ form.categorias_pendientes|join:", " }}. Podrás guardar cuando estén disponibles.</p>
 {% endif %}
 {% include "componentes/errores.html" with form=form %}
@@ -18,27 +22,37 @@
       <div class="campo"><label for="{{ form.provincia.id_for_label }}">Provincia</label>{{ form.provincia }}</div>
       <div class="campo"><label for="{{ form.parroquia.id_for_label }}">Parroquia</label>{{ form.parroquia }}</div>
       <div class="campo ancho-completo"><label for="{{ form.direccion.id_for_label }}">Dirección</label>{{ form.direccion }}</div>
-      <div class="campo"><label for="{{ form.area_m2.id_for_label }}">Área en m²</label>{{ form.area_m2 }}</div>
+      <div class="campo">
+        <label for="{{ form.area_m2.id_for_label }}">Área en m²</label>{{ form.area_m2 }}
+        <div class="ayuda">En metros cuadrados; debe ser mayor que cero.</div>
+      </div>
     </div>
   </fieldset>
+
   <fieldset>
     <legend>Diseños</legend>
-    <p>Elige uno o varios diseños.</p>
-    {{ form.disenos }}
+    <p class="ayuda">Elige uno o varios diseños.</p>
+    <div class="opciones-multiples">{{ form.disenos }}</div>
     {% include "componentes/opciones_huerto.html" with campo=form.disenos %}
   </fieldset>
+
   <fieldset>
     <legend>Opciones del lugar</legend>
-    <div class="campo"><label for="{{ form.cerca.id_for_label }}">Cerca</label>{{ form.cerca }}{% include "componentes/opciones_huerto.html" with campo=form.cerca %}</div>
-    <div class="campo"><label for="{{ form.suelo.id_for_label }}">Suelo</label>{{ form.suelo }}{% include "componentes/opciones_huerto.html" with campo=form.suelo %}</div>
-    <div class="campo"><label for="{{ form.fuente_agua.id_for_label }}">Fuente de agua</label>{{ form.fuente_agua }}{% include "componentes/opciones_huerto.html" with campo=form.fuente_agua %}</div>
+    <p class="ayuda">Elige una opción en cada categoría.</p>
+    <div class="cuadricula cuadricula-tres">
+      <div class="campo"><label for="{{ form.cerca.id_for_label }}">Cerca</label>{{ form.cerca }}{% include "componentes/opciones_huerto.html" with campo=form.cerca %}</div>
+      <div class="campo"><label for="{{ form.suelo.id_for_label }}">Suelo</label>{{ form.suelo }}{% include "componentes/opciones_huerto.html" with campo=form.suelo %}</div>
+      <div class="campo"><label for="{{ form.fuente_agua.id_for_label }}">Fuente de agua</label>{{ form.fuente_agua }}{% include "componentes/opciones_huerto.html" with campo=form.fuente_agua %}</div>
+    </div>
   </fieldset>
+
   <fieldset>
     <legend>Abonos</legend>
-    <p>Elige uno o varios abonos.</p>
-    {{ form.abonos }}
+    <p class="ayuda">Elige uno o varios abonos.</p>
+    <div class="opciones-multiples">{{ form.abonos }}</div>
     {% include "componentes/opciones_huerto.html" with campo=form.abonos %}
   </fieldset>
+
   <div class="acciones">
     <button type="submit" {% if form.categorias_pendientes %}disabled{% endif %}>Guardar configuración</button>
     <a href="{% url 'comunidades:mi_huerto' %}">Volver al huerto</a>
