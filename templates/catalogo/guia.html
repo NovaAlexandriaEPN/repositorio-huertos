@@ -2,12 +2,12 @@
 {% block titulo %}Guía de actividades{% endblock %}
 {% block contenido %}
 <h1>Guía de actividades</h1>
-<p>Son 13 actividades: 3 del huerto y 10 por planta. Las instrucciones ampliadas, materiales y recomendaciones del curso aún requieren completar su entrega.</p>
+<p>Son 13 actividades: 3 del huerto y 10 por planta. Las instrucciones resumen los lineamientos del MSP (2017) con su página.</p>
 <p>Son obligatorios 15 días de preparación a siembra y 10 de inicio de secado a empaquetado. Las horas y fases lunares son recomendaciones.</p>
-{% for guia in guias %}<section class="tarjeta">
+{% for guia in guias %}<section class="tarjeta" id="{{ guia.codigo }}">
 <h2>{{ guia.nombre }}</h2><p>{{ guia.get_alcance_display }} · {{ guia.puntos_base }} puntos{% if guia.repetible %} al primer registro activo; siguientes: 0{% endif %}.</p>
-<p>{{ guia.instrucciones }}</p><p>Materiales: {{ guia.materiales }}</p><p>{{ guia.precauciones }}</p>
-<p>Hora recomendada: {{ guia.hora_recomendada|default:"Pendiente de verificar" }}. Fase: {{ guia.fase_recomendada|default:"Pendiente de verificar" }}.</p>
-<ul>{% for fuente in guia.fuentes %}<li>{{ fuente.titulo }}. {{ fuente.referencia }}</li>{% endfor %}</ul>
+<p>{{ guia.instrucciones|linebreaksbr }}</p><p>Materiales: {{ guia.materiales }}</p><p>{{ guia.precauciones }}</p>
+<p>Hora recomendada: {{ guia.hora_recomendada|default:"No indicada en la fuente" }} Fase lunar recomendada: {{ guia.fase_recomendada|default:"No indicada en la fuente" }}</p>
+<ul>{% for fuente in guia.fuentes %}<li>{% if fuente.autor %}{{ fuente.autor }}. {% endif %}{{ fuente.titulo }}. {{ fuente.referencia }}</li>{% endfor %}</ul>
 </section>{% empty %}<p>No se han cargado actividades.</p>{% endfor %}
 {% endblock %}

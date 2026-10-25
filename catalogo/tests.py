@@ -159,3 +159,80 @@ class EntregaMatthewTests(TestCase):
                 for campo, valor in ficha.items():
                     if campo != "observaciones" and valor in (None, []):
                         self.assertIn(campo, ficha["campos_no_verificados"])
+
+    def test_trece_guias_completas_y_plazos_obligatorios(self):
+        from .datos import ACTIVIDADES
+        self.assertEqual(len(ACTIVIDADES), 13)
+        self.assertEqual({a["codigo"] for a in ACTIVIDADES}, set(TipoActividadCodigos()))
+        for actividad in ACTIVIDADES:
+            with self.subTest(codigo=actividad["codigo"]):
+                for campo in ("instrucciones", "materiales", "precauciones"):
+                    self.assertTrue(actividad[campo])
+                self.assertTrue(actividad["fuentes"])
+        obligatorias = {a["codigo"] for a in ACTIVIDADES if "Obligatorio:" in a["instrucciones"]}
+        self.assertEqual(obligatorias, {"preparacion", "siembra", "secado", "empaquetado"})
+        repetibles = {a["codigo"] for a in ACTIVIDADES if a["repetible"]}
+        self.assertEqual(repetibles, {"cuidados", "riego"})
+
+    def test_eventos_usno_en_utc(self):
+        from datetime import timedelta
+        from .datos import EVENTOS
+        self.assertEqual(len(EVENTOS), 17)
+        self.assertEqual(len({e["codigo"] for e in EVENTOS}), 17)
+        for evento in EVENTOS:
+            self.assertEqual(evento["instante"].utcoffset(), timedelta(0))
+        primero, ultimo = EVENTOS[0], EVENTOS[-1]
+        self.assertEqual((primero["tipo"], primero["instante"].isoformat()), ("menguante", "2026-09-04T07:51:00+00:00"))
+        self.assertEqual((ultimo["tipo"], ultimo["instante"].isoformat()), ("menguante", "2026-12-30T18:59:00+00:00"))
+
+    def test_opciones_con_explicacion_y_materiales_por_metodo(self):
+        from .datos import MATERIALES, OPCIONES
+        self.assertTrue(all(o["explicacion"] for o in OPCIONES))
+        for material in MATERIALES:
+            Material(**material).full_clean()
+        semillas = [m["codigo"] for m in MATERIALES if not m["metodos_siembra"] or "semillas" in m["metodos_siembra"]]
+        self.assertIn("semillas", semillas)
+        self.assertIn("pala", semillas)
+        self.assertNotIn("estacas", semillas)
+
+
+def TipoActividadCodigos():
+    from .models import TipoActividad
+    return TipoActividad.Codigo.values
+
+
+class PantallasCatalogoTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        from datetime import date
+        from io import StringIO
+        from django.contrib.auth import get_user_model
+        from django.core.management import call_command
+        call_command("cargar_catalogo", stdout=StringIO())
+        cls.usuario = get_user_model().objects.create_user(
+            username="lectora", password="clave-segura-123",
+            nombre_completo="Lectora", fecha_nacimiento=date(2000, 1, 1))
+
+    def setUp(self):
+        self.client.force_login(self.usuario)
+
+    def test_calendario_de_diciembre_muestra_hora_local_y_recomendaciones(self):
+        from django.urls import reverse
+        respuesta = self.client.get(reverse("catalogo:calendario"), {"mes": 12, "fecha": "2026-12-08"})
+        self.assertEqual(respuesta.status_code, 200)
+        # 2026-12-09 00:52 UTC es el 8 de diciembre a las 19:52 en Guayaquil.
+        self.assertContains(respuesta, "08/12/2026 19:52")
+        self.assertContains(respuesta, "Luna oscura (Yana Killa)")
+        self.assertContains(respuesta, "Preparación de la tierra")
+
+    def test_guia_muestra_obligatorio_y_anclas_por_actividad(self):
+        from django.urls import reverse
+        respuesta = self.client.get(reverse("catalogo:guia"))
+        self.assertContains(respuesta, 'id="siembra"')
+        self.assertContains(respuesta, "Obligatorio: Deben pasar al menos 15 días")
+
+    def test_ficha_de_matthew_marca_foto_pendiente(self):
+        from django.urls import reverse
+        respuesta = self.client.get(reverse("catalogo:detalle_planta", args=["ortiga"]))
+        self.assertContains(respuesta, "Urtica dioica")
+        self.assertNotContains(respuesta, "<img")
