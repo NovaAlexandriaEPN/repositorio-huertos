@@ -29,10 +29,11 @@ Los niveles son aprendiz (0–99), oficial (desde 100) y maestro (desde 100 con 
 El responsable puede nombrarse si cumple el umbral. La sustitución exige motivo y compara
 el maestro esperado para rechazar formularios antiguos. El reconocimiento no concede permisos.
 
-El huerto virtual ofrece tarjetas con método, estado, progreso y siguiente acción,
-puntos personales/comunitarios y constancia del maestro. El historial conserva activos y
+El huerto virtual ofrece tarjetas con método, estado, progreso y siguiente acción. Cada tarjeta
+abre el registro con esa planta y la actividad sugerida ya elegidas, y su historial filtrado.
+También muestra los puntos personales y comunitarios y la constancia del maestro. El historial conserva activos y
 anulados y permite filtrar. Todas estas rutas requieren sesión y comprueban pertenencia;
-las escrituras usan POST y CSRF. Las 167 pruebas de desarrollo del conjunto incluyen el
+las escrituras usan POST y CSRF. Las 169 pruebas de desarrollo del conjunto incluyen el
 ciclo completo en formularios. Véase `integracion_equipo.md` para los datos pendientes,
 las migraciones y los commits de origen. Aún faltan contenido del catálogo y ejecución
 formal antes de declarar terminada V1.

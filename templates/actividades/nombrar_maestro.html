@@ -3,15 +3,17 @@
 {% block titulo %}Maestro del huerto · {{ huerto.comunidad.nombre }}{% endblock %}
 
 {% block contenido %}
+<p class="volver"><a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al huerto virtual</a></p>
+
 <div class="introduccion">
   <h1>Maestro del huerto</h1>
   <p>El responsable de la comunidad nombra un único Maestro entre quienes tienen al menos 100 puntos. Un nuevo nombramiento sustituye al anterior.</p>
 </div>
 
 <section class="resumen" aria-labelledby="titulo-actual">
-  <h2 id="titulo-actual">Maestro actual</h2>
+  <h2 id="titulo-actual" class="titulo-seccion">Maestro actual</h2>
   {% if maestro %}
-    <p><strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong>, desde el {{ huerto.maestro_fecha|date:"d/m/Y H:i" }}.</p>
+    <p><span class="etiqueta etiqueta-acento">Maestro</span> <strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong>, desde el {{ huerto.maestro_fecha|date:"d/m/Y H:i" }}.</p>
     <p class="ayuda">{{ huerto.maestro_motivo }}</p>
   {% else %}
     <p>Todavía no hay Maestro.</p>

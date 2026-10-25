@@ -3,6 +3,8 @@
 {% block titulo %}Registrar actividad · {{ huerto.comunidad.nombre }}{% endblock %}
 
 {% block contenido %}
+<p class="volver"><a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al huerto virtual</a></p>
+
 <div class="introduccion">
   <h1>Registrar actividad</h1>
   <p>Huerto de {{ huerto.comunidad.nombre }}. {{ form.planta.help_text }}</p>
@@ -35,7 +37,7 @@
   </div>
   <div class="acciones">
     <button type="submit">Registrar</button>
-    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Volver al huerto virtual</a>
+    <a href="{% url 'actividades:historial_actividades' huerto.id %}">Ver historial</a>
   </div>
 </form>
 {% endblock %}

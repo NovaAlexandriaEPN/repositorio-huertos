@@ -2,10 +2,19 @@
 
 {% block titulo %}Historial · {{ huerto.comunidad.nombre }}{% endblock %}
 
+{% block ancho %}contenido contenido-amplio{% endblock %}
+
 {% block contenido %}
-<div class="introduccion">
-  <h1>Historial de actividades</h1>
-  <p>Huerto de {{ huerto.comunidad.nombre }}. Las actividades anuladas se conservan con su motivo, autor y fecha.</p>
+<p class="volver"><a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al huerto virtual</a></p>
+
+<div class="encabezado-pagina">
+  <div class="introduccion">
+    <h1>Historial de actividades</h1>
+    <p>Huerto de {{ huerto.comunidad.nombre }}. Las actividades anuladas se conservan con su motivo, autor y fecha.</p>
+  </div>
+  <div class="acciones">
+    <a class="boton" href="{% url 'actividades:registrar_actividad' huerto.id %}{% if filtros.planta %}?planta={{ filtros.planta }}{% endif %}"><svg class="icono" aria-hidden="true"><use href="#i-brote"/></svg>Registrar actividad</a>
+  </div>
 </div>
 
 <form method="get" action="{% url 'actividades:historial_actividades' huerto.id %}" class="formulario" aria-label="Filtrar historial">
@@ -39,16 +48,14 @@
     </div>
   </div>
   <div class="acciones">
-    <button type="submit">Filtrar</button>
+    <button type="submit" class="boton-secundario">Filtrar</button>
     <a href="{% url 'actividades:historial_actividades' huerto.id %}">Quitar filtros</a>
-    <a href="{% url 'actividades:registrar_actividad' huerto.id %}">Registrar actividad</a>
-    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Huerto virtual</a>
   </div>
 </form>
 
 {% if actividades %}
 <div class="tabla-desplazable">
-<table>
+<table class="table align-middle">
   <caption>{{ actividades|length }} actividad{{ actividades|length|pluralize:"es" }}</caption>
   <thead>
     <tr>
@@ -65,7 +72,7 @@
       <td>{{ act.actor_original.get_full_name|default:act.actor_original.username }}</td>
       <td>{{ act.puntos }}</td>
       <td>
-        <span class="etiqueta-estado">{{ act.get_estado_display }}</span>
+        <span class="etiqueta{% if act.es_anulada %} etiqueta-acento{% endif %}">{{ act.get_estado_display }}</span>
         {% if act.es_anulada %}
         <br><span class="ayuda">{{ act.motivo_anulacion }} · {{ act.anulada_por.get_full_name|default:act.anulada_por.username }}, {{ act.fecha_anulacion|date:"d/m/Y H:i" }}</span>
         {% endif %}
@@ -81,6 +88,9 @@
 </table>
 </div>
 {% else %}
-<p>No hay actividades con estos filtros.</p>
+<div class="resumen vacio">
+  <h2>No hay actividades con estos filtros.</h2>
+  <p>Quita los filtros o registra una actividad nueva.</p>
+</div>
 {% endif %}
 {% endblock %}

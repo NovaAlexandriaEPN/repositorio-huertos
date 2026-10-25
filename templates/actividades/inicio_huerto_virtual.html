@@ -2,83 +2,120 @@
 {% load static %}
 
 {% block titulo %}Huerto virtual · {{ huerto.comunidad.nombre }}{% endblock %}
+{% block ancho %}contenido contenido-amplio{% endblock %}
 
 {% block contenido %}
-<div class="introduccion">
-  <h1>Huerto virtual de {{ huerto.comunidad.nombre }}</h1>
-  <p>Avance del ciclo, plantas, puntos y Maestro del huerto.</p>
+<div class="encabezado-pagina">
+  <div class="introduccion">
+    <h1>Huerto virtual de {{ huerto.comunidad.nombre }}</h1>
+    <p>Avance del ciclo, plantas, puntos y Maestro del huerto.</p>
+  </div>
+  <div class="acciones">
+    <a class="boton" href="{% url 'actividades:registrar_actividad' huerto.id %}"><svg class="icono" aria-hidden="true"><use href="#i-brote"/></svg>Registrar actividad</a>
+    <a class="boton boton-secundario" href="{% url 'actividades:historial_actividades' huerto.id %}"><svg class="icono" aria-hidden="true"><use href="#i-historial"/></svg>Ver historial</a>
+    {% if es_responsable %}<a class="boton boton-secundario" href="{% url 'actividades:nombrar_maestro' huerto.id %}">Nombrar Maestro</a>{% endif %}
+  </div>
 </div>
 
-<nav class="acciones" aria-label="Acciones del huerto">
-  <a href="{% url 'actividades:registrar_actividad' huerto.id %}">Registrar actividad</a>
-  <a href="{% url 'actividades:historial_actividades' huerto.id %}">Ver historial</a>
-  {% if es_responsable %}<a href="{% url 'actividades:nombrar_maestro' huerto.id %}">Nombrar Maestro</a>{% endif %}
-</nav>
-
-<section class="resumen" aria-labelledby="titulo-progreso">
-  <h2 id="titulo-progreso">Progreso del huerto</h2>
-  <p>{{ progreso_huerto|stringformat:".1f" }} % de los seis hitos del ciclo cumplidos.</p>
-  <progress max="100" value="{{ progreso_huerto|stringformat:'.1f' }}" aria-labelledby="titulo-progreso">{{ progreso_huerto|stringformat:".1f" }} %</progress>
-  <ul class="totales">
-    <li>Plantas cultivadas: <strong>{{ plantas_cultivadas }}</strong></li>
-    <li>Actividades activas: <strong>{{ total_activas }}</strong></li>
-    <li>Actividades anuladas: <strong>{{ total_anuladas }}</strong></li>
-  </ul>
-</section>
-
-<section class="resumen" aria-labelledby="titulo-nivel">
-  <h2 id="titulo-nivel">Tus puntos</h2>
-  <p><strong>{{ puntos_usuario }}</strong> puntos · Nivel: {{ nivel_usuario.nombre }}</p>
-  <p>Aprendiz: menos de 100 puntos. Oficial: desde 100. Maestro: nombramiento del responsable con al menos 100 puntos.</p>
-</section>
+<div class="rejilla-resumen">
+  <section class="tarjeta tarjeta-resumen" aria-labelledby="titulo-progreso">
+    <span class="resumen-icono"><svg class="icono" aria-hidden="true"><use href="#i-brote"/></svg></span>
+    <div class="tarjeta-cuerpo">
+      <span class="resumen-valor">{{ progreso_huerto|floatformat:1 }} %</span>
+      <p id="titulo-progreso" class="resumen-etiqueta">Progreso del huerto</p>
+      <div class="avance">
+        <span class="avance-barra"><span class="avance-relleno" style="width: {{ progreso_huerto|stringformat:'.1f' }}%"></span></span>
+      </div>
+    </div>
+  </section>
+  <section class="tarjeta tarjeta-resumen" aria-labelledby="titulo-puntos">
+    <span class="resumen-icono resumen-icono-acento"><svg class="icono" aria-hidden="true"><use href="#i-persona"/></svg></span>
+    <div class="tarjeta-cuerpo">
+      <span class="resumen-valor">{{ puntos_usuario }}</span>
+      <p id="titulo-puntos" class="resumen-etiqueta">Tus puntos · Nivel {{ nivel_usuario.nombre }}</p>
+    </div>
+  </section>
+  <section class="tarjeta tarjeta-resumen" aria-labelledby="titulo-actividades">
+    <span class="resumen-icono"><svg class="icono" aria-hidden="true"><use href="#i-historial"/></svg></span>
+    <div class="tarjeta-cuerpo">
+      <span class="resumen-valor">{{ total_activas }}</span>
+      <p id="titulo-actividades" class="resumen-etiqueta">Actividades activas · {{ total_anuladas }} anulada{{ total_anuladas|pluralize }}</p>
+    </div>
+  </section>
+  <section class="tarjeta tarjeta-resumen" aria-labelledby="titulo-cultivadas">
+    <span class="resumen-icono"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg></span>
+    <div class="tarjeta-cuerpo">
+      <span class="resumen-valor">{{ plantas_cultivadas }}</span>
+      <p id="titulo-cultivadas" class="resumen-etiqueta">Plantas en cultivo de {{ tarjetas|length }} elegida{{ tarjetas|length|pluralize }}</p>
+    </div>
+  </section>
+</div>
 
 <section aria-labelledby="titulo-plantas">
-  <h2 id="titulo-plantas">Plantas del huerto</h2>
-  {% if tarjetas %}
-  <div class="tarjetas">
+  <h2 id="titulo-plantas" class="titulo-seccion">Plantas del huerto</h2>
+  <div class="rejilla-tarjetas">
     {% for tarjeta in tarjetas %}
     <article class="tarjeta">
-      {% if tarjeta.seleccion.planta.imagen_ruta and "imagen_ruta" not in tarjeta.seleccion.planta.campos_no_verificados %}<img class="foto-planta" src="{% static tarjeta.seleccion.planta.imagen_ruta %}" alt="{{ tarjeta.nombre }}" loading="lazy">{% endif %}
-      <h3>{{ tarjeta.nombre }}</h3>
-      <p class="etiqueta-estado">{{ tarjeta.etapa }}</p>
-      <p>{{ tarjeta.siguiente }}</p>
-      <p class="ayuda">Método: {{ tarjeta.metodo }}</p>
-      <progress max="100" value="{{ tarjeta.progreso|stringformat:'.1f' }}" aria-label="Progreso de {{ tarjeta.nombre }}">{{ tarjeta.progreso|stringformat:".1f" }} %</progress>
-      <p>{{ tarjeta.hitos|length }} de 6 hitos{% if tarjeta.ultima_actividad %} · Última: {{ tarjeta.ultima_actividad.get_tipo_display }} ({{ tarjeta.ultima_actividad.fecha|date:"d/m/Y H:i" }}){% endif %}</p>
+      {% if tarjeta.seleccion.planta.imagen_ruta and "imagen_ruta" not in tarjeta.seleccion.planta.campos_no_verificados %}
+        <img class="foto-planta" src="{% static tarjeta.seleccion.planta.imagen_ruta %}" alt="{{ tarjeta.nombre }}" loading="lazy">
+      {% else %}
+        <div class="foto-pendiente" role="img" aria-label="Foto pendiente"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg></div>
+      {% endif %}
+      <div class="tarjeta-cuerpo">
+        <h3>{{ tarjeta.nombre }}</h3>
+        <p class="etiquetas">
+          <span class="etiqueta{% if tarjeta.estado == 'planeada' %} etiqueta-acento{% endif %}">{{ tarjeta.etapa }}</span>
+          <span class="etiqueta etiqueta-neutra">{{ tarjeta.metodo }}</span>
+        </p>
+        <div class="avance">
+          <span class="avance-barra"><span class="avance-relleno" style="width: {{ tarjeta.progreso|stringformat:'.1f' }}%"></span></span>
+          <span class="avance-texto">{{ tarjeta.progreso|floatformat:1 }} % · {{ tarjeta.hitos|length }} de 6 hitos</span>
+        </div>
+        <p class="ayuda"><strong>Siguiente:</strong> {{ tarjeta.siguiente }}</p>
+        {% if tarjeta.ultima_actividad %}<p class="ayuda">Última: {{ tarjeta.ultima_actividad.get_tipo_display }} ({{ tarjeta.ultima_actividad.fecha|date:"d/m/Y H:i" }})</p>{% endif %}
+      </div>
+      <div class="tarjeta-pie acciones-tarjeta">
+        {% if tarjeta.estado != "empacada" %}<a href="{% url 'actividades:registrar_actividad' huerto.id %}?planta={{ tarjeta.seleccion.pk }}{% if tarjeta.tipo_sugerido %}&amp;tipo={{ tarjeta.tipo_sugerido }}{% endif %}">Registrar actividad</a>{% endif %}
+        <a href="{% url 'actividades:historial_actividades' huerto.id %}?planta={{ tarjeta.seleccion.pk }}">Historial</a>
+      </div>
     </article>
+    {% empty %}
+    <div class="resumen vacio">
+      <span class="resumen-icono"><svg class="icono" aria-hidden="true"><use href="#i-brote"/></svg></span>
+      <h2>El huerto todavía no tiene plantas elegidas.</h2>
+      <p>Se agregan desde la configuración del huerto.</p>
+      <a class="boton" href="{% url 'comunidades:mi_huerto' %}">Ir a mi huerto</a>
+    </div>
     {% endfor %}
   </div>
-  {% else %}
-  <p>El huerto todavía no tiene plantas elegidas. Se agregan desde el configurador del huerto.</p>
-  {% endif %}
 </section>
 
 <section class="resumen" aria-labelledby="titulo-maestro">
-  <h2 id="titulo-maestro">Maestro del huerto</h2>
+  <h2 id="titulo-maestro" class="titulo-seccion">Maestro del huerto</h2>
   {% if maestro %}
-    <p><strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong></p>
+    <p><span class="etiqueta etiqueta-acento">Maestro</span> <strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong></p>
     <p>{{ maestro_motivo }}</p>
     <p class="ayuda">Nombrado por {{ maestro_nombrado_por.get_full_name|default:maestro_nombrado_por.username }} el {{ maestro_fecha|date:"d/m/Y H:i" }}.</p>
   {% else %}
     <p>El huerto todavía no tiene Maestro. Lo nombra el responsable de la comunidad entre quienes tienen 100 puntos o más.</p>
   {% endif %}
+  <p class="ayuda">Niveles: aprendiz, menos de 100 puntos; oficial, desde 100; maestro, por nombramiento del responsable con al menos 100 puntos. El nivel no da permisos.</p>
 </section>
 
-<section aria-labelledby="titulo-miembros">
-  <h2 id="titulo-miembros">Puntos de la comunidad: {{ puntos_comunidad }}</h2>
-  <div class="tabla-desplazable">
-  <table>
-    <thead><tr><th scope="col">Miembro</th><th scope="col">Puntos</th><th scope="col">Nivel</th></tr></thead>
-    <tbody>
-      {% for fila in miembros %}
-      <tr>
-        <td>{{ fila.nombre }}{% if fila.es_responsable %} <span class="etiqueta-estado">Responsable</span>{% endif %}{% if fila.es_maestro %} <span class="etiqueta-estado">Maestro</span>{% endif %}</td>
-        <td>{{ fila.puntos }}</td>
-        <td>{{ fila.nivel.nombre }}</td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+<section class="resumen" aria-labelledby="titulo-miembros">
+  <div class="encabezado-seccion">
+    <h2 id="titulo-miembros" class="titulo-seccion">Puntos de la comunidad</h2>
+    <span class="etiqueta">{{ puntos_comunidad }} puntos en total</span>
   </div>
+  <ul class="lista-filas">
+    {% for fila in miembros %}
+    <li class="fila">
+      <span class="avatar avatar-pequeno" aria-hidden="true">{{ fila.nombre|first|upper }}</span>
+      <span class="fila-texto"><strong>{{ fila.nombre }}</strong><span class="ayuda">{{ fila.puntos }} puntos · {{ fila.nivel.nombre }}</span></span>
+      {% if fila.es_responsable %}<span class="etiqueta etiqueta-acento">Responsable</span>{% endif %}
+      {% if fila.es_maestro %}<span class="etiqueta">Maestro</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
 </section>
 {% endblock %}
