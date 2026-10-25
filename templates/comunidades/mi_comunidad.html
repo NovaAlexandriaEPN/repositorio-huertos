@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block titulo %}Mi comunidad · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+{% if comunidad %}
+  <div class="introduccion">
+    <h1>{{ comunidad.nombre }}</h1>
+    <p>{{ comunidad.get_tipo_display }} · Tu rol: {% if puede_editar %}responsable{% else %}participante{% endif %}.</p>
+    <p><a href="{% url 'comunidades:mi_huerto' %}">Ver el huerto de la comunidad</a></p>
+  </div>
+  <section class="formulario" aria-labelledby="datos-comunidad">
+    <h2 id="datos-comunidad">Contacto de la comunidad</h2>
+    <dl class="datos-comunidad">
+      <dt>Nombre de contacto</dt><dd>{{ comunidad.contacto_nombre }}</dd>
+      <dt>Teléfono</dt><dd>{{ comunidad.contacto_telefono }}</dd>
+      <dt>Correo</dt><dd>{{ comunidad.contacto_correo }}</dd>
+    </dl>
+    <h2>Código de invitación</h2>
+    <p><code class="codigo-invitacion">{{ comunidad.codigo_invitacion }}</code></p>
+    <p>Este código permite que otras personas se unan a la comunidad.</p>
+    {% if puede_editar %}
+      <p><a href="{% url 'comunidades:editar' %}">Editar los datos de la comunidad</a></p>
+    {% endif %}
+  </section>
+  <section class="constancia" aria-labelledby="miembros-comunidad">
+    <h2 id="miembros-comunidad">Miembros</h2>
+    <ul class="lista-miembros">
+      {% for miembro in miembros %}
+        <li>{{ miembro.nombre }} · {% if miembro.usuario_id == comunidad.responsable_id %}Responsable{% else %}Participante{% endif %}</li>
+      {% endfor %}
+    </ul>
+  </section>
+{% else %}
+  <div class="introduccion">
+    <h1>Mi comunidad</h1>
+    <p>Aún no perteneces a una comunidad. Puedes crear una o unirte con un código.</p>
+  </div>
+  <div class="acciones">
+    <a href="{% url 'comunidades:crear' %}">Crear una comunidad</a>
+    <a href="{% url 'comunidades:unirse' %}">Unirse con un código</a>
+  </div>
+{% endif %}
+{% endblock %}

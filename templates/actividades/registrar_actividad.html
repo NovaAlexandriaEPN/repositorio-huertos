@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block titulo %}Registrar actividad · {{ huerto.comunidad.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Registrar actividad</h1>
+  <p>Huerto de {{ huerto.comunidad.nombre }}. {{ form.planta.help_text }}</p>
+  <p><a href="{% url 'catalogo:guia' %}">Consultar la guía de las 13 actividades</a>.</p>
+</div>
+
+{% include "componentes/errores.html" with form=form %}
+
+<form method="post" action="{% url 'actividades:registrar_actividad' huerto.id %}" class="formulario">
+  {% csrf_token %}
+  {{ form.uuid }}
+  <div class="cuadricula">
+    <div class="campo">
+      <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+      {{ form.tipo }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
+      {{ form.fecha }}
+    </div>
+    <div class="campo ancho-completo">
+      <label for="{{ form.planta.id_for_label }}">{{ form.planta.label }}</label>
+      {{ form.planta }}
+      <div class="ayuda">{{ form.planta.help_text }}</div>
+    </div>
+    <div class="campo ancho-completo">
+      <label for="{{ form.detalles.id_for_label }}">{{ form.detalles.label }} <span class="opcional">Opcional</span></label>
+      {{ form.detalles }}
+    </div>
+  </div>
+  <div class="acciones">
+    <button type="submit">Registrar</button>
+    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Volver al huerto virtual</a>
+  </div>
+</form>
+{% endblock %}

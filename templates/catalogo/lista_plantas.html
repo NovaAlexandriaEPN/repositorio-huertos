@@ -1,0 +1,12 @@
+{% extends "base.html" %}{% load static %}
+{% block titulo %}Catálogo de plantas{% endblock %}
+{% block contenido %}
+<h1>Catálogo de plantas</h1>
+<p>{{ total }} de 18 fichas cargadas. Información educativa; no reemplaza la atención médica.</p>
+<div class="tarjetas">{% for planta in plantas %}
+<article class="tarjeta">
+{% if planta.imagen_ruta and "imagen_ruta" not in planta.campos_no_verificados %}<img class="foto-planta" src="{% static planta.imagen_ruta %}" alt="{{ planta.nombre_comun }}" loading="lazy">{% endif %}
+<h2><a href="{% url 'catalogo:detalle_planta' planta.codigo %}">{{ planta.nombre_comun }}</a></h2>
+<p>{{ planta.nombre_cientifico|default:"Nombre científico no verificado" }}</p>
+</article>{% empty %}<p>No se han cargado fichas. Ejecuta cargar_catalogo según el README.</p>{% endfor %}</div>
+{% endblock %}

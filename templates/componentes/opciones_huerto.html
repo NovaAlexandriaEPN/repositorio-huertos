@@ -1,0 +1,9 @@
+<details class="ayuda">
+  <summary>Ver ejemplos de {{ campo.label|lower }}</summary>
+  <dl>
+    {% for opcion in campo.field.queryset %}
+      <dt>{{ opcion.nombre }}</dt>
+      <dd>{{ opcion.explicacion|default:"Explicación pendiente de completar." }}</dd>
+    {% endfor %}
+  </dl>
+</details>

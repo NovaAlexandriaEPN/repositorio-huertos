@@ -1,0 +1,74 @@
+{% load static %}
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Huertos medicinales{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+</head>
+<body>
+  {% include "componentes/iconos.html" %}
+  <a class="visually-hidden-focusable saltar" href="#contenido">Saltar al contenido</a>
+
+  {% block cuerpo %}
+  <div class="{% if user.is_authenticated %}app{% else %}app-publica{% endif %}">
+    {% if user.is_authenticated %}
+    <aside class="barra-lateral">
+      <div class="barra-lateral-cabeza">
+        <span class="marca"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg>Huerto</span>
+
+        {# Menú de la cuenta: <details> lo abre y cierra sin JavaScript. #}
+        <details class="menu-cuenta">
+          <summary>
+            <span class="avatar" aria-hidden="true">{{ user.username|first|upper }}</span>
+            <span class="usuario">{{ user.username }}</span>
+          </summary>
+          <ul class="list-unstyled">
+            <li><a href="{% url 'cuentas:perfil' %}"><svg class="icono" aria-hidden="true"><use href="#i-persona"/></svg>Mi perfil</a></li>
+            <li>
+              <form method="post" action="{% url 'cuentas:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="boton-enlace"><svg class="icono" aria-hidden="true"><use href="#i-salir"/></svg>Cerrar sesión</button>
+              </form>
+            </li>
+          </ul>
+        </details>
+      </div>
+
+      <nav class="menu-principal" aria-label="Principal">
+        <p class="etiqueta-menu">Mi espacio</p>
+        <ul class="list-unstyled">
+          {% include "componentes/enlace_menu.html" with ruta="actividades:mi_huerto" texto="Mi huerto" icono="inicio" tambien="actividades:inicio_huerto_virtual actividades:registrar_actividad" %}
+          {% include "componentes/enlace_menu.html" with ruta="catalogo:lista_plantas" texto="Catálogo" icono="brote" tambien="catalogo:detalle_planta" %}
+          {% include "componentes/enlace_menu.html" with ruta="catalogo:guia" texto="Guías" icono="libro" %}
+          {% include "componentes/enlace_menu.html" with ruta="catalogo:calendario" texto="Calendario" icono="calendario" %}
+          {% include "componentes/enlace_menu.html" with ruta="comunidades:mi_comunidad" texto="Mi comunidad" icono="comunidad" tambien="comunidades:crear comunidades:unirse comunidades:editar" %}
+          {% include "componentes/enlace_menu.html" with ruta="actividades:mi_historial" texto="Historial" icono="historial" %}
+        </ul>
+          <a class="opcion-menu" href="{% url 'comunidades:mi_huerto' %}">Configurar y elegir plantas</a>
+          <a class="opcion-menu" href="{% url 'comunidades:materiales' %}">Materiales compartidos</a>
+      </nav>
+
+      <p class="pie-lateral">Huertos medicinales comunitarios<br>Nova Alexandria</p>
+    </aside>
+    {% else %}
+    <header class="cabecera-publica">
+      <span class="marca"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg>Huerto</span>
+      <nav class="navegacion" aria-label="Cuenta">
+        <a href="{% url 'cuentas:login' %}">Iniciar sesión</a>
+        <a href="{% url 'cuentas:registro' %}">Crear cuenta</a>
+      </nav>
+    </header>
+    {% endif %}
+
+    {# Las pantallas con tarjetas redefinen el bloque "ancho" como: contenido contenido-amplio #}
+    <main id="contenido" class="{% block ancho %}contenido{% endblock %}">
+      {% include "componentes/mensajes.html" %}
+      {% block contenido %}{% endblock %}
+    </main>
+  </div>
+  {% endblock %}
+</body>
+</html>

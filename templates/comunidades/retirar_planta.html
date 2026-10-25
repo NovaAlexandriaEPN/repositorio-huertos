@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block titulo %}Retirar una especie · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<h1>Retirar una especie</h1>
+<p>Vas a retirar {{ seleccion.planta.nombre_comun }} de tu huerto. La ficha del catálogo se conserva.</p>
+{% if con_historial %}<p class="recomendacion">Esta selección conserva historial y no puede retirarse.</p>{% endif %}
+{% include "componentes/errores.html" with form=form %}
+<form method="post" action="{% url 'comunidades:retirar_planta' seleccion.pk %}" class="formulario">
+  {% csrf_token %}
+  <div class="acciones">
+    <button type="submit" {% if con_historial %}disabled{% endif %}>Confirmar retiro</button>
+    <a href="{% url 'comunidades:mi_huerto' %}">Conservar y volver al huerto</a>
+  </div>
+</form>
+{% endblock %}
