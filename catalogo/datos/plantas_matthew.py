@@ -106,7 +106,7 @@ PLANTAS = [
         'imagen_ruta': 'img/plantas/matico.jpg',
         'imagen_autor': 'Diego F. Cisneros-Heredia (iNaturalist)',
         'imagen_fuente': 'https://www.inaturalist.org/observations/20253557',
-        'imagen_licencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD, ['cualidad_ancestral']),
             {
@@ -135,7 +135,7 @@ PLANTAS = [
                 'autor': 'Diego F. Cisneros-Heredia (iNaturalist)',
                 'titulo': 'Aristeguietia glutinosa, Quito (observación 20253557, foto 31262137)',
                 'url': 'https://www.inaturalist.org/observations/20253557',
-                'referencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 'campos': ['static/img/plantas/matico.jpg'],
             },
         ],
@@ -191,7 +191,7 @@ PLANTAS = [
         'imagen_ruta': 'img/plantas/taraxaco.jpg',
         'imagen_autor': 'Agnes Monkelbaan',
         'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Paardenbloem_(Taraxacum_officinale)_26-04-2020._(actm.)_01.jpg',
-        'imagen_licencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             {
                 'autor': 'Richters Herbs',
@@ -217,7 +217,7 @@ PLANTAS = [
                 'autor': 'Agnes Monkelbaan',
                 'titulo': 'Paardenbloem (Taraxacum officinale) 26-04-2020. (actm.) 01.jpg',
                 'url': 'https://commons.wikimedia.org/wiki/File:Paardenbloem_(Taraxacum_officinale)_26-04-2020._(actm.)_01.jpg',
-                'referencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 'campos': ['static/img/plantas/taraxaco.jpg'],
             },
         ],
@@ -262,7 +262,7 @@ PLANTAS = [
         'imagen_ruta': 'img/plantas/marco.jpg',
         'imagen_autor': 'Carlo Brescia',
         'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Ambrosia_arborescens_en_la_quebrada_Shongo,_detalle_de_flor_y_hojas.jpg',
-        'imagen_licencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD + ' ' + _P_CICLO + ' Anexo 3, plantas protectoras (p. 66); '
                  'Tabla 3, abono líquido (p. 31); Tabla 4, cercas con arbustos (p. 35).',
@@ -289,7 +289,7 @@ PLANTAS = [
                 'autor': 'Carlo Brescia',
                 'titulo': 'Ambrosia arborescens en la quebrada Shongo, detalle de flor y hojas.jpg',
                 'url': 'https://commons.wikimedia.org/wiki/File:Ambrosia_arborescens_en_la_quebrada_Shongo,_detalle_de_flor_y_hojas.jpg',
-                'referencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 'campos': ['static/img/plantas/marco.jpg'],
             },
         ],
@@ -338,7 +338,7 @@ PLANTAS = [
         'imagen_ruta': 'img/plantas/llanten.jpg',
         'imagen_autor': 'Sanjay Acharya',
         'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Broadleaf_Plantain_Spike.jpg',
-        'imagen_licencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD + ' ' + _P_USOS, ['cualidad_ancestral', 'usos_documentados']),
             {
@@ -363,7 +363,7 @@ PLANTAS = [
                 'autor': 'Sanjay Acharya',
                 'titulo': 'Broadleaf Plantain Spike.jpg',
                 'url': 'https://commons.wikimedia.org/wiki/File:Broadleaf_Plantain_Spike.jpg',
-                'referencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 'campos': ['static/img/plantas/llanten.jpg'],
             },
         ],
@@ -414,7 +414,7 @@ PLANTAS = [
         'imagen_ruta': 'img/plantas/ortiga.jpg',
         'imagen_autor': 'Dominicus Johannes Bergsma',
         'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Brandnetel,_Urtica_dioica,_Locatie,_Famberhorst.jpg',
-        'imagen_licencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD + ' ' + _P_CICLO + ' ' + _P_USOS + ' Anexo 3, plantas protectoras (p. 66); '
                  'tipos de siembra: plántulas (p. 45).',
@@ -441,7 +441,7 @@ PLANTAS = [
                 'autor': 'Dominicus Johannes Bergsma',
                 'titulo': 'Brandnetel, Urtica dioica, Locatie, Famberhorst.jpg',
                 'url': 'https://commons.wikimedia.org/wiki/File:Brandnetel,_Urtica_dioica,_Locatie,_Famberhorst.jpg',
-                'referencia': 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 'campos': ['static/img/plantas/ortiga.jpg'],
             },
         ],
@@ -483,7 +483,7 @@ PLANTAS = [
         'imagen_ruta': 'img/plantas/violeta.jpg',
         'imagen_autor': 'AnRo0002',
         'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:20130407Viola_odorata1.jpg',
-        'imagen_licencia': 'CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/ (dominio público)',
+        'imagen_licencia': 'CC0 1.0 - https://creativecommons.org/publicdomain/zero/1.0/ (dominio público)',
         'fuentes': [
             {
                 'autor': 'Kušen M., Vokurka A., Židovec V.',
@@ -515,7 +515,7 @@ PLANTAS = [
                 'autor': 'AnRo0002',
                 'titulo': '20130407Viola odorata1.jpg',
                 'url': 'https://commons.wikimedia.org/wiki/File:20130407Viola_odorata1.jpg',
-                'referencia': 'CC0 1.0 — https://creativecommons.org/publicdomain/zero/1.0/ (dominio público). Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'referencia': 'CC0 1.0 - https://creativecommons.org/publicdomain/zero/1.0/ (dominio público). Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 'campos': ['static/img/plantas/violeta.jpg'],
             },
         ],

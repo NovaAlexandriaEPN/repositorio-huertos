@@ -57,7 +57,7 @@ La foto debe tener su autor, licencia y fuente como las del catálogo (D2-01).
 | Mensajes | `componentes/mensajes.html` → `alert-success`, `alert-info`, `alert-warning`, `alert-danger` | Borde izquierdo de color |
 | Errores | `componentes/errores.html` | Resumen arriba con enlace a cada campo |
 | Tarjeta | `tarjeta`, `tarjeta-cuerpo`, `tarjeta-pie`, `nombre-cientifico` | Borde fino, esquinas de 8 px |
-| Rejilla de tarjetas | `rejilla-tarjetas` | 1 columna en celular, 3–4 en computador |
+| Rejilla de tarjetas | `rejilla-tarjetas` | 1 columna en celular, 3-4 en computador |
 | Foto de planta | `foto-planta` (tarjeta, 150 px de alto, recortada), `foto-planta-ficha` (ficha, sin recorte) + `atribucion` | Nunca se deforma la foto |
 | Resumen | `rejilla-resumen`, `tarjeta tarjeta-resumen`, `resumen-icono` (`resumen-icono-acento`), `resumen-valor`, `resumen-etiqueta` | Icono redondo y número grande |
 | Estado | `etiqueta` (salvia) o `etiqueta etiqueta-acento` (durazno) | Siempre con texto, no solo color |
@@ -99,7 +99,7 @@ Los nombres de variables del ejemplo son orientativos; se usan los que entregue 
 
 - `texto|lineas`: una línea por paso de la guía.
 - `texto|elementos`: materiales escritos como «a; b; c.» en una lista.
-- `texto|licencia`: separa «CC BY-SA 4.0 — https://…» en nombre y enlace.
+- `texto|licencia`: separa «CC BY-SA 4.0 - https://...» en nombre y enlace.
 
 ## Qué se tomó de la propuesta visual y qué se adaptó
 

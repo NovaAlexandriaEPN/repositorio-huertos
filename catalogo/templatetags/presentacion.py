@@ -22,8 +22,12 @@ def elementos(texto):
 
 @register.filter
 def licencia(texto):
-    """Separa «CC BY-SA 4.0 — https://...» en nombre y enlace."""
-    nombre, _, resto = (texto or "").partition(" — ")
+    """Separa «CC BY-SA 4.0 - https://...» en nombre y enlace.
+
+    Las bases cargadas antes de estandarizar los caracteres guardan una raya
+    (U+2014) como separador; se acepta también para no romper sus fichas.
+    """
+    nombre, _, resto = (texto or "").replace(" \u2014 ", " - ").partition(" - ")
     url = resto.split()[0] if resto.startswith("http") else ""
     extra = resto[len(url):].strip(" .") if url else resto.strip()
     return {"nombre": nombre.strip(), "url": url, "extra": extra}

@@ -30,7 +30,7 @@ Los bocetos muestran la estructura visual. Al construir las plantillas se aplica
   - Las tres cifras del resumen son las del alcance: **nivel**, **puntos** y **avance del huerto**, no «plantas», «cuidados para hoy» o «próximas cosechas».
   - La lista lateral muestra **actividades recientes** o **siguientes acciones** que entrega la vista; no es una lista de tareas para marcar con casillas.
 
-- **Niveles:** el resumen usa los niveles del alcance: Aprendiz (0–99), Oficial (desde 100) y Maestro (nombrado por el responsable). Se muestra quién es el maestro vigente o «Sin maestro nombrado». No hay «Nivel 3 · Brote» ni una barra de puntos hacia el siguiente nivel.
+- **Niveles:** el resumen usa los niveles del alcance: Aprendiz (0-99), Oficial (desde 100) y Maestro (nombrado por el responsable). Se muestra quién es el maestro vigente o «Sin maestro nombrado». No hay «Nivel 3 · Brote» ni una barra de puntos hacia el siguiente nivel.
 - **Avance del huerto:** la barra muestra el **promedio de avance de las plantas** (seis hitos), con su número, por ejemplo «Avance del huerto: 58 %». Sin plantas, 0 %.
 - **Tarjetas de planta:** cada una muestra foto, nombre, **método** (semillas, estacas, esquejes o plántulas), **estado** en texto (planeada, sembrada, creciendo, cosechada, secando o empacada), **porcentaje** con número y **siguiente acción** recomendada. Las etiquetas del boceto («Riego hoy», «Saludable») se reemplazan por esos estados. El uso medicinal se consulta en la ficha.
 - **Fotos:** las ilustraciones del boceto se reemplazan por las fotos del catálogo con su autor, licencia y fuente.
@@ -56,10 +56,10 @@ El menú común busca estas rutas. Mientras una ruta no exista, su opción apare
 |---|---|---|---|
 | Mi huerto | `actividades:inicio` | `actividades:registrar` | Fernando |
 | Catálogo | `catalogo:lista_plantas` | `catalogo:detalle_planta` | Matthew |
-| Guías | `catalogo:guias` | — | Matthew |
-| Calendario | `catalogo:calendario` | — | Matthew |
+| Guías | `catalogo:guias` | - | Matthew |
+| Calendario | `catalogo:calendario` | - | Matthew |
 | Mi comunidad | `comunidades:mi_comunidad` | `comunidades:crear`, `unirse`, `editar` | Bryan |
-| Historial | `actividades:historial` | — | Fernando |
+| Historial | `actividades:historial` | - | Fernando |
 
 Si un módulo prefiere otro nombre, se cambia en `base.html` (una línea por opción).
 

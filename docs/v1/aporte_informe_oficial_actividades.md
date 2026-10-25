@@ -25,7 +25,7 @@ anulación, recompensas afectadas y retiro del maestro si baja de 100 puntos.
 Estado, puntos, nivel y avance se consultan desde el historial activo. Preparación,
 siembra, crecimiento por cuidado o riego, cosecha, secado y empaquetado son seis hitos
 iguales. El avance comunitario promedia las selecciones y puede disminuir al añadir otra.
-Los niveles son aprendiz (0–99), oficial (desde 100) y maestro (desde 100 con nombramiento).
+Los niveles son aprendiz (0-99), oficial (desde 100) y maestro (desde 100 con nombramiento).
 El responsable puede nombrarse si cumple el umbral. La sustitución exige motivo y compara
 el maestro esperado para rechazar formularios antiguos. El reconocimiento no concede permisos.
 

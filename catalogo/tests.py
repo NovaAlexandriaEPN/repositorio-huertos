@@ -242,3 +242,37 @@ class PantallasCatalogoTests(TestCase):
         self.assertContains(respuesta, 'src="/static/img/plantas/ortiga.jpg"')
         self.assertContains(respuesta, "Dominicus Johannes Bergsma")
         self.assertContains(respuesta, "CC BY-SA 4.0")
+
+class CaracteresEstandarTests(TestCase):
+    """Los datos fijos usan guion, puntos y «x» en lugar de rayas, elipsis y signo de multiplicación."""
+
+    # Raya, guion corto, puntos suspensivos y signo de multiplicación.
+    NO_ESTANDAR = {chr(0x2014): "-", chr(0x2013): "-", chr(0x2026): "...", chr(0xD7): "x"}
+
+    def textos(self, valor):
+        if isinstance(valor, str):
+            yield valor
+        elif isinstance(valor, dict):
+            for elemento in valor.values():
+                yield from self.textos(elemento)
+        elif isinstance(valor, (list, tuple)):
+            for elemento in valor:
+                yield from self.textos(elemento)
+
+    def test_datos_del_catalogo_sin_caracteres_no_estandar(self):
+        from . import datos
+        for nombre in ("PLANTAS", "ACTIVIDADES", "OPCIONES", "MATERIALES", "EVENTOS"):
+            for fila in getattr(datos, nombre):
+                for texto in self.textos(fila):
+                    for caracter, reemplazo in self.NO_ESTANDAR.items():
+                        with self.subTest(lista=nombre, codigo=fila["codigo"], caracter=f"U+{ord(caracter):04X}"):
+                            self.assertNotIn(caracter, texto, f"Usa «{reemplazo}» en su lugar.")
+
+    def test_licencia_acepta_el_separador_nuevo_y_el_de_bases_anteriores(self):
+        from .templatetags.presentacion import licencia
+        url = "https://creativecommons.org/licenses/by-sa/4.0/"
+        for separador in (" - ", f" {chr(0x2014)} "):
+            with self.subTest(separador=separador):
+                partes = licencia(f"CC BY-SA 4.0{separador}{url}")
+                self.assertEqual(partes, {"nombre": "CC BY-SA 4.0", "url": url, "extra": ""})
+

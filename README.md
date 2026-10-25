@@ -379,7 +379,7 @@ las ramas han divergido y necesitan una integración.
 
 | Variable | Obligatoria | Valor por defecto | Uso |
 |---|---|---|---|
-| `DJANGO_SECRET_KEY` | Sí | — | Clave secreta local (sección 3.4). |
+| `DJANGO_SECRET_KEY` | Sí | - | Clave secreta local (sección 3.4). |
 | `DJANGO_DEBUG` | No | `1` | `0` desactiva el modo depuración. |
 | `DJANGO_ALLOWED_HOSTS` | No | vacío | Hosts extra separados por comas (por ejemplo, tu IP local). |
 
