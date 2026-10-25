@@ -165,6 +165,18 @@ Comprueba que está cargada en esta terminal:
 
 Esto crea las tablas de los cuatro módulos y carga el contenido entregado. Las advertencias
 del comando identifican contenido pendiente o distinto. Repetirlo no reemplaza datos anteriores.
+
+`cargar_catalogo` muestra una línea por modelo, por ejemplo
+`Planta: entregados 12, nuevos 0, ya existían 12 (0 con contenido distinto), en la base 12.`
+
+- **nuevos**: códigos que no existían y se crearon ahora.
+- **ya existían**: códigos que se conservaron sin modificar.
+- **con contenido distinto**: códigos existentes cuyo contenido no coincide con el archivo
+  Python. No se sobrescriben; para ver cuáles son, ejecuta
+  `& .\.venv\Scripts\python.exe manage.py cargar_catalogo -v 2`.
+
+Si una ficha trae un campo que el modelo no tiene, el comando se detiene sin guardar nada
+e indica la ficha y el campo.
 Si tu base ya tenía las guías abreviadas, consulta la sección de actualización de bases
 en el informe de integración: git merge actualiza archivos, no el contenido de SQLite.
 Si ya usaste las actividades de la entrega original de Fernando y guardaste registros,
@@ -379,7 +391,7 @@ las ramas han divergido y necesitan una integración.
 
 | Variable | Obligatoria | Valor por defecto | Uso |
 |---|---|---|---|
-| `DJANGO_SECRET_KEY` | Sí | — | Clave secreta local (sección 3.4). |
+| `DJANGO_SECRET_KEY` | Sí | - | Clave secreta local (sección 3.4). |
 | `DJANGO_DEBUG` | No | `1` | `0` desactiva el modo depuración. |
 | `DJANGO_ALLOWED_HOSTS` | No | vacío | Hosts extra separados por comas (por ejemplo, tu IP local). |
 
@@ -479,3 +491,25 @@ se recogen en [integracion_equipo.md](docs/v1/integracion_equipo.md).
 Para una instalación nueva: cargar la clave local, ejecutar `migrate`, `cargar_catalogo`
 y `runserver`. En una base ya usada, la carga conserva los registros existentes y avisa
 si difieren del código. No borres SQLite ni su historial para resolver un cambio de catálogo.
+
+### Carga inicial y segunda carga (J2-08 y J2-09)
+
+Comprobación de desarrollo del 25 de octubre de 2026; no es un resultado formal de pruebas.
+
+- `catalogo/tests.py` (`CargaInicialTests`) comprueba que una base nueva recibe todas las
+  listas de `catalogo/datos/`, que un campo desconocido detiene la carga sin guardar nada y
+  que `-v 2` lista los códigos con diferencias sin corregirlos.
+- `catalogo/tests.py` (`SegundaCargaTests`) prepara una base ficticia con dos cuentas,
+  comunidad, huerto, planta seleccionada, material marcado, el ciclo de las trece
+  actividades, una anulación y un maestro nombrado. Repite la carga sin cambios y con datos
+  Python modificados (una ficha nueva y otros puntos para una guía): solo se crea la ficha
+  nueva, la guía guardada conserva sus puntos y los datos de trabajo quedan idénticos.
+- A mano, sobre una base temporal: `migrate`, `cargar_catalogo`, datos de trabajo creados
+  con los servicios, conteo de filas, segunda carga y nuevo conteo. Las cantidades y el
+  contenido de cuentas, comunidad, huerto, selección, marca y actividades no cambiaron.
+
+Una base cargada antes del 25 de octubre de 2026 mostrará fichas y guías «con contenido
+distinto»: los créditos de fotos se revisaron y los textos se estandarizaron (guion en lugar
+de raya, «x» en nombres de híbridos, «...» en lugar de elipsis). La aplicación sigue
+mostrando bien esas fichas. Para actualizar los créditos de fotos usa
+`docs/v1/diseno/actualizar_fotos_base.py`, con una copia de respaldo de la base.

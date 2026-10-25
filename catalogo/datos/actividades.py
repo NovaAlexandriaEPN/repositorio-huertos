@@ -94,7 +94,7 @@ ACTIVIDADES = [
         precauciones='No asperjar chorros sobre las plantas como lluvia: las maltrata. Usar agua sin cloro.',
         hora_recomendada='',
         fase_recomendada='',
-        fuentes=[_msp('«Cuidados… Riego» (p. 47); «Tipos de siembra» (p. 44); espacios urbanos (p. 42); Tabla 9 (p. 54).')],
+        fuentes=[_msp('«Cuidados... Riego» (p. 47); «Tipos de siembra» (p. 44); espacios urbanos (p. 42); Tabla 9 (p. 54).')],
     ),
     dict(
         codigo='bano', nombre='Baño de la planta', alcance='planta',
@@ -114,7 +114,7 @@ ACTIVIDADES = [
         precauciones='Al recoger ofrendas, tomar solo hojas o flores, sin dañar la planta.',
         hora_recomendada='Al amanecer, de 05:00 a 07:00.',
         fase_recomendada='',
-        fuentes=[_msp('«Cosecha ritual…», Tabla 8 «Ritual de cosecha» (p. 48-49).')],
+        fuentes=[_msp('«Cosecha ritual...», Tabla 8 «Ritual de cosecha» (p. 48-49).')],
     ),
     dict(
         codigo='cosecha', nombre='Cosecha', alcance='planta',
@@ -124,7 +124,7 @@ ACTIVIDADES = [
         precauciones='Las plantas medicinales no se cosechan con humedad. Ciclo corto: listas en unas 6 a 8 semanas desde la siembra; ciclo largo: tardan mucho más.',
         hora_recomendada='Cuando el sol ya secó el rocío, aproximadamente desde las 08:00.',
         fase_recomendada='Cuarto creciente o luna llena para hojas, flores y frutos; cuarto menguante para semillas y raíces.',
-        fuentes=[_msp('«Tiempos ideales…» (p. 46); «Cosecha ritual de las plantas medicinales» (p. 48-49); Tabla 9 (p. 54).')],
+        fuentes=[_msp('«Tiempos ideales...» (p. 46); «Cosecha ritual de las plantas medicinales» (p. 48-49); Tabla 9 (p. 54).')],
     ),
     dict(
         codigo='limpieza', nombre='Limpieza de plantas', alcance='planta',

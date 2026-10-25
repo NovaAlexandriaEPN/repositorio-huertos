@@ -7,7 +7,7 @@ PLANTAS = [
     {
         "codigo": "menta",
         "nombre_comun": "Menta",
-        "nombre_cientifico": 'Mentha × piperita L.',
+        "nombre_cientifico": 'Mentha x piperita L.',
         "otros_nombres": [],
         "familia": "Lamiaceae",
         "altitud_msnm": "1000-1500",
@@ -30,7 +30,7 @@ PLANTAS = [
         "imagen_ruta": 'img/plantas/menta.jpg',
         "imagen_autor": 'Kızıl',
         "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Mentha_%C3%97_piperita%E2%80%93IMG_6075.jpg',
-        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        "imagen_licencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -47,14 +47,14 @@ PLANTAS = [
             },
             {
                 "autor": "Royal Botanic Gardens, Kew",
-                "titulo": "Plants of the World Online: Mentha × piperita L.",
+                "titulo": "Plants of the World Online: Mentha x piperita L.",
                 "url": "https://powo.science.kew.org/taxon/450969-1",
-                "referencia": "Nombre aceptado (híbrido de Mentha aquatica × M. spicata); familia Lamiaceae.",
+                "referencia": "Nombre aceptado (híbrido de Mentha aquatica x M. spicata); familia Lamiaceae.",
                 "campos": ["nombre_cientifico", "familia"],
             },
             {
                 "autor": "Agencia Europea de Medicamentos (EMA), Comité HMPC",
-                "titulo": "European Union herbal monograph on Mentha × piperita L., folium (Revision 1)",
+                "titulo": "European Union herbal monograph on Mentha x piperita L., folium (Revision 1)",
                 "url": "https://ema.europa.eu/en/documents/herbal-monograph/european-union-herbal-monograph-mentha-x-piperita-l-folium-revision-1_en.pdf",
                 "referencia": "Secciones 4.1 (indicaciones tradicionales), 4.2, 4.3, 4.4, 4.6 y 4.8; infusión de la hoja seca.",
                 "campos": ["parte_utilizada", "usos_documentados", "contraindicaciones"],
@@ -77,14 +77,14 @@ PLANTAS = [
                 "autor": "Journal of Ethnobiology and Ethnomedicine (BioMed Central)",
                 "titulo": "Medicinal plants sold at traditional markets in southern Ecuador, 2016",
                 "url": "https://ethnobiomed.biomedcentral.com/articles/10.1186/s13002-016-0100-4/tables/5",
-                "referencia": "Tabla 5: Mentha spicata y Mentha × piperita comparten los nombres locales «hierba buena», «menta» y «menta negra». Autores no anotados.",
+                "referencia": "Tabla 5: Mentha spicata y Mentha x piperita comparten los nombres locales «hierba buena», «menta» y «menta negra». Autores no anotados.",
                 "campos": ["observaciones"],
             },
             {
                 "autor": 'Kızıl',
-                "titulo": 'Mentha × piperita–IMG 6075.jpg',
+                "titulo": 'Mentha x piperita-IMG 6075.jpg',
                 "url": 'https://commons.wikimedia.org/wiki/File:Mentha_%C3%97_piperita%E2%80%93IMG_6075.jpg',
-                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                "referencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/menta.jpg"],
             },
         ],
@@ -118,7 +118,7 @@ PLANTAS = [
         "imagen_ruta": 'img/plantas/hierbabuena.jpg',
         "imagen_autor": 'Simon Eugster',
         "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Minze.jpg',
-        "imagen_licencia": 'CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/',
+        "imagen_licencia": 'CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -178,7 +178,7 @@ PLANTAS = [
                 "autor": 'Simon Eugster',
                 "titulo": 'Minze.jpg',
                 "url": 'https://commons.wikimedia.org/wiki/File:Minze.jpg',
-                "referencia": 'CC BY-SA 3.0 — https://creativecommons.org/licenses/by-sa/3.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                "referencia": 'CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/hierbabuena.jpg"],
             },
         ],
@@ -214,7 +214,7 @@ PLANTAS = [
         "imagen_ruta": 'img/plantas/toronjil.jpg',
         "imagen_autor": 'Lazaregagnidze',
         "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Melissa_officinalis_Bee_Balm,Lemon_Balm_%E1%83%91%E1%83%90%E1%83%A0%E1%83%90%E1%83%9B%E1%83%91%E1%83%9D.JPG',
-        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        "imagen_licencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -265,7 +265,7 @@ PLANTAS = [
                 "autor": 'Lazaregagnidze',
                 "titulo": 'Melissa officinalis Bee Balm,Lemon Balm ბარამბო.JPG',
                 "url": 'https://commons.wikimedia.org/wiki/File:Melissa_officinalis_Bee_Balm,Lemon_Balm_%E1%83%91%E1%83%90%E1%83%A0%E1%83%90%E1%83%9B%E1%83%91%E1%83%9D.JPG',
-                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                "referencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/toronjil.jpg"],
             },
         ],
@@ -304,7 +304,7 @@ PLANTAS = [
         "imagen_ruta": 'img/plantas/oregano.jpg',
         "imagen_autor": 'David J. Stang',
         "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Origanum_vulgare_Variegata_0zz.jpg',
-        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        "imagen_licencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -366,14 +366,14 @@ PLANTAS = [
                 "autor": "Journal of Ethnobiology and Ethnomedicine (BioMed Central)",
                 "titulo": "Medicinal plants sold at traditional markets in southern Ecuador, 2016",
                 "url": "https://ethnobiomed.biomedcentral.com/articles/10.1186/s13002-016-0100-4/tables/5",
-                "referencia": "Tabla 5: «orégano» aparece como Origanum × majoricum Camb. Autores no anotados.",
+                "referencia": "Tabla 5: «orégano» aparece como Origanum x majoricum Camb. Autores no anotados.",
                 "campos": ["observaciones"],
             },
             {
                 "autor": 'David J. Stang',
                 "titulo": 'Origanum vulgare Variegata 0zz.jpg',
                 "url": 'https://commons.wikimedia.org/wiki/File:Origanum_vulgare_Variegata_0zz.jpg',
-                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                "referencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/oregano.jpg"],
             },
         ],
@@ -411,7 +411,7 @@ PLANTAS = [
         "imagen_ruta": 'img/plantas/romero.jpg',
         "imagen_autor": 'David J. Stang',
         "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Rosmarinus_officinalis_13zz.jpg',
-        "imagen_licencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/',
+        "imagen_licencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -473,7 +473,7 @@ PLANTAS = [
                 "autor": 'David J. Stang',
                 "titulo": 'Rosmarinus officinalis 13zz.jpg',
                 "url": 'https://commons.wikimedia.org/wiki/File:Rosmarinus_officinalis_13zz.jpg',
-                "referencia": 'CC BY-SA 4.0 — https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                "referencia": 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/romero.jpg"],
             },
         ],
@@ -514,7 +514,7 @@ PLANTAS = [
         "imagen_ruta": 'img/plantas/manzanilla.jpg',
         "imagen_autor": 'Robert Flogaus-Faust',
         "imagen_fuente": 'https://commons.wikimedia.org/wiki/File:Matricaria_chamomilla_2_RF.jpg',
-        "imagen_licencia": 'CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/',
+        "imagen_licencia": 'CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/',
         "fuentes": [
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
@@ -576,7 +576,7 @@ PLANTAS = [
                 "autor": 'Robert Flogaus-Faust',
                 "titulo": 'Matricaria chamomilla 2 RF.jpg',
                 "url": 'https://commons.wikimedia.org/wiki/File:Matricaria_chamomilla_2_RF.jpg',
-                "referencia": 'CC BY 4.0 — https://creativecommons.org/licenses/by/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                "referencia": 'CC BY 4.0 - https://creativecommons.org/licenses/by/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
                 "campos": ["static/img/plantas/manzanilla.jpg"],
             },
         ],
