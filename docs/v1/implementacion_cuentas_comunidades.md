@@ -58,7 +58,7 @@ Los materiales incluyen recomendaciones comunes y otras relacionadas con los mé
 
 ## Arranque y comprobaciones
 
-El [README](../../README.md) contiene los pasos de clonación de `bryan`, creación del entorno virtual e instalación de `requirements.txt`. Cada integrante utiliza su propia variable `DJANGO_SECRET_KEY`. Con el entorno y la clave configurados, los comandos de desarrollo en PowerShell son:
+El [README](../../README.md) contiene los pasos de clonación de `main` y trabajo en la rama personal, creación del entorno virtual e instalación de `requirements.txt`. Cada integrante utiliza su propia variable `DJANGO_SECRET_KEY`. Con el entorno y la clave configurados, los comandos de desarrollo en PowerShell son:
 
 ```powershell
 & .\.venv\Scripts\python.exe manage.py check
@@ -74,10 +74,10 @@ Las pruebas de `cuentas/tests.py` y `comunidades/tests.py` comprueban privacidad
 El 24 de octubre de 2026 se verificó una copia temporal de las fuentes `c9e7747` en el mismo computador de desarrollo. Un entorno virtual nuevo instaló las dependencias fijadas y completó las migraciones sobre una base vacía. Las 122 pruebas descubiertas por `manage.py test` terminaron con resultado `OK`. Un servidor WSGI local respondió correctamente para acceso, registro y CSS y redirigió al acceso cuando se solicitó la entrada privada. La revisión de instalación en otro computador permanece pendiente.
 
 La protección de historial se verifica con una tabla temporal que contiene registros activos y anulados. La comprobación incluye el modelo, los servicios y los envíos de formularios abiertos antes de que se registrara la actividad. La integración con Actividad ya se comprueba también con registros y anulaciones reales.
-La suite integrada actual contiene 160 pruebas con resultado OK; véase `integracion_equipo.md`.
+La suite integrada actual contiene 167 pruebas con resultado OK; véase `integracion_equipo.md`.
 
 ## Estado de integración
 
-La implementación de cuentas y comunidades está disponible en `bryan`. Se integraron la entrega de actividades corregida, la carga inicial, las seis fichas de Juan y el diseño de Doménica. Permanecen pendientes doce fichas, la guía ampliada, materiales y eventos lunares verificados. El producto conserva el requisito de las 18 especies. Las pruebas emplean contenido ficticio en su base temporal y no completan las fichas ni preparan la base de demo.
+La implementación de cuentas y comunidades está disponible en `bryan`. La base compartida en main conserva actividades corregidas, las seis fichas de Juan, el diseño de Doménica y la entrega de Matthew: seis fichas adicionales, guía ampliada, materiales y eventos lunares. Permanecen pendientes seis fichas, las fotos y atributos señalados como no verificados y los casos formales. El producto conserva el requisito de las 18 especies. Las pruebas emplean contenido ficticio en su base temporal y no completan las fichas ni preparan la base de demo.
 
 La estructura de módulos, los modelos compartidos y los contratos de formulario y plantilla se mantienen según la arquitectura acordada. La incorporación de estas pruebas y de las instrucciones de arranque no requiere modificar esa arquitectura. El informe final deberá incorporar los resultados formales y el recorrido completo cuando estén disponibles las entregas del equipo.

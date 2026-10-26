@@ -1,0 +1,14 @@
+{% load static %}
+{% comment %}Resumen de una especie elegida del huerto. Recibe: seleccion.{% endcomment %}
+<div class="seleccion-resumen">
+  {% if seleccion.planta.imagen_ruta and "imagen_ruta" not in seleccion.planta.campos_no_verificados %}
+    <img class="foto-miniatura" src="{% static seleccion.planta.imagen_ruta %}" alt="{{ seleccion.planta.nombre_comun }}">
+  {% else %}
+    <span class="foto-miniatura foto-pendiente" role="img" aria-label="Foto pendiente"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg></span>
+  {% endif %}
+  <div>
+    <p class="seleccion-nombre">{{ seleccion.planta.nombre_comun }}</p>
+    <p class="nombre-cientifico">{{ seleccion.planta.nombre_cientifico|default:"Nombre científico no verificado" }}</p>
+    <p><span class="etiqueta">Método actual: {{ seleccion.get_metodo_siembra_display }}</span></p>
+  </div>
+</div>

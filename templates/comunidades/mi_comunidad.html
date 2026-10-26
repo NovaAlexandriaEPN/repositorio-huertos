@@ -1,44 +1,75 @@
 {% extends "base.html" %}
 
 {% block titulo %}Mi comunidad · Huertos medicinales{% endblock %}
+{% block ancho %}contenido contenido-amplio{% endblock %}
 
 {% block contenido %}
 {% if comunidad %}
-  <div class="introduccion">
-    <h1>{{ comunidad.nombre }}</h1>
-    <p>{{ comunidad.get_tipo_display }} · Tu rol: {% if puede_editar %}responsable{% else %}participante{% endif %}.</p>
-    <p><a href="{% url 'comunidades:mi_huerto' %}">Ver el huerto de la comunidad</a></p>
+  <div class="encabezado-pagina">
+    <div class="introduccion">
+      <h1>{{ comunidad.nombre }}</h1>
+      <p>{{ comunidad.get_tipo_display }} · Tu rol: {% if puede_editar %}responsable{% else %}participante{% endif %}.</p>
+    </div>
+    <div class="acciones">
+      <a class="boton" href="{% url 'comunidades:mi_huerto' %}"><svg class="icono" aria-hidden="true"><use href="#i-brote"/></svg>Ver el huerto de la comunidad</a>
+      {% if puede_editar %}
+        <a class="boton boton-secundario" href="{% url 'comunidades:editar' %}">Editar los datos de la comunidad</a>
+      {% endif %}
+    </div>
   </div>
-  <section class="formulario" aria-labelledby="datos-comunidad">
-    <h2 id="datos-comunidad">Contacto de la comunidad</h2>
-    <dl class="datos-comunidad">
-      <dt>Nombre de contacto</dt><dd>{{ comunidad.contacto_nombre }}</dd>
-      <dt>Teléfono</dt><dd>{{ comunidad.contacto_telefono }}</dd>
-      <dt>Correo</dt><dd>{{ comunidad.contacto_correo }}</dd>
-    </dl>
-    <h2>Código de invitación</h2>
-    <p><code class="codigo-invitacion">{{ comunidad.codigo_invitacion }}</code></p>
-    <p>Este código permite que otras personas se unan a la comunidad.</p>
-    {% if puede_editar %}
-      <p><a href="{% url 'comunidades:editar' %}">Editar los datos de la comunidad</a></p>
-    {% endif %}
-  </section>
-  <section class="constancia" aria-labelledby="miembros-comunidad">
-    <h2 id="miembros-comunidad">Miembros</h2>
-    <ul class="lista-miembros">
+
+  <div class="bloques">
+    <section class="resumen" aria-labelledby="datos-comunidad">
+      <h2 id="datos-comunidad" class="titulo-seccion">Contacto de la comunidad</h2>
+      <dl class="datos-ficha">
+        <div class="dato"><dt>Nombre de contacto</dt><dd>{{ comunidad.contacto_nombre }}</dd></div>
+        <div class="dato"><dt>Teléfono</dt><dd>{{ comunidad.contacto_telefono }}</dd></div>
+        <div class="dato"><dt>Correo</dt><dd>{{ comunidad.contacto_correo }}</dd></div>
+      </dl>
+    </section>
+
+    <section class="resumen" aria-labelledby="codigo-comunidad">
+      <h2 id="codigo-comunidad" class="titulo-seccion">Código de invitación</h2>
+      <p><code class="codigo-invitacion">{{ comunidad.codigo_invitacion }}</code></p>
+      <p class="ayuda">Este código permite que otras personas se unan a la comunidad. Compártelo solo con quienes participarán.</p>
+    </section>
+  </div>
+
+  <section class="resumen" aria-labelledby="miembros-comunidad">
+    <h2 id="miembros-comunidad" class="titulo-seccion">Miembros</h2>
+    <ul class="lista-filas">
       {% for miembro in miembros %}
-        <li>{{ miembro.nombre }} · {% if miembro.usuario_id == comunidad.responsable_id %}Responsable{% else %}Participante{% endif %}</li>
+        <li class="fila">
+          <span class="avatar avatar-pequeno" aria-hidden="true">{{ miembro.nombre|first|upper }}</span>
+          <span class="fila-texto"><strong>{{ miembro.nombre }}</strong></span>
+          {% if miembro.usuario_id == comunidad.responsable_id %}
+            <span class="etiqueta etiqueta-acento">Responsable</span>
+          {% else %}
+            <span class="etiqueta">Participante</span>
+          {% endif %}
+        </li>
       {% endfor %}
     </ul>
+    <p class="ayuda">Los puntos y el nivel de cada miembro se consultan en <a href="{% url 'actividades:mi_huerto' %}">Mi huerto</a>.</p>
   </section>
 {% else %}
   <div class="introduccion">
     <h1>Mi comunidad</h1>
     <p>Aún no perteneces a una comunidad. Puedes crear una o unirte con un código.</p>
   </div>
-  <div class="acciones">
-    <a href="{% url 'comunidades:crear' %}">Crear una comunidad</a>
-    <a href="{% url 'comunidades:unirse' %}">Unirse con un código</a>
+  <div class="bloques">
+    <section class="resumen tarjeta-opcion">
+      <span class="resumen-icono"><svg class="icono" aria-hidden="true"><use href="#i-comunidad"/></svg></span>
+      <h2>Crear una comunidad</h2>
+      <p>Tú serás su responsable: podrás configurar el huerto y elegir sus plantas.</p>
+      <a class="boton" href="{% url 'comunidades:crear' %}">Crear una comunidad</a>
+    </section>
+    <section class="resumen tarjeta-opcion">
+      <span class="resumen-icono resumen-icono-acento"><svg class="icono" aria-hidden="true"><use href="#i-persona"/></svg></span>
+      <h2>Unirse con un código</h2>
+      <p>Usa el código de invitación que te compartió el responsable de tu comunidad.</p>
+      <a class="boton boton-secundario" href="{% url 'comunidades:unirse' %}">Unirse con un código</a>
+    </section>
   </div>
 {% endif %}
 {% endblock %}

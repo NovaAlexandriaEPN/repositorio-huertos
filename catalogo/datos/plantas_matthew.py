@@ -103,10 +103,10 @@ PLANTAS = [
             'estudios de laboratorio, no de ensayos en personas.'
         ),
         'contraindicaciones': None,
-        'imagen_ruta': None,
-        'imagen_autor': None,
-        'imagen_fuente': None,
-        'imagen_licencia': None,
+        'imagen_ruta': 'img/plantas/matico.jpg',
+        'imagen_autor': 'Diego F. Cisneros-Heredia (iNaturalist)',
+        'imagen_fuente': 'https://www.inaturalist.org/observations/20253557',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD, ['cualidad_ancestral']),
             {
@@ -131,15 +131,18 @@ PLANTAS = [
                 'campos': ['altitud_msnm', 'provincias_ecuador', 'parte_utilizada',
                            'usos_documentados'],
             },
+            {
+                'autor': 'Diego F. Cisneros-Heredia (iNaturalist)',
+                'titulo': 'Aristeguietia glutinosa, Quito (observación 20253557, foto 31262137)',
+                'url': 'https://www.inaturalist.org/observations/20253557',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'campos': ['static/img/plantas/matico.jpg'],
+            },
         ],
         'campos_no_verificados': [
             'otros_nombres',
             'ciclo',
             'contraindicaciones',
-            'imagen_ruta',
-            'imagen_autor',
-            'imagen_fuente',
-            'imagen_licencia',
         ],
         'observaciones': (
             'Especie endémica de Ecuador; Kew recoge Eupatorium glutinosum Lam. '
@@ -185,10 +188,10 @@ PLANTAS = [
             'menores de 12 años ni durante embarazo o lactancia. Pueden aparecer '
             'reacciones alérgicas. Resumen parcial: consultar la fuente.'
         ),
-        'imagen_ruta': None,
-        'imagen_autor': None,
-        'imagen_fuente': None,
-        'imagen_licencia': None,
+        'imagen_ruta': 'img/plantas/taraxaco.jpg',
+        'imagen_autor': 'Agnes Monkelbaan',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Paardenbloem_(Taraxacum_officinale)_26-04-2020._(actm.)_01.jpg',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             {
                 'autor': 'Richters Herbs',
@@ -210,12 +213,15 @@ PLANTAS = [
             },
             _tinitana(['otros_nombres', 'familia', 'parte_utilizada', 'usos_documentados']),
             _gbif(5394163, 'Taraxacum officinale', ['altitud_msnm', 'provincias_ecuador']),
+            {
+                'autor': 'Agnes Monkelbaan',
+                'titulo': 'Paardenbloem (Taraxacum officinale) 26-04-2020. (actm.) 01.jpg',
+                'url': 'https://commons.wikimedia.org/wiki/File:Paardenbloem_(Taraxacum_officinale)_26-04-2020._(actm.)_01.jpg',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'campos': ['static/img/plantas/taraxaco.jpg'],
+            },
         ],
         'campos_no_verificados': [
-            'imagen_ruta',
-            'imagen_autor',
-            'imagen_fuente',
-            'imagen_licencia',
         ],
         'observaciones': (
             'Ciclo: el MSP (p. 48) llama de ciclo corto a las plantas listas para cosechar en 6 a 8 semanas desde la siembra. La raíz, parte con monografía de EMA, se cosecha por primera vez un año después de sembrar (Richters), por eso se clasifica como largo. Las hojas tiernas pueden recogerse antes. '
@@ -253,10 +259,10 @@ PLANTAS = [
             'cercas vivas.'
         ),
         'contraindicaciones': None,
-        'imagen_ruta': None,
-        'imagen_autor': None,
-        'imagen_fuente': None,
-        'imagen_licencia': None,
+        'imagen_ruta': 'img/plantas/marco.jpg',
+        'imagen_autor': 'Carlo Brescia',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Ambrosia_arborescens_en_la_quebrada_Shongo,_detalle_de_flor_y_hojas.jpg',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD + ' ' + _P_CICLO + ' Anexo 3, plantas protectoras (p. 66); '
                  'Tabla 3, abono líquido (p. 31); Tabla 4, cercas con arbustos (p. 35).',
@@ -279,13 +285,16 @@ PLANTAS = [
                 'campos': ['parte_utilizada', 'usos_documentados'],
             },
             _gbif(8424273, 'Ambrosia arborescens', ['altitud_msnm', 'provincias_ecuador']),
+            {
+                'autor': 'Carlo Brescia',
+                'titulo': 'Ambrosia arborescens en la quebrada Shongo, detalle de flor y hojas.jpg',
+                'url': 'https://commons.wikimedia.org/wiki/File:Ambrosia_arborescens_en_la_quebrada_Shongo,_detalle_de_flor_y_hojas.jpg',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'campos': ['static/img/plantas/marco.jpg'],
+            },
         ],
         'campos_no_verificados': [
             'contraindicaciones',
-            'imagen_ruta',
-            'imagen_autor',
-            'imagen_fuente',
-            'imagen_licencia',
         ],
         'observaciones': (
             'Nativa de los Andes de Ecuador según Kew. Los usos de hoja y zumo '
@@ -326,10 +335,10 @@ PLANTAS = [
             'o la lactancia (USFQ). Resumen parcial; no se encontró una '
             'monografía oficial para esta especie.'
         ),
-        'imagen_ruta': None,
-        'imagen_autor': None,
-        'imagen_fuente': None,
-        'imagen_licencia': None,
+        'imagen_ruta': 'img/plantas/llanten.jpg',
+        'imagen_autor': 'Sanjay Acharya',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Broadleaf_Plantain_Spike.jpg',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD + ' ' + _P_USOS, ['cualidad_ancestral', 'usos_documentados']),
             {
@@ -350,13 +359,16 @@ PLANTAS = [
             },
             _tinitana(['usos_documentados']),
             _gbif(3189767, 'Plantago major', ['provincias_ecuador']),
+            {
+                'autor': 'Sanjay Acharya',
+                'titulo': 'Broadleaf Plantain Spike.jpg',
+                'url': 'https://commons.wikimedia.org/wiki/File:Broadleaf_Plantain_Spike.jpg',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'campos': ['static/img/plantas/llanten.jpg'],
+            },
         ],
         'campos_no_verificados': [
             'ciclo',
-            'imagen_ruta',
-            'imagen_autor',
-            'imagen_fuente',
-            'imagen_licencia',
         ],
         'observaciones': (
             'En código, ruta e imagen se usa llanten; el texto visible conserva '
@@ -399,10 +411,10 @@ PLANTAS = [
             'consultar a un médico. Los pelos de la planta fresca son urticantes: '
             'manipular con guantes. Resumen parcial: consultar la fuente.'
         ),
-        'imagen_ruta': None,
-        'imagen_autor': None,
-        'imagen_fuente': None,
-        'imagen_licencia': None,
+        'imagen_ruta': 'img/plantas/ortiga.jpg',
+        'imagen_autor': 'Dominicus Johannes Bergsma',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:Brandnetel,_Urtica_dioica,_Locatie,_Famberhorst.jpg',
+        'imagen_licencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/',
         'fuentes': [
             _msp(_P_CUALIDAD + ' ' + _P_CICLO + ' ' + _P_USOS + ' Anexo 3, plantas protectoras (p. 66); '
                  'tipos de siembra: plántulas (p. 45).',
@@ -425,12 +437,15 @@ PLANTAS = [
             },
             _tinitana(['otros_nombres', 'parte_utilizada', 'usos_documentados']),
             _gbif(7960979, 'Urtica dioica', ['altitud_msnm', 'provincias_ecuador']),
+            {
+                'autor': 'Dominicus Johannes Bergsma',
+                'titulo': 'Brandnetel, Urtica dioica, Locatie, Famberhorst.jpg',
+                'url': 'https://commons.wikimedia.org/wiki/File:Brandnetel,_Urtica_dioica,_Locatie,_Famberhorst.jpg',
+                'referencia': 'CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/. Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'campos': ['static/img/plantas/ortiga.jpg'],
+            },
         ],
         'campos_no_verificados': [
-            'imagen_ruta',
-            'imagen_autor',
-            'imagen_fuente',
-            'imagen_licencia',
         ],
         'observaciones': (
             'En Ecuador «ortiga» y «chine» se aplican a Urtica dioica y a Urtica '
@@ -465,10 +480,10 @@ PLANTAS = [
             'evitar su uso (Departamento de Salud de Abu Dabi). Resumen parcial; '
             'no se encontró una monografía oficial para esta especie.'
         ),
-        'imagen_ruta': None,
-        'imagen_autor': None,
-        'imagen_fuente': None,
-        'imagen_licencia': None,
+        'imagen_ruta': 'img/plantas/violeta.jpg',
+        'imagen_autor': 'AnRo0002',
+        'imagen_fuente': 'https://commons.wikimedia.org/wiki/File:20130407Viola_odorata1.jpg',
+        'imagen_licencia': 'CC0 1.0 - https://creativecommons.org/publicdomain/zero/1.0/ (dominio público)',
         'fuentes': [
             {
                 'autor': 'Kušen M., Vokurka A., Židovec V.',
@@ -496,13 +511,16 @@ PLANTAS = [
                 'campos': ['usos_documentados', 'contraindicaciones'],
             },
             _gbif(5331181, 'Viola odorata', ['provincias_ecuador']),
+            {
+                'autor': 'AnRo0002',
+                'titulo': '20130407Viola odorata1.jpg',
+                'url': 'https://commons.wikimedia.org/wiki/File:20130407Viola_odorata1.jpg',
+                'referencia': 'CC0 1.0 - https://creativecommons.org/publicdomain/zero/1.0/ (dominio público). Copia reducida a 1200 px (static/img/plantas). Metadatos consultados el 24 de octubre de 2026.',
+                'campos': ['static/img/plantas/violeta.jpg'],
+            },
         ],
         'campos_no_verificados': [
             'altitud_msnm',
-            'imagen_ruta',
-            'imagen_autor',
-            'imagen_fuente',
-            'imagen_licencia',
         ],
         'observaciones': (
             'Ciclo: el MSP (p. 48) llama de ciclo corto a las plantas listas para cosechar en 6 a 8 semanas desde la siembra. Sembrada de semilla, la violeta no florece el primer año (Kušen et al. 2026); como se usa la flor, se clasifica como largo. '

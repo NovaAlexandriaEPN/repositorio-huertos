@@ -1,90 +1,144 @@
-# Integración del equipo en bryan
+# Revisión general e integración del equipo
 
-Revisión del 24 de octubre de 2026. Base: `56eb2d1` de Bryan. Referencias:
-[alcance V1](01_Alcance_V1_Huertos_Medicinales.md),
-[arquitectura](02_Arquitectura_V1_Django.md) y
-[actividades del equipo](https://huertos-avance-equipo.cozyglobe1024.chatgpt.site/).
-Se comprobó que la versión publicada 4 del tablero corresponde al commit
-`0c0899bd077d5123ec244531a14d319e815f683b`, igual a la fuente local usada para leer
-las descripciones de las tareas. Esta revisión no cambia sus casillas de progreso.
+Revisión del 25 de octubre de 2026. Se integran los aportes publicados hasta los commits
+de esta tabla mediante un merge con commit en main. No se eliminan ramas ni se reescriben
+commits. Las comprobaciones se hacen primero en una carpeta Git de integración separada;
+la copia de Bryan y su base de datos permanecen intactas durante la revisión.
 
-## Entregas reunidas
+## Referencias y criterio de alcance
 
-| Integrante | Entrega publicada incorporada | Resultado de la integración |
+Se contrastaron la definición del proyecto, la presentación Huertos Medicinales Comunitarios,
+los lineamientos MSP de 2017, el alcance V1 1.4, la arquitectura, el plan y las descripciones de
+las tareas del [tablero del equipo](https://huertos-avance-equipo.cozyglobe1024.chatgpt.site/).
+Los documentos del curso describen el producto general. Para esta entrega se mantienen las
+reducciones de V1 ya acordadas: no se reintroducen GPS, evidencias subidas, foro, ranking,
+insignias, certificaciones, cantidades de inventario ni servicios en la nube. Tampoco se
+convierten recomendaciones de edad, hora o fase lunar en bloqueos nuevos.
+
+Esta revisión comprueba lo publicado en Git. No atribuye como terminado trabajo que un
+integrante tenga solamente en su equipo o fuera del repositorio.
+
+## Ramas revisadas
+
+| Rama | Commit revisado | Aporte conservado |
 | --- | --- | --- |
-| Fernando | `b2cb686`, actividades F1–F3 | Modelo, servicios, formularios, historial, huerto virtual y maestro corregidos contra el alcance. |
-| Doménica | `0ec3f2a`, diseño D1 | Bocetos, Bootstrap 5.3.8 local, estilos y plantillas de acceso. Menú conectado a las rutas reales. Se conservan las pantallas posteriores de Bryan. |
-| Juan | `4f07830`, seis fichas y fotografías | Fichas adaptadas a los 19 campos y cargadas por código. Observaciones convertidas de tuplas a texto; rutas de imagen relativas a static/. |
-| Matthew | `8a1e353` | Ya estaba contenido en bryan; no hay una entrega nueva en esa rama. |
-| Guillermo | Sin rama publicada identificada | No hay cambios de Git que incorporar. Los cálculos integrados siguen abiertos a su revisión. |
+| main | `73ba17d` | Estructura inicial del proyecto. Es la primera línea del merge. |
+| bryan | `fae10db` | Cuentas, comunidades, configurador, selección, materiales, integración y correcciones de las reglas de actividades. |
+| fernandoCarrera | `b2cb686` | Actividad, formularios, historial, huerto virtual, anulaciones y maestro; se conservan las correcciones de alcance ya integradas por Bryan. |
+| domenicaAstudillo | `0ec3f2a` | Bocetos, Bootstrap 5.3.8 local, estilos y plantillas de acceso; menú conectado a rutas reales. |
+| juanChuga | `4f07830` | Seis fichas y fotografías, con las correcciones de formato y créditos de la integración anterior. |
+| matthewRedin | `c8f5096` | Seis fichas nuevas, 13 guías, explicaciones de opciones, 18 materiales, 17 eventos USNO y recomendaciones por fase. |
+| Guillermo | Sin rama publicada identificada | No hay una entrega de Git que incorporar. Esto no demuestra ausencia de trabajo fuera del repositorio. |
 
-Solo se escriben y publican cambios en `bryan`. Las otras ramas y `main` conservan
-sus entregas. Las fusiones conservan la procedencia de los commits.
+Matthew ya incorpora fae10db, que contiene los merges de Fernando, Juan y Doménica.
+Por eso un merge normal de ese historial contiene todos estos aportes; volver a copiar
+carpetas o hacer squash perdería información útil para las próximas integraciones.
 
-## Correcciones de actividades
+## Revisión de las doce historias
 
-- Las tres generales son preparación, diseño y ritual. Las diez por planta son las del alcance; no se sustituyen por poda, abonado o control de plagas.
-- La preparación es del huerto. Siembra exige al menos 15 días desde ella. Empaquetado exige al menos 10 días desde el inicio de secado. No son plazos máximos.
-- Se registra fecha y hora, sin futuro ni retroceso respecto de la última actividad activa de la selección. Los empates se ordenan por ID.
-- El servicio aplica los estados de los trece tipos. Señalética, baño, gratitud y limpieza conservan su estado.
-- Cada envío conserva UUID y carga normalizada, incluida la nota. Un reenvío idéntico devuelve el registro, incluso anulado, antes de comprobar el nuevo estado. No reactiva ni duplica puntos.
-- Solo cuidados y riego se repiten. El primer activo de cada uno recibe sus puntos y los siguientes cero. La base impide dos registros activos de los otros tipos por alcance.
-- Se conservan puntos base y repetibilidad históricos. Anular recalcula las recompensas afectadas desde esos valores, sin cambiar el actor original.
-- Solo el responsable anula con motivo. Se respeta el orden inverso por planta; preparación con siembras se protege, y diseño/ritual se anulan independientemente.
-- Hay seis hitos iguales. Cuidado o riego cuenta como crecimiento; empaquetado es el sexto. El avance del huerto es el promedio, puede bajar al añadir una selección y es cero sin plantas.
-- Los niveles son aprendiz, oficial y maestro. El maestro exige al menos 100 puntos y nombramiento con motivo; 300 no lo concede. La sustitución comprueba el maestro esperado y la anulación retira al que baja de 100 en la misma operación.
-- Los servicios comprueban cuenta activa y comunidad. Se usa SQLite IMMEDIATE con operaciones atómicas cortas; no se atribuye a SQLite un bloqueo de filas mediante select_for_update.
+| Historia | Estado del progreso integrado | Lo que sigue pendiente |
+| --- | --- | --- |
+| HU-01 Registro y perfil | Registro con aviso/versionado del consentimiento; edad recomendada sin bloqueo; perfil propio y nacimiento válido. | Ejecución formal y revisión visual final. |
+| HU-02 Sesión | Autenticación Django, acceso privado, salida por POST y CSRF. | Ejecución formal. |
+| HU-03 Comunidad | Una pertenencia, código, responsable creador y permisos de edición en servidor. | Ejecución formal. |
+| HU-04 Huerto y plantas | Ubicación manual, área positiva, categorías, selección única y protección de historial activo o anulado. | Ejecución formal. |
+| HU-05 Fichas | 12 fichas con sus fuentes y pendientes visibles. | Seis fichas: paico, chilca, lavanda, salvia, cedrón y laurel. Faltan las seis fotos de Matthew y verificar foto/créditos de toronjil, además de los atributos marcados. |
+| HU-06 Guía ancestral | 13 guías con instrucciones, materiales, precauciones y referencias al MSP. No se inventan horas/fases donde la fuente no las indica. | Revisión final de dominio y prueba formal. |
+| HU-07 Calendario | 17 instantes USNO de septiembre a diciembre, hora de Guayaquil, anterior/siguiente y enlaces a recomendaciones. Funciona con datos locales. | Prueba formal de meses, extremos y conversión de día. |
+| HU-08 Registro | Actor de la sesión, alcance, estados, fecha/hora, mínimos 15/10 días y UUID/carga. | Prueba formal con el equipo. |
+| HU-09 Anulación | Solo responsable y con motivo; orden inverso por planta, preparación protegida y diseño/ritual independientes. Conserva autor y constancia. | Prueba formal. |
+| HU-10 Progreso y puntos | Seis hitos; cuidado o riego forman uno; promedio de plantas; valores históricos, niveles aprendiz/oficial/maestro. | Prueba formal y datos ficticios de demo. |
+| HU-11 Maestro | Umbral de 100, motivo, autor y fecha, sustitución con maestro esperado y retiro bajo 100. No añade permisos ni se concede por 300. | Prueba formal. |
+| HU-12 Materiales | Lista por métodos y marcas compartidas con permisos en servidor, sin cantidades ni compras. | Revisar marcas de bases antiguas y ejecutar la prueba formal. |
 
-## Catálogo y contenido pendiente
+La versión unifica el progreso disponible. No equivale a V1 terminada ni sustituye el
+informe oficial, los resultados reales de noviembre o la revisión en otro computador.
 
-El comando `cargar_catalogo` reúne los datos Python y crea solo códigos nuevos en una
-transacción. Repetirlo conserva fichas existentes, historial, pertenencias y maestro.
-No se debe usar para reemplazar datos ya cargados: las correcciones internas requieren
-una operación explícita sobre los registros afectados, con respaldo previo.
+## Correcciones al unificar
 
-Están cargables las seis especies de Juan, los 13 tipos con sus reglas, las 23 opciones
-del alcance y seis recomendaciones iniciales de materiales. Se añadieron las consultas
-de catálogo, guía y calendario para conectar las pantallas.
+Se conserva la corrección previa de actividades: 3 generales y 10 por planta, plazos
+mínimos, puntos históricos, reenvíos, autoría, anulaciones, seis hitos, niveles y maestro.
+La relación Actividad.planta sigue apuntando a PlantaHuerto con PROTECT y toda su historia.
 
-**V1 todavía no está terminada:** faltan las doce fichas de Matthew y Guillermo con sus
-fotos y fuentes; las instrucciones ampliadas, materiales, precauciones y recomendaciones
-verificadas de las 13 guías; la revisión de la lista de materiales; los eventos USNO de
-septiembre a diciembre y sus recomendaciones; la base ficticia de demo y las pruebas
-formales del 1 al 9 de noviembre. No se han inventado fichas ni eventos para ocultar faltantes.
+En esta revisión se corrigió el texto de registro para incluir preparación entre las
+generales, se añadió un acceso directo a la guía y se aclaró que diseño y ritual no son
+prerrequisitos para sembrar. Las explicaciones que Matthew añadió a las opciones se
+pueden consultar en el configurador; permanecían guardadas sin mostrarse.
 
-Se revisaron los créditos de fotografías de Wikimedia:
-[Hierba buena.JPG](https://commons.wikimedia.org/wiki/File:Hierba_buena.JPG) y
-[Kamille_01.jpg](https://commons.wikimedia.org/wiki/File:Kamille_01.jpg).
-Se corrigieron autores y licencias a CC BY-SA 3.0 según sus páginas. La fotografía recibida
-para toronjil y sus créditos se señalan como no verificados; se conserva el archivo y no
-se presenta como identificación confirmada. El resto del contenido botánico conserva
-las referencias entregadas y requiere la revisión de dominio prevista para el catálogo.
+`cargar_catalogo` conserva su carga por códigos nuevos. Ahora avisa si una fila existente
+tiene contenido distinto del archivo Python. No modifica sus datos silenciosamente.
 
-## Migraciones y bases que ya usaron la entrega anterior
+Los 17 eventos se contrastaron de nuevo el 25 de octubre con la
+[API anual de USNO](https://aa.usno.navy.mil/api/moon/phases/year?year=2026): los tipos,
+días y minutos coinciden. La aplicación sigue consultando SQLite durante la demo.
+Las fichas conservan las fuentes entregadas; esta revisión estructural no declara
+independientemente verificados todos sus usos o contraindicaciones.
 
-Se conserva `actividades/0001_initial.py` de Fernando y se añade `0002`; no se cambia una
-migración que otro integrante puede haber aplicado. La segunda se detiene si encuentra
-actividades del esquema anterior: no existen equivalencias seguras para sus tipos,
-fechas y recompensas. Ese caso requiere respaldar y revisar los registros antes de
-convertirlos. No se borra la base ni se declara que una conversión fue verificada.
+## Actualización de bases existentes
 
-En una instalación nueva, `migrate` y después `cargar_catalogo` preparan las tablas y
-los datos entregados. La base local de trabajo se respalda antes de aplicar la migración.
+Git integra fuentes y migraciones. SQLite es local y no se publica en Git. No se
+fusionan bases de personas distintas ni se sobrescribe la base de Bryan al integrar.
+
+En una base nueva, `migrate` y `cargar_catalogo` preparan 83 registros de catálogo:
+12 plantas, 13 tipos, 23 opciones, 18 materiales y 17 eventos. Repetir la carga no crea más.
+En una base anterior, la carga añade códigos nuevos y conserva los existentes. Por eso
+las antiguas guías abreviadas y las explicaciones vacías no cambian automáticamente.
+
+Después de respaldar y revisar la base, se puede hacer esta corrección interna de
+contenido en `manage.py shell`, usando los datos revisados del repositorio:
+
+```python
+from django.db import transaction
+from catalogo.datos import ACTIVIDADES, OPCIONES
+from catalogo.models import TipoActividad, OpcionHuerto
+
+with transaction.atomic():
+    for fila in ACTIVIDADES:
+        campos = ("nombre", "instrucciones", "materiales", "precauciones",
+                  "hora_recomendada", "fase_recomendada", "fuentes")
+        TipoActividad.objects.filter(codigo=fila["codigo"]).update(
+            **{campo: fila[campo] for campo in campos}
+        )
+    for fila in OPCIONES:
+        OpcionHuerto.objects.filter(codigo=fila["codigo"]).update(
+            explicacion=fila["explicacion"]
+        )
+```
+
+La operación reemplaza únicamente ese contenido por la entrega revisada: no se debe
+aplicar encima de otras correcciones locales sin compararlas antes. No toca código,
+alcance, puntos, repetibilidad, actividades, miembros ni maestro. La carga normal sigue
+sin ser un sincronizador general y no se añade un editor de catálogo.
+
+Las primeras seis recomendaciones de materiales tenían códigos distintos de los 18
+materiales detallados de Matthew. En bases antiguas se conservan esas filas y sus marcas.
+Antes de la demo deben revisarse manualmente: una marca genérica de «herramientas» no
+permite afirmar que cada herramienta está disponible. No se borra ni se redistribuye
+esa información automáticamente. Esta diferencia no aparece en una instalación nueva.
+
+Se conserva la migración inicial de Fernando. actividades/0002 se detiene si encuentra
+actividades guardadas con el esquema anterior incompatible: respalda y revisa ese caso
+antes de convertir sus tipos, fechas y recompensas. No se borran registros ni se inventan
+equivalencias para conseguir que una migración pase.
 
 ## Comprobaciones de desarrollo
 
-`manage.py test` descubre y ejecuta **160 pruebas**, con resultado **OK**. Incluye el ciclo
-de trece actividades mediante formularios y CSRF, plazos 14/15 y 9/10, UUID y notas,
-permisos de otra comunidad, estados, puntos históricos, anulaciones, progreso promedio,
-nombramiento/sustitución/retiro de maestro, protección real del historial de PlantaHuerto
-y carga repetida del catálogo. Estos resultados no completan los casos manuales de noviembre.
+La suite final integrada ejecutó 167 pruebas con resultado OK. Incluye cuentas,
+privacidad, pertenencia, configuración, selección, materiales, el ciclo de trece labores
+con formularios/CSRF, límites 14/15 y 9/10, UUID, recompensas, anulación, progreso,
+sustitución y retiro de maestro, datos de Matthew y calendario con cambio de día local.
+También pasaron check, makemigrations --check --dry-run y la revisión del diff.
+Una instalación temporal sobre base vacía cargó 83 registros y cero en el segundo intento.
+Se recorrió el sistema por HTTP real con dos cuentas ficticias y CSRF: registro, acceso,
+comunidad, configuración, selección, unión, materiales, las trece actividades, maestro,
+las doce fichas, guía, calendario y anulación. El ciclo llegó a 100 % y 125 puntos,
+y la anulación redujo el avance.
 
-Los cuatro módulos mantienen sus tests.py. No se añadieron cobertura, CI, servicios
-externos ni dependencias de ejecución. La comprobación en otro computador sigue pendiente.
+En una copia de la base anterior se añadió un escenario ficticio con historial,
+material disponible y maestro. La carga y la corrección interna documentada conservaron
+cuentas, comunidad, relaciones, marcas, actividades, recompensas y maestro sin cambios.
+La base original se abrió solamente en modo lectura para obtener esa copia.
+Las cuentas y bases usadas para comprobar no forman parte del producto ni se publican.
 
-La comprobación adicional usó una copia temporal de las fuentes y una base vacía:
-`check` y `migrate` terminaron correctamente, la primera carga creó 48 registros y la
-segunda creó cero. Un servidor WSGI respondió HTTP 200 para acceso, registro, CSS,
-Bootstrap y una fotografía local; la entrada privada redirigió al acceso. La copia
-temporal se eliminó al terminar. Se migró y cargó también la instalación de trabajo,
-con respaldo local previo en `copias/antes_integracion_equipo_2026-10-24.sqlite3`, fuera de Git.
+Los resultados de desarrollo no se anotan como casos formales ya ejecutados en
+resultados.md. Se mantienen los tests.py de cada módulo, sin añadir cobertura ni CI.

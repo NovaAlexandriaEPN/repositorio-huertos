@@ -15,29 +15,31 @@ Proyecto de **Calidad de Software (ISWD652, período 2026B)**.
 
 ## Estado actual del proyecto
 
-La rama `bryan` integra cuentas y comunidades de Bryan, actividades de Fernando,
-las seis fichas/fotos de Juan y el diseño con Bootstrap local de Doménica. Las reglas
-de actividades se corrigieron contra el alcance V1 y las tareas de la página.
+`main` reúne el progreso publicado del equipo hasta el 25 de octubre de 2026,
+con un merge que conserva los commits y las ramas personales. Incluye cuentas y
+comunidades de Bryan, actividades de Fernando corregidas contra el alcance,
+seis fichas/fotos de Juan, el diseño de Doménica y las entregas de catálogo de Matthew.
 
 Funcionan registro y consentimiento, sesión y perfil privado, comunidad por código,
-configuración, selección protegida por historial, materiales, registro y anulación
-de actividades, puntos, progreso, maestro y consultas del catálogo entregado.
+configuración, selección protegida por historial, materiales, registro y anulación de
+actividades, puntos, progreso, maestro, fichas, guía ancestral y calendario local.
 
-`cargar_catalogo` ya carga las seis fichas recibidas, los 13 tipos con sus reglas,
-23 opciones y seis recomendaciones iniciales de materiales. No duplica ni sobrescribe
-registros existentes. Siguen pendientes doce fichas, las guías ampliadas y sus fuentes,
-los eventos lunares verificados y la revisión de materiales. V1 mantiene las 18 especies.
+La carga nueva contiene **12 de las 18 fichas**, **13 guías**, **23 opciones**,
+**18 materiales** y **17 eventos lunares**. Faltan las seis fichas de Guillermo,
+fotos y datos expresamente señalados como no verificados, la base ficticia de demo,
+los resultados formales y la comprobación en otro computador. La revisión de código
+no sustituye la revisión de dominio de las fichas ni declara terminada V1.
 
-La revisión de integración, los commits de origen, las correcciones y los pendientes
-están en [integracion_equipo.md](docs/v1/integracion_equipo.md). Las 160 pruebas de
-desarrollo pasan; los casos formales y la base ficticia de demo siguen pendientes.
+Consulta [la revisión general y de ramas](docs/v1/integracion_equipo.md) para ver
+las doce historias, las correcciones y los pendientes. Las comprobaciones automáticas
+son de desarrollo; los casos formales siguen previstos para el 1 al 9 de noviembre.
 
-Guías de Bryan: [comunidades](docs/aprendizaje/B2-02_comunidades.md),
+Las guías de Bryan conservan la explicación de cada etapa:
+[comunidades](docs/aprendizaje/B2-02_comunidades.md),
 [huerto y plantas](docs/aprendizaje/B2-03_B2-04_huerto_y_plantas.md),
 [recorrido inicial](docs/aprendizaje/B3-01_recorrido_integrado.md),
 [materiales](docs/aprendizaje/B3-02_permisos_y_materiales.md) y
 [pruebas propias](docs/aprendizaje/B3-03_pruebas_reglas_propias.md).
-Esas guías documentan cada etapa; el estado integrado vigente es el de esta sección.
 
 ---
 
@@ -87,25 +89,28 @@ Esas guías documentan cada etapa; el estado integrado vigente es el de esta sec
 
 Todos los comandos se ejecutan en **PowerShell**, dentro de la carpeta del repositorio.
 
-### 3.1 Clonar la rama de implementación
+### 3.1 Clonar la base compartida
 
-Para revisar lo publicado por Bryan, crear una copia nueva en el escritorio:
+Para obtener la base compartida, crear una copia nueva en el escritorio:
 
 ```powershell
 Set-Location -LiteralPath ([Environment]::GetFolderPath('Desktop'))
-git clone --branch bryan https://github.com/NovaAlexandriaEPN/repositorio-huertos.git repositorio-huertos
+git clone --branch main https://github.com/NovaAlexandriaEPN/repositorio-huertos.git repositorio-huertos
 Set-Location -LiteralPath .\repositorio-huertos
 ```
 
 Si el repositorio ya está clonado, entrar en su carpeta y usar:
 
 ```powershell
-git fetch origin bryan
+git fetch origin
 git switch bryan
+git merge origin/main
 ```
 
-Bryan mantiene su trabajo en `bryan`. Los demás integrantes usan sus propias ramas para
-sus cambios; revisar esta rama no requiere integrarla en `main`.
+Bryan continúa desarrollando en `bryan`; cada compañero usa su propia rama. El ejemplo
+anterior trae la base compartida a bryan mediante merge y conserva el historial. Si hay
+cambios locales sin guardar, revísalos antes de cambiar de rama o integrar. Las nuevas
+funcionalidades no se desarrollan directamente en main.
 
 ### 3.2 Crear el entorno virtual
 
@@ -159,7 +164,21 @@ Comprueba que está cargada en esta terminal:
 ```
 
 Esto crea las tablas de los cuatro módulos y carga el contenido entregado. Las advertencias
-del comando identifican fichas y eventos pendientes. Repetirlo no reemplaza datos anteriores.
+del comando identifican contenido pendiente o distinto. Repetirlo no reemplaza datos anteriores.
+
+`cargar_catalogo` muestra una línea por modelo, por ejemplo
+`Planta: entregados 12, nuevos 0, ya existían 12 (0 con contenido distinto), en la base 12.`
+
+- **nuevos**: códigos que no existían y se crearon ahora.
+- **ya existían**: códigos que se conservaron sin modificar.
+- **con contenido distinto**: códigos existentes cuyo contenido no coincide con el archivo
+  Python. No se sobrescriben; para ver cuáles son, ejecuta
+  `& .\.venv\Scripts\python.exe manage.py cargar_catalogo -v 2`.
+
+Si una ficha trae un campo que el modelo no tiene, el comando se detiene sin guardar nada
+e indica la ficha y el campo.
+Si tu base ya tenía las guías abreviadas, consulta la sección de actualización de bases
+en el informe de integración: git merge actualiza archivos, no el contenido de SQLite.
 Si ya usaste las actividades de la entrega original de Fernando y guardaste registros,
 la migración se detiene para no convertirlos con reglas equivocadas. Conserva esa base y
 consulta [la nota de migración](docs/v1/integracion_equipo.md#migraciones-y-bases-que-ya-usaron-la-entrega-anterior).
@@ -372,7 +391,7 @@ las ramas han divergido y necesitan una integración.
 
 | Variable | Obligatoria | Valor por defecto | Uso |
 |---|---|---|---|
-| `DJANGO_SECRET_KEY` | Sí | — | Clave secreta local (sección 3.4). |
+| `DJANGO_SECRET_KEY` | Sí | - | Clave secreta local (sección 3.4). |
 | `DJANGO_DEBUG` | No | `1` | `0` desactiva el modo depuración. |
 | `DJANGO_ALLOWED_HOSTS` | No | vacío | Hosts extra separados por comas (por ejemplo, tu IP local). |
 
@@ -463,13 +482,34 @@ Copy-Item -LiteralPath db.sqlite3 -Destination $respaldoHuertos
 El archivo [`docs/v1/demo.md`](docs/v1/demo.md) está reservado para el guion de la demo;
 todavía no contiene un guion completo.
 
-## Integración del 24 de octubre
+## Comprobación de la base compartida
 
-La suite actual ejecuta 160 pruebas con resultado OK, incluidas las reglas de actividades
-y su ciclo completo desde formularios. La carga repetida se comprueba sin cambiar
-historial ni maestro. Para arrancar esta integración tras actualizar bryan: cargar la
-clave local, ejecutar `migrate`, `cargar_catalogo` y `runserver`. La comprobación anterior
-de 122 pruebas corresponde a la versión previa de cuentas/comunidades.
+Las pruebas comprueban el ciclo de las trece actividades, privacidad, permisos, comunidad,
+plazos, UUID, anulaciones, progreso y maestro. La revisión vigente y la fecha de ejecución
+se recogen en [integracion_equipo.md](docs/v1/integracion_equipo.md).
 
-La instalación actual se verifica además en una copia temporal de las fuentes y una
-base vacía. Esto no sustituye comprobar el arranque en otro computador del equipo.
+Para una instalación nueva: cargar la clave local, ejecutar `migrate`, `cargar_catalogo`
+y `runserver`. En una base ya usada, la carga conserva los registros existentes y avisa
+si difieren del código. No borres SQLite ni su historial para resolver un cambio de catálogo.
+
+### Carga inicial y segunda carga (J2-08 y J2-09)
+
+Comprobación de desarrollo del 25 de octubre de 2026; no es un resultado formal de pruebas.
+
+- `catalogo/tests.py` (`CargaInicialTests`) comprueba que una base nueva recibe todas las
+  listas de `catalogo/datos/`, que un campo desconocido detiene la carga sin guardar nada y
+  que `-v 2` lista los códigos con diferencias sin corregirlos.
+- `catalogo/tests.py` (`SegundaCargaTests`) prepara una base ficticia con dos cuentas,
+  comunidad, huerto, planta seleccionada, material marcado, el ciclo de las trece
+  actividades, una anulación y un maestro nombrado. Repite la carga sin cambios y con datos
+  Python modificados (una ficha nueva y otros puntos para una guía): solo se crea la ficha
+  nueva, la guía guardada conserva sus puntos y los datos de trabajo quedan idénticos.
+- A mano, sobre una base temporal: `migrate`, `cargar_catalogo`, datos de trabajo creados
+  con los servicios, conteo de filas, segunda carga y nuevo conteo. Las cantidades y el
+  contenido de cuentas, comunidad, huerto, selección, marca y actividades no cambiaron.
+
+Una base cargada antes del 25 de octubre de 2026 mostrará fichas y guías «con contenido
+distinto»: los créditos de fotos se revisaron y los textos se estandarizaron (guion en lugar
+de raya, «x» en nombres de híbridos, «...» en lugar de elipsis). La aplicación sigue
+mostrando bien esas fichas. Para actualizar los créditos de fotos usa
+`docs/v1/diseno/actualizar_fotos_base.py`, con una copia de respaldo de la base.

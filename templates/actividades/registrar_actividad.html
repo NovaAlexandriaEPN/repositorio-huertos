@@ -5,7 +5,8 @@
 {% block contenido %}
 <div class="introduccion">
   <h1>Registrar actividad</h1>
-  <p>Huerto de {{ huerto.comunidad.nombre }}. Diseño y ritual se registran para todo el huerto; las demás actividades, para una planta.</p>
+  <p>Huerto de {{ huerto.comunidad.nombre }}. {{ form.planta.help_text }}</p>
+  <p><a href="{% url 'catalogo:guia' %}">Consultar la guía de las 13 actividades</a>.</p>
 </div>
 
 {% include "componentes/errores.html" with form=form %}

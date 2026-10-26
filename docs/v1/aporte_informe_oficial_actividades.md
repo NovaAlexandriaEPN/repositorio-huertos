@@ -1,6 +1,6 @@
 # Implementación integrada de actividades y huerto virtual
 
-Texto actualizado el 24 de octubre de 2026 para incorporar al informe V1.
+Texto actualizado el 25 de octubre de 2026 para incorporar al informe V1.
 La entrega inicial de Fernando se integró y corrigió en bryan contra el alcance acordado.
 Historias: HU-08 a HU-11. Las pruebas formales CP-05 a CP-08 quedan para noviembre.
 
@@ -25,14 +25,14 @@ anulación, recompensas afectadas y retiro del maestro si baja de 100 puntos.
 Estado, puntos, nivel y avance se consultan desde el historial activo. Preparación,
 siembra, crecimiento por cuidado o riego, cosecha, secado y empaquetado son seis hitos
 iguales. El avance comunitario promedia las selecciones y puede disminuir al añadir otra.
-Los niveles son aprendiz (0–99), oficial (desde 100) y maestro (desde 100 con nombramiento).
+Los niveles son aprendiz (0-99), oficial (desde 100) y maestro (desde 100 con nombramiento).
 El responsable puede nombrarse si cumple el umbral. La sustitución exige motivo y compara
 el maestro esperado para rechazar formularios antiguos. El reconocimiento no concede permisos.
 
 El huerto virtual ofrece tarjetas con método, estado, progreso y siguiente acción,
 puntos personales/comunitarios y constancia del maestro. El historial conserva activos y
 anulados y permite filtrar. Todas estas rutas requieren sesión y comprueban pertenencia;
-las escrituras usan POST y CSRF. Las 160 pruebas de desarrollo del conjunto incluyen el
+las escrituras usan POST y CSRF. Las 167 pruebas de desarrollo del conjunto incluyen el
 ciclo completo en formularios. Véase `integracion_equipo.md` para los datos pendientes,
 las migraciones y los commits de origen. Aún faltan contenido del catálogo y ejecución
 formal antes de declarar terminada V1.

@@ -41,14 +41,14 @@
         <p class="etiqueta-menu">Mi espacio</p>
         <ul class="list-unstyled">
           {% include "componentes/enlace_menu.html" with ruta="actividades:mi_huerto" texto="Mi huerto" icono="inicio" tambien="actividades:inicio_huerto_virtual actividades:registrar_actividad" %}
-          {% include "componentes/enlace_menu.html" with ruta="catalogo:lista_plantas" texto="Catálogo" icono="brote" tambien="catalogo:detalle_planta" %}
+          {% include "componentes/enlace_menu.html" with ruta="comunidades:mi_huerto" texto="Plantas del huerto" icono="brote" tambien="comunidades:configurar_huerto comunidades:elegir_planta comunidades:cambiar_metodo comunidades:retirar_planta" %}
+          {% include "componentes/enlace_menu.html" with ruta="comunidades:materiales" texto="Materiales" icono="check" %}
+          {% include "componentes/enlace_menu.html" with ruta="catalogo:lista_plantas" texto="Catálogo" icono="hoja" tambien="catalogo:detalle_planta" %}
           {% include "componentes/enlace_menu.html" with ruta="catalogo:guia" texto="Guías" icono="libro" %}
           {% include "componentes/enlace_menu.html" with ruta="catalogo:calendario" texto="Calendario" icono="calendario" %}
           {% include "componentes/enlace_menu.html" with ruta="comunidades:mi_comunidad" texto="Mi comunidad" icono="comunidad" tambien="comunidades:crear comunidades:unirse comunidades:editar" %}
           {% include "componentes/enlace_menu.html" with ruta="actividades:mi_historial" texto="Historial" icono="historial" %}
         </ul>
-          <a class="opcion-menu" href="{% url 'comunidades:mi_huerto' %}">Configurar y elegir plantas</a>
-          <a class="opcion-menu" href="{% url 'comunidades:materiales' %}">Materiales compartidos</a>
       </nav>
 
       <p class="pie-lateral">Huertos medicinales comunitarios<br>Nova Alexandria</p>

@@ -1,13 +1,109 @@
-{% extends "base.html" %}{% load static %}
+{% extends "base.html" %}
+{% load static presentacion %}
+
 {% block titulo %}{{ planta.nombre_comun }} · Catálogo{% endblock %}
+{% block ancho %}contenido contenido-amplio{% endblock %}
+
 {% block contenido %}
-<a href="{% url 'catalogo:lista_plantas' %}">Volver al catálogo</a>
-<h1>{{ planta.nombre_comun }}</h1>
-<p>Información educativa; no reemplaza la atención médica. Los datos y créditos provienen de las referencias de esta ficha.</p>
-{% if planta.imagen_ruta and "imagen_ruta" not in planta.campos_no_verificados %}<img class="foto-planta" src="{% static planta.imagen_ruta %}" alt="{{ planta.nombre_comun }}">{% endif %}
-<dl>{% for etiqueta, valor, pendiente in campos %}
-<dt>{{ etiqueta|capfirst }}{% if pendiente %} (no verificado){% endif %}</dt><dd>{{ valor|default:"No verificado" }}</dd>
-{% endfor %}</dl>
-<h2>Fuentes y créditos</h2>
-<ul>{% for fuente in planta.fuentes %}<li>{{ fuente.autor }}. {% if fuente.url %}<a href="{{ fuente.url }}" rel="noreferrer">{{ fuente.titulo }}</a>{% else %}{{ fuente.titulo }}{% endif %}. {{ fuente.referencia }}</li>{% empty %}<li>Fuentes pendientes.</li>{% endfor %}</ul>
+{% with pendientes=planta.campos_no_verificados %}
+<p class="volver"><a href="{% url 'catalogo:lista_plantas' %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al catálogo</a></p>
+
+<div class="ficha">
+  <div class="ficha-foto">
+    {% if planta.imagen_ruta and "imagen_ruta" not in pendientes %}
+      <figure>
+        <img class="foto-planta foto-planta-ficha" src="{% static planta.imagen_ruta %}" alt="{{ planta.nombre_comun }}">
+        <figcaption class="atribucion">
+          {% with lic=planta.imagen_licencia|licencia %}
+          Foto: {{ planta.imagen_autor }} ·
+          {% if lic.url %}<a href="{{ lic.url }}" rel="noreferrer">{{ lic.nombre }}</a>{% else %}{{ planta.imagen_licencia }}{% endif %}
+          {% if planta.imagen_fuente %}· <a href="{{ planta.imagen_fuente }}" rel="noreferrer">Fuente</a>{% endif %}
+          · copia reducida
+          {% endwith %}
+        </figcaption>
+      </figure>
+    {% else %}
+      <div class="foto-pendiente foto-pendiente-ficha" role="img" aria-label="Foto pendiente"><svg class="icono" aria-hidden="true"><use href="#i-hoja"/></svg></div>
+      <p class="atribucion">Foto pendiente de verificar.</p>
+    {% endif %}
+  </div>
+
+  <div class="ficha-datos">
+    <div class="introduccion">
+      <h1>{{ planta.nombre_comun }}</h1>
+      <p class="nombre-cientifico ficha-cientifico">{{ planta.nombre_cientifico|default:"Nombre científico no verificado" }}</p>
+    </div>
+    <p class="aviso-educativo">Información educativa; no reemplaza la atención médica. Los datos y créditos provienen de las referencias de esta ficha.</p>
+
+    <section aria-labelledby="titulo-identificacion">
+      <h2 id="titulo-identificacion" class="titulo-seccion">Identificación</h2>
+      <dl class="datos-ficha">
+        {% include "componentes/dato_ficha.html" with etiqueta="Nombre científico" valor=planta.nombre_cientifico campo="nombre_cientifico" %}
+        {% include "componentes/dato_ficha.html" with etiqueta="Familia" valor=planta.familia campo="familia" %}
+        {% include "componentes/dato_ficha.html" with etiqueta="Otros nombres" valor=planta.otros_nombres|join:", " campo="otros_nombres" %}
+      </dl>
+    </section>
+  </div>
+</div>
+
+<div class="ficha-secciones">
+  <section aria-labelledby="titulo-distribucion">
+    <h2 id="titulo-distribucion" class="titulo-seccion">Distribución en Ecuador</h2>
+    <dl class="datos-ficha">
+      {% include "componentes/dato_ficha.html" with etiqueta="Altitud" valor=planta.altitud_msnm campo="altitud_msnm" %}
+      {% include "componentes/dato_ficha.html" with etiqueta="Provincias" valor=planta.provincias_ecuador|join:", " campo="provincias_ecuador" %}
+    </dl>
+  </section>
+
+  <section aria-labelledby="titulo-ancestral">
+    <h2 id="titulo-ancestral" class="titulo-seccion">Clasificación ancestral</h2>
+    <dl class="datos-ficha">
+      {% include "componentes/dato_ficha.html" with etiqueta="Ciclo" valor=planta.get_ciclo_display campo="ciclo" %}
+      {% include "componentes/dato_ficha.html" with etiqueta="Cualidad ancestral" valor=planta.get_cualidad_ancestral_display campo="cualidad_ancestral" %}
+    </dl>
+  </section>
+
+  <section aria-labelledby="titulo-usos" class="ficha-ancha">
+    <h2 id="titulo-usos" class="titulo-seccion">Partes utilizadas y usos</h2>
+    <dl class="datos-ficha">
+      {% include "componentes/dato_ficha.html" with etiqueta="Partes utilizadas" valor=planta.parte_utilizada|join:", " campo="parte_utilizada" %}
+      {% include "componentes/dato_ficha.html" with etiqueta="Usos documentados" valor=planta.usos_documentados campo="usos_documentados" %}
+    </dl>
+  </section>
+
+  <section aria-labelledby="titulo-precauciones" class="ficha-ancha precauciones">
+    <h2 id="titulo-precauciones">Precauciones</h2>
+    {% if planta.contraindicaciones %}
+      <p>{{ planta.contraindicaciones|linebreaksbr }}</p>
+      {% if "contraindicaciones" in pendientes %}<p><span class="etiqueta etiqueta-acento">No verificado</span></p>{% endif %}
+    {% else %}
+      <p>No verificado. Consulta a personal de salud antes de usar esta planta.</p>
+    {% endif %}
+  </section>
+
+  {% if planta.observaciones %}
+  <section aria-labelledby="titulo-observaciones" class="ficha-ancha">
+    <h2 id="titulo-observaciones" class="titulo-seccion">Observaciones</h2>
+    <p>{{ planta.observaciones|linebreaksbr }}</p>
+  </section>
+  {% endif %}
+
+  <section aria-labelledby="titulo-fuentes" class="ficha-ancha">
+    <h2 id="titulo-fuentes" class="titulo-seccion">Fuentes y créditos</h2>
+    <ol class="lista-fuentes">
+      {% for fuente in planta.fuentes %}
+        <li>
+          {% if fuente.autor %}{{ fuente.autor }}. {% endif %}
+          {% if fuente.url %}<a href="{{ fuente.url }}" rel="noreferrer">{{ fuente.titulo }}</a>{% else %}<cite>{{ fuente.titulo }}</cite>{% endif %}.
+          {% if fuente.referencia %}<span class="ayuda">{{ fuente.referencia }}</span>{% endif %}
+        </li>
+      {% empty %}
+        <li>Fuentes pendientes.</li>
+      {% endfor %}
+    </ol>
+  </section>
+</div>
+
+<p class="volver"><a href="{% url 'catalogo:lista_plantas' %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al catálogo</a></p>
+{% endwith %}
 {% endblock %}
