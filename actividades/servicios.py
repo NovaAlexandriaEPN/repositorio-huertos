@@ -49,6 +49,11 @@ SIGUIENTE = {
 }
 
 
+# Actividad que la tarjeta propone registrar a continuación (solo preselecciona el
+# formulario; las reglas de registro siguen decidiendo si se acepta).
+TIPO_SUGERIDO = {
+    "planeada": Tipo.SIEMBRA, "sembrada": Tipo.CUIDADOS, "secando": Tipo.EMPAQUETADO,
+}
 @contextmanager
 def _escritura_atomica():
     try:
@@ -295,6 +300,7 @@ def obtener_resumen_huerto(huerto, usuario):
         tarjetas.append({"seleccion": seleccion, "nombre": seleccion.planta.nombre_comun,
             "metodo": seleccion.get_metodo_siembra_display(), "hitos": hitos,
             "etapa": estado.capitalize(), "estado": estado, "siguiente": SIGUIENTE[estado],
+            "tipo_sugerido": TIPO_SUGERIDO.get(estado, ""),
             "progreso": calcular_progreso(hitos), "ultima_actividad": historial[-1] if historial else None})
     puntos = puntos_por_usuario(huerto)
     miembros = []
