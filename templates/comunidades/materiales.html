@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block titulo %}Materiales compartidos · Huertos medicinales{% endblock %}
+{% block ancho %}contenido contenido-amplio{% endblock %}
+
+{% block contenido %}
+<p class="volver"><a href="{% url 'comunidades:mi_huerto' %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al huerto</a></p>
+<div class="introduccion">
+  <h1>Materiales compartidos</h1>
+  <p>Consulta las recomendaciones y marca lo que está disponible para tu comunidad. Todos sus miembros pueden actualizar estas casillas.</p>
+</div>
+<p class="recomendacion">Conserva los materiales en una bodega seca, ventilada y con luz natural.</p>
+
+{% regroup materiales by material.get_grupo_display as grupos_materiales %}
+{% for grupo in grupos_materiales %}
+  <section class="grupo-materiales" aria-labelledby="grupo-{{ forloop.counter }}">
+    <h2 id="grupo-{{ forloop.counter }}" class="titulo-seccion">{{ grupo.grouper }}</h2>
+    <ul class="lista-materiales">
+      {% for fila in grupo.list %}
+        <li class="material{% if fila.disponible %} material-disponible{% endif %}">
+          <div class="material-texto">
+            <h3>{{ fila.material.nombre }}</h3>
+            {% if fila.material.recomendacion %}<p class="ayuda">{{ fila.material.recomendacion|linebreaksbr }}</p>{% endif %}
+          </div>
+          {% include "componentes/errores.html" with form=fila.form %}
+          <form method="post" action="{% url 'comunidades:marcar_material' fila.material.pk %}" class="material-formulario">
+            {% csrf_token %}
+            <div class="aceptacion">
+              {{ fila.form.disponible }}
+              <label for="{{ fila.form.disponible.id_for_label }}">{{ fila.form.disponible.label }}</label>
+            </div>
+            <button type="submit" class="boton-secundario boton-pequeno">Guardar disponibilidad</button>
+          </form>
+          <span class="etiqueta{% if not fila.disponible %} etiqueta-neutra{% endif %}">{% if fila.disponible %}Disponible{% else %}No disponible{% endif %}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% empty %}
+  <p class="alert alert-info" role="status">Aún no hay materiales recomendados disponibles para este huerto.</p>
+{% endfor %}
+{% endblock %}

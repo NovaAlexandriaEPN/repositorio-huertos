@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block titulo %}Anular actividad · {{ huerto.comunidad.nombre }}{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Anular actividad</h1>
+  <p>La actividad no se borra: queda en el historial como anulada, con tu motivo, tu usuario y la fecha. Sus puntos dejan de contar.</p>
+</div>
+
+<dl class="detalle">
+  <dt>Actividad</dt><dd>{{ actividad.get_tipo_display }}</dd>
+  <dt>Planta</dt><dd>{{ actividad.nombre_planta }}</dd>
+  <dt>Fecha</dt><dd>{{ actividad.fecha|date:"d/m/Y" }}</dd>
+  <dt>Realizó</dt><dd>{{ actividad.actor_original.get_full_name|default:actividad.actor_original.username }}</dd>
+  <dt>Puntos</dt><dd>{{ actividad.puntos }}</dd>
+  <dt>Estado</dt><dd>{{ actividad.get_estado_display }}</dd>
+</dl>
+
+{% include "componentes/errores.html" with form=form %}
+
+{% if actividad.es_activa %}
+<form method="post" action="{% url 'actividades:anular_actividad' actividad.id %}" class="formulario">
+  {% csrf_token %}
+  <div class="campo">
+    <label for="{{ form.motivo.id_for_label }}">{{ form.motivo.label }}</label>
+    {{ form.motivo }}
+    <div class="ayuda">{{ form.motivo.help_text }}</div>
+  </div>
+  <div class="acciones">
+    <button type="submit">Anular actividad</button>
+    <a href="{% url 'actividades:historial_actividades' huerto.id %}">Cancelar</a>
+  </div>
+</form>
+{% else %}
+<p>Esta actividad ya está anulada.</p>
+<p><a href="{% url 'actividades:historial_actividades' huerto.id %}">Volver al historial</a></p>
+{% endif %}
+{% endblock %}

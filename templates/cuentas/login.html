@@ -1,0 +1,38 @@
+{% extends "base_acceso.html" %}
+
+{% block titulo %}Iniciar sesión · Huertos medicinales{% endblock %}
+
+{% block foto_clase %}acceso-foto-hierbas{% endblock %}
+{% block foto_titulo %}Cultiva bienestar.{% endblock %}
+{% block foto_texto %}Tu huerto medicinal, en un solo lugar.{% endblock %}
+
+{% block encabezado %}
+<h1>Qué bueno verte de nuevo</h1>
+<p>Inicia sesión para cuidar lo que crece contigo.</p>
+{% endblock %}
+
+{% block contenido %}
+{% include "componentes/errores.html" with form=form %}
+
+<form method="post" action="{% url 'cuentas:login' %}" class="formulario-acceso">
+  {% csrf_token %}
+  <input type="hidden" name="next" value="{{ next }}">
+  <div class="campo">
+    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+    <div class="campo-con-icono">
+      <svg class="icono" aria-hidden="true"><use href="#i-persona"/></svg>
+      {{ form.username }}
+    </div>
+  </div>
+  <div class="campo">
+    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+    {{ form.password }}
+  </div>
+  <button type="submit" class="boton-ancho">Iniciar sesión <svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg></button>
+</form>
+{% endblock %}
+
+{% block pie %}
+<p class="pie-acceso">¿Aún no tienes cuenta? <a href="{% url 'cuentas:registro' %}">Crear una cuenta</a></p>
+<p class="lema">Crece a tu ritmo.</p>
+{% endblock %}

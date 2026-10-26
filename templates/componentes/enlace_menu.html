@@ -1,0 +1,22 @@
+{% comment %}
+Una opción del menú común. Recibe:
+  ruta    - nombre de la ruta, por ejemplo "catalogo:lista_plantas".
+  texto   - lo que se muestra.
+  icono   - nombre del icono de componentes/iconos.html, sin el prefijo "i-".
+  tambien - (opcional) otras rutas que pertenecen a la misma opción, separadas por espacios.
+Si la ruta todavía no está implementada, la opción aparece deshabilitada en lugar de romper la página.
+{% endcomment %}
+{% url ruta as url %}
+{% with actual=request.resolver_match.view_name %}
+<li>
+  {% if url %}
+    {% if actual and actual == ruta or actual and actual in tambien %}
+      <a class="opcion-menu activa" href="{{ url }}" aria-current="page"><svg class="icono" aria-hidden="true"><use href="#i-{{ icono }}"/></svg><span>{{ texto }}</span></a>
+    {% else %}
+      <a class="opcion-menu" href="{{ url }}"><svg class="icono" aria-hidden="true"><use href="#i-{{ icono }}"/></svg><span>{{ texto }}</span></a>
+    {% endif %}
+  {% else %}
+    <span class="opcion-menu deshabilitada" aria-disabled="true" title="Disponible próximamente"><svg class="icono" aria-hidden="true"><use href="#i-{{ icono }}"/></svg><span>{{ texto }}</span></span>
+  {% endif %}
+</li>
+{% endwith %}

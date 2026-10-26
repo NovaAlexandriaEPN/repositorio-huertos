@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block titulo %}Calendario lunar{% endblock %}
+{% block contenido %}
+<h1>Calendario lunar de 2026</h1>
+<p>Período previsto: septiembre a diciembre. Horas de Ecuador (America/Guayaquil). No se asigna una fase principal a cada día.</p>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+<form method="get"><label for="mes">Mes (1 a 12)</label><input id="mes" name="mes" type="number" min="1" max="12" value="{{ mes }}"><label for="fecha">Fecha de referencia</label><input id="fecha" type="date" name="fecha" value="{{ fecha|date:'Y-m-d' }}"><button type="submit">Consultar</button></form>
+<ul>{% for fila in filas %}{% with evento=fila.evento %}<li>{{ evento.get_tipo_display }}{% if fila.nombre_ancestral %} ({{ fila.nombre_ancestral }}){% endif %}: {{ evento.instante|date:"d/m/Y H:i T" }}. <a href="{{ evento.fuente }}">Fuente</a>{% if fila.recomendaciones %}. Recomendado para: {% for guia in fila.recomendaciones %}<a href="{% url 'catalogo:guia' %}#{{ guia.codigo }}">{{ guia.nombre }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</li>{% endwith %}{% empty %}<li>No hay eventos verificados cargados para este mes.</li>{% endfor %}</ul>
+<p>Las fases recomendadas son informativas: registrar una actividad no exige un evento lunar.</p>
+{% if dentro_periodo %}<p>Anterior: {% if anterior %}{{ anterior.get_tipo_display }}, {{ anterior.instante|date:"d/m/Y H:i T" }}{% else %}No disponible{% endif %}. Siguiente: {% if siguiente %}{{ siguiente.get_tipo_display }}, {{ siguiente.instante|date:"d/m/Y H:i T" }}{% else %}No disponible{% endif %}.</p>{% else %}<p>No hay datos para la fecha de referencia fuera del período septiembre-diciembre de 2026.</p>{% endif %}
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo }} · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>{{ titulo }}</h1>
+  <p>{{ descripcion }}</p>
+</div>
+{% include "componentes/errores.html" with form=form %}
+<form method="post" action="{% url ruta_formulario %}" class="formulario">
+  {% csrf_token %}
+  <fieldset>
+    <legend>Datos de la comunidad</legend>
+    <div class="campo">
+      <label for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+      {{ form.nombre }}
+    </div>
+    <div class="campo">
+      <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
+      {{ form.tipo }}
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>Contacto del responsable</legend>
+    <p class="ayuda">Quien crea la comunidad es su responsable. Este rol no se elige de una lista ni se transfiere.</p>
+    <div class="campo">
+      <label for="{{ form.contacto_nombre.id_for_label }}">{{ form.contacto_nombre.label }}</label>
+      {{ form.contacto_nombre }}
+    </div>
+    <div class="cuadricula">
+      <div class="campo">
+        <label for="{{ form.contacto_telefono.id_for_label }}">{{ form.contacto_telefono.label }}</label>
+        {{ form.contacto_telefono }}
+      </div>
+      <div class="campo">
+        <label for="{{ form.contacto_correo.id_for_label }}">{{ form.contacto_correo.label }}</label>
+        {{ form.contacto_correo }}
+      </div>
+    </div>
+  </fieldset>
+  <div class="acciones">
+    <button type="submit">{{ texto_boton }}</button>
+    <a href="{% url 'comunidades:mi_comunidad' %}">Volver a mi comunidad</a>
+  </div>
+</form>
+{% endblock %}

@@ -1,0 +1,530 @@
+/* ==========================================================================
+   Huertos medicinales comunitarios · estilos propios
+   Se cargan después de Bootstrap 5.3 (local). La guía de estilo está en
+   docs/v1/diseno/guia_estilo.md; los colores solo se definen aquí, en :root.
+   Sin recursos externos: fuentes del sistema, iconos e ilustraciones en línea.
+   ========================================================================== */
+
+/* --- Paleta y tipografía ------------------------------------------------ */
+
+:root {
+  color-scheme: light;
+
+  --marfil: #f7f5ef;                /* fondo de página */
+  --superficie: #fbfaf6;            /* tarjetas y formularios */
+  --bosque: #244c3a;                /* botones, enlaces, menú activo */
+  --bosque-oscuro: #193e2d;         /* hover del principal */
+  --tinta: #20382d;                 /* texto y títulos */
+  --salvia: #dfe5d3;                /* menú activo, héroe, etiquetas */
+  --salvia-suave: #ecefe4;          /* hover, fondos de iconos */
+  --apagado: #5f6866;               /* ayudas y subtítulos */
+  --linea: #deded5;                 /* bordes de tarjetas y separadores */
+  --borde-campo: #c8ccc3;           /* campos de formulario */
+  --terracota: #b94d26;             /* acento: rayas bajo títulos, pendientes */
+  --durazno: #fbe6d6;               /* fondo del acento */
+  --error: #a8321f;
+  --error-fondo: #fbeae4;
+
+  --radio: 10px;
+  --radio-control: 8px;
+  --anchura-lectura: 760px;
+  --anchura-amplia: 1200px;
+
+  /* Se usan si están instaladas; si no, fuentes del sistema parecidas.
+     No se descargan fuentes: la demo funciona sin internet. */
+  --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --sans: "DM Sans", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+
+  /* Bootstrap toma estas variables */
+  --bs-body-font-family: var(--sans);
+  --bs-body-color: var(--tinta);
+  --bs-body-bg: var(--marfil);
+  --bs-body-line-height: 1.6;
+  --bs-border-color: var(--linea);
+  --bs-primary: var(--bosque);
+  --bs-primary-rgb: 36, 76, 58;
+  --bs-link-color-rgb: 36, 76, 58;
+  --bs-link-hover-color-rgb: 25, 62, 45;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--marfil); color: var(--tinta); font-family: var(--sans); font-size: 15px; line-height: 1.6; }
+img { max-width: 100%; height: auto; }
+
+h1, h2, h3, legend { font-family: var(--serif); font-weight: 500; color: var(--tinta); letter-spacing: -.02em; }
+h1 { font-size: clamp(2rem, 4vw, 3rem); line-height: 1.15; margin: 0 0 .5rem; }
+h2 { font-size: 1.6rem; line-height: 1.25; margin: 2rem 0 .75rem; }
+h3 { font-size: 1.2rem; line-height: 1.3; margin: 1.25rem 0 .35rem; }
+p { margin: .5rem 0 1rem; }
+
+a { color: var(--bosque); font-weight: 600; text-decoration: none; overflow-wrap: anywhere; }
+a:hover { color: var(--bosque-oscuro); text-decoration: underline; text-underline-offset: .2em; }
+:focus-visible { outline: 3px solid #b57845; outline-offset: 3px; border-radius: .2rem; }
+
+.icono { width: 22px; height: 22px; flex-shrink: 0; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.iconos-definiciones { position: absolute; width: 0; height: 0; overflow: hidden; }
+.equipo, .version, .opcional, .ayuda { color: var(--apagado); }
+.opcional { font-size: .85rem; font-weight: 400; }
+.centrado { text-align: center; }
+
+/* Raya terracota bajo los títulos principales, como en los bocetos */
+.introduccion h1::after, .titulo-seccion::after {
+  content: ""; display: block; width: 30px; height: 2px; margin-top: .5rem; background: var(--terracota);
+}
+
+.saltar { position: absolute; top: .5rem; left: .5rem; z-index: 30; background: var(--superficie); padding: .5rem .75rem; border-radius: var(--radio-control); }
+
+/* --- Marca -------------------------------------------------------------- */
+
+.marca { display: inline-flex; align-items: center; gap: .6rem; font-family: var(--serif); font-size: 1.9rem; font-weight: 600; letter-spacing: -.03em; color: var(--bosque); line-height: 1; }
+.marca .icono { width: 40px; height: 40px; stroke-width: 1.3; }
+
+/* --- Distribución con barra lateral (sesión iniciada) ------------------- */
+
+.app { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
+
+.barra-lateral {
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 0;
+  padding: 1.75rem 1rem 1.25rem; border-right: 1px solid var(--linea); background: var(--marfil);
+}
+.barra-lateral-cabeza { display: contents; }
+.barra-lateral .marca { order: 1; padding: 0 .9rem; }
+.menu-principal { order: 2; }
+.menu-cuenta { order: 3; margin-top: auto; }
+.pie-lateral { order: 4; margin: 1rem .9rem 0; font-size: .75rem; color: var(--apagado); line-height: 1.4; }
+
+.etiqueta-menu { margin: 2.5rem .9rem .75rem; font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: #6f7773; font-weight: 600; }
+.menu-principal ul { display: flex; flex-direction: column; gap: .3rem; margin: 0; }
+.opcion-menu {
+  display: flex; align-items: center; gap: 1rem; padding: .8rem .9rem; border-radius: 9px;
+  color: #4d5c57; font-weight: 500; text-decoration: none;
+}
+a.opcion-menu:hover { background: var(--salvia-suave); color: var(--bosque); text-decoration: none; }
+.opcion-menu.activa { background: var(--salvia); color: var(--bosque); font-weight: 700; }
+.opcion-menu.deshabilitada { color: #a0a6a2; cursor: default; }
+
+/* Menú de la cuenta (perfil y cerrar sesión), sin JavaScript */
+.menu-cuenta { position: relative; border-top: 1px solid var(--linea); padding-top: 1rem; }
+.menu-cuenta summary {
+  display: flex; align-items: center; gap: .75rem; cursor: pointer; list-style: none;
+  padding: .5rem .6rem; border-radius: 9px; font-weight: 600; font-size: .9rem;
+}
+.menu-cuenta summary::-webkit-details-marker { display: none; }
+.menu-cuenta summary::after { content: ""; margin-left: auto; width: .45rem; height: .45rem; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); }
+.menu-cuenta[open] summary::after { transform: rotate(-135deg); }
+.menu-cuenta summary:hover { background: var(--salvia-suave); }
+.avatar {
+  display: inline-grid; place-items: center; flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%;
+  background: #d9cfb9; color: var(--bosque); font-family: var(--serif); font-size: 1.25rem;
+}
+.usuario { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.identidad { overflow-wrap: anywhere; }
+.menu-cuenta ul {
+  position: absolute; left: 0; right: 0; bottom: calc(100% + .25rem); z-index: 10; margin: 0; padding: .4rem;
+  background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); box-shadow: 0 10px 30px rgba(32, 56, 45, .12);
+}
+.menu-cuenta form { margin: 0; }
+.menu-cuenta li > a, .menu-cuenta .boton-enlace {
+  display: flex; align-items: center; gap: .7rem; width: 100%; padding: .6rem .75rem; border-radius: var(--radio-control);
+  background: none; border: 0; color: var(--tinta); font: inherit; font-weight: 500; text-decoration: none; text-align: left; min-height: 0;
+}
+.menu-cuenta li > a:hover, .menu-cuenta .boton-enlace:hover { background: var(--salvia-suave); color: var(--bosque); text-decoration: none; }
+.menu-cuenta .icono { width: 18px; height: 18px; }
+
+/* Sin sesión, en pantallas que no son de acceso */
+.cabecera-publica { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--linea); }
+.navegacion { display: flex; gap: 1.25rem; }
+
+/* --- Contenido ---------------------------------------------------------- */
+
+.contenido { width: 100%; max-width: calc(var(--anchura-lectura) + 4rem); margin: 0 auto; padding: 2.5rem 2rem 4rem; }
+.contenido-amplio { max-width: calc(var(--anchura-amplia) + 4rem); }
+.introduccion { margin-bottom: 1.75rem; }
+.introduccion p { color: var(--apagado); font-size: 1.1rem; }
+.recomendacion { border-left: 2px solid var(--terracota); padding: .1rem 0 .1rem .9rem; color: var(--tinta); }
+
+/* Encabezado con acción a la derecha (por ejemplo «Registrar actividad») */
+.encabezado-pagina { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 1.5rem; margin-bottom: 1.75rem; }
+.encabezado-pagina .introduccion { margin: 0; }
+
+/* Bloque destacado (héroe) con texto a la izquierda e imagen a la derecha */
+.heroe { display: grid; grid-template-columns: minmax(0, 38%) minmax(0, 1fr); min-height: 240px; background: var(--salvia); border-radius: var(--radio); overflow: hidden; margin-bottom: 1.25rem; }
+.heroe-texto { padding: 1.75rem 2.25rem; }
+.heroe-texto h2 { margin: 0 0 .75rem; font-size: 2.2rem; line-height: 1.1; }
+.heroe-texto p { color: #4f5d53; }
+.heroe-imagen { background: var(--bosque) center / cover no-repeat; border-radius: 70px 0 0 0; }
+
+/* --- Formularios -------------------------------------------------------- */
+
+.formulario {
+  background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio); padding: 1.75rem;
+}
+fieldset { border: 0; padding: 0; margin: 0 0 1.75rem; min-width: 0; }
+legend { font-size: 1.35rem; padding: 0; margin-bottom: 1rem; }
+.cuadricula { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 1.25rem; }
+.campo { margin-bottom: 1.3rem; min-width: 0; }
+.ancho-completo { grid-column: 1 / -1; }
+label { display: block; font-size: .9rem; font-weight: 500; color: #4f5855; margin-bottom: .45rem; }
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]), select, textarea, .form-control, .form-select {
+  width: 100%; min-width: 0; min-height: 50px; padding: .7rem 1rem;
+  border: 1px solid var(--borde-campo); border-radius: 7px; background-color: rgba(255, 255, 255, .55);
+  color: var(--tinta); font: inherit; transition: border-color .15s ease, box-shadow .15s ease;
+}
+textarea { min-height: 96px; resize: vertical; }
+input::placeholder, textarea::placeholder { color: #9ba09b; }
+input:not([type="checkbox"]):not([type="radio"]):hover, select:hover, textarea:hover { border-color: #a9b0a4; }
+input:not([type="checkbox"]):not([type="radio"]):focus, select:focus, textarea:focus, .form-control:focus, .form-select:focus {
+  outline: none; border-color: var(--bosque); box-shadow: 0 0 0 3px rgba(36, 76, 58, .15); background-color: #fff;
+}
+input[type="checkbox"], input[type="radio"] { accent-color: var(--bosque); width: 20px; height: 20px; cursor: pointer; }
+
+/* Campo con icono a la izquierda */
+.campo-con-icono { position: relative; }
+.campo-con-icono .icono { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: #59615e; pointer-events: none; }
+.campo-con-icono input { padding-left: 3rem !important; }
+
+/* Django marca el campo con error con aria-invalid; aquí solo se resalta,
+   el texto completo está en el resumen de errores. */
+[aria-invalid="true"] { border-color: var(--error) !important; background-color: #fffaf7 !important; }
+[aria-invalid="true"]:focus { box-shadow: 0 0 0 3px rgba(168, 50, 31, .15) !important; }
+.error-campo { color: var(--error); font-size: .85rem; margin-top: .35rem; }
+
+.ayuda { font-size: .85rem; margin-top: .45rem; }
+.ayuda ul { padding-left: 1.2rem; margin: .25rem 0 0; }
+
+.aviso { border-top: 1px solid var(--linea); padding-top: 1rem; margin-top: .5rem; }
+.aviso h2 { font-size: 1.35rem; margin-top: .5rem; }
+.aviso h3 { font-family: var(--sans); font-size: .95rem; font-weight: 700; letter-spacing: 0; }
+.aviso p { font-size: .9rem; color: #46514c; }
+.aceptacion { display: flex; align-items: flex-start; gap: .7rem; margin: 1.5rem 0; }
+.aceptacion input { flex: 0 0 auto; margin: .15rem 0 0; }
+.aceptacion label { font-size: .9rem; font-weight: 500; color: var(--tinta); margin: 0; }
+
+/* --- Botones ------------------------------------------------------------ */
+
+.acciones { display: flex; flex-wrap: wrap; align-items: center; gap: .75rem 1.25rem; margin-top: 1.5rem; }
+
+button, .boton {
+  display: inline-flex; align-items: center; justify-content: center; gap: .75rem;
+  min-height: 48px; padding: .75rem 1.5rem; border: 1px solid var(--bosque); border-radius: 7px;
+  background: var(--bosque); color: #fff; font: inherit; font-weight: 600; line-height: 1.2;
+  text-decoration: none; cursor: pointer; transition: background-color .15s ease, color .15s ease;
+}
+button:hover, .boton:hover { background: var(--bosque-oscuro); border-color: var(--bosque-oscuro); color: #fff; text-decoration: none; }
+button .icono, .boton .icono { width: 20px; height: 20px; }
+.boton-ancho { width: 100%; min-height: 56px; font-size: 1.05rem; }
+.boton-secundario { background: transparent; color: var(--bosque); }
+.boton-secundario:hover { background: #ccd8bf; color: var(--bosque-oscuro); }
+.boton-acento { background: var(--terracota); border-color: var(--terracota); }
+.boton-acento:hover { background: #9a3f1e; border-color: #9a3f1e; }
+.boton-enlace { min-height: 0; background: none; border: 0; padding: 0; color: var(--bosque); font-weight: 600; }
+.boton-enlace:hover { background: none; color: var(--bosque-oscuro); text-decoration: underline; }
+
+/* Por si una pantalla usa las clases de Bootstrap */
+.btn { --bs-btn-font-weight: 600; --bs-btn-border-radius: 7px; --bs-btn-padding-x: 1.5rem; --bs-btn-padding-y: .75rem; }
+.btn-primary {
+  --bs-btn-bg: var(--bosque); --bs-btn-border-color: var(--bosque);
+  --bs-btn-hover-bg: var(--bosque-oscuro); --bs-btn-hover-border-color: var(--bosque-oscuro);
+  --bs-btn-active-bg: var(--bosque-oscuro); --bs-btn-active-border-color: var(--bosque-oscuro);
+}
+.btn-outline-primary {
+  --bs-btn-color: var(--bosque); --bs-btn-border-color: var(--bosque);
+  --bs-btn-hover-bg: #ccd8bf; --bs-btn-hover-color: var(--bosque-oscuro); --bs-btn-hover-border-color: var(--bosque);
+}
+
+/* --- Mensajes y errores ------------------------------------------------- */
+
+.mensajes { margin-bottom: 1.5rem; }
+.alert {
+  --bs-alert-border-radius: 0;
+  border: 0; border-left: 3px solid; padding: .9rem 1.1rem; margin: 0 0 .75rem; color: var(--tinta);
+}
+.alert-success { background: var(--salvia); border-color: var(--bosque); }
+.alert-info { background: var(--salvia-suave); border-color: #8b9a85; }
+.alert-warning { background: var(--durazno); border-color: var(--terracota); }
+.alert-danger { background: var(--error-fondo); border-color: var(--error); color: #6b1f12; }
+
+.errores { margin: 0 0 1.5rem; }
+.errores h2 { font-family: var(--sans); font-size: 1rem; font-weight: 700; letter-spacing: 0; margin: 0 0 .4rem; color: inherit; }
+.errores a { color: inherit; text-decoration: underline; }
+.errores ul { padding-left: 1.2rem; margin: 0; }
+.errores ul ul { padding-left: 1rem; }
+
+/* --- Pantallas de acceso (iniciar sesión y crear cuenta) --------------- */
+
+.acceso { display: grid; grid-template-columns: 56% 44%; min-height: 100vh; }
+
+/* Panel de imagen. Sin foto local se muestra una ilustración de hojas sobre verde bosque. */
+.acceso-foto {
+  position: sticky; top: 0; height: 100vh; isolation: isolate;
+  display: flex; flex-direction: column; justify-content: space-between; padding: 2.5rem 3rem;
+  color: #fff; background-color: var(--bosque); background-size: cover; background-position: center;
+}
+.acceso-foto::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(16, 47, 36, .25) 0%, transparent 40%, rgba(16, 35, 24, .7) 100%); }
+.acceso-foto-hierbas, .acceso-foto-siembra {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' fill='none' stroke='%23dfe5d3' stroke-opacity='.18' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M70 400C80 300 120 230 190 170'/%3E%3Cpath d='M120 270c-40-10-62-42-60-84 40 6 62 38 60 84Z'/%3E%3Cpath d='M150 220c10-42 44-66 88-62-8 42-42 64-88 62Z'/%3E%3Cpath d='M175 185c-34-24-42-62-24-100 32 22 42 60 24 100Z'/%3E%3Cpath d='M300 400c-6-90 10-170 60-240'/%3E%3Cpath d='M318 300c-34-14-50-46-42-84 34 12 50 44 42 84Z'/%3E%3Cpath d='M332 240c16-36 50-52 88-42-14 36-48 52-88 42Z'/%3E%3Cpath d='M345 200c-24-30-22-68 6-98 24 30 22 68-6 98Z'/%3E%3C/svg%3E");
+  background-size: 115% auto; background-repeat: no-repeat; background-position: 30% 100%;
+}
+.acceso-foto-siembra { background-color: #2b5541; background-position: 80% 110%; }
+.acceso-foto .marca { color: #fff; }
+.acceso-foto-texto { padding-bottom: 1rem; }
+.acceso-foto-titulo { margin: 0; font-family: var(--serif); font-size: clamp(3.2rem, 6.5vw, 6.5rem); line-height: 1; letter-spacing: -.05em; max-width: 11ch; }
+.acceso-foto-texto p:last-child { margin: 1.25rem 0 0; font-size: clamp(1.05rem, 1.6vw, 1.6rem); line-height: 1.45; }
+
+.acceso-panel { display: flex; justify-content: center; padding: 3rem 3rem 4rem; }
+.acceso-interior { width: 100%; max-width: 510px; margin: auto 0; }
+.marca-apilada { display: flex; flex-direction: column; gap: .2rem; margin-bottom: 2.25rem; font-size: 1.85rem; color: #5b6b59; text-align: center; }
+.marca-apilada::after { content: ""; width: 30px; height: 2px; margin-top: .75rem; background: #cc8a6d; }
+.acceso-encabezado { text-align: center; margin-bottom: 2.5rem; }
+.acceso-encabezado h1 { font-size: clamp(2.3rem, 3.6vw, 3.6rem); line-height: 1.1; letter-spacing: -.04em; }
+.acceso-encabezado p { font-size: 1.05rem; color: var(--apagado); margin-top: 1rem; }
+.formulario-acceso .campo { margin-bottom: 1.5rem; }
+.formulario-acceso fieldset { margin-bottom: 1.25rem; }
+.formulario-acceso legend { font-size: 1.3rem; }
+.pie-acceso { margin-top: 2.25rem; padding-top: 1.75rem; border-top: 1px solid var(--linea); text-align: center; color: var(--apagado); font-size: .9rem; }
+.pie-acceso a { margin-left: .35rem; }
+.lema { margin-top: 3rem; text-align: center; font-family: var(--serif); font-size: .85rem; letter-spacing: .2em; color: #71806d; }
+
+/* --- Tarjetas ----------------------------------------------------------- */
+
+.tarjeta {
+  display: flex; flex-direction: column; gap: .35rem; min-width: 0; padding: 1rem 1.1rem;
+  background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio-control); overflow: hidden;
+}
+.tarjeta > * { margin: 0; }
+.tarjeta > .foto-planta, .tarjeta > .foto-pendiente { width: calc(100% + 2.2rem); max-width: none; margin: -1rem -1.1rem .6rem; }
+.tarjeta-cuerpo { display: grid; gap: .35rem; }
+.tarjeta-cuerpo > * { margin: 0; }
+.tarjeta h2, .tarjeta h3, .tarjeta-titulo { font-family: var(--serif); font-size: 1.25rem; margin: 0; }
+.tarjeta h2 a, .tarjeta h3 a { color: var(--tinta); }
+.nombre-cientifico { font-size: .85rem; font-style: italic; color: var(--apagado); }
+.tarjeta-pie { margin: auto -1.1rem -1rem; padding: .75rem 1.1rem; border-top: 1px solid var(--linea); }
+.enlace-flecha { display: inline-flex; align-items: center; gap: .4rem; }
+.enlace-flecha .icono { width: 18px; height: 18px; }
+
+/* Rejilla de tarjetas: 1 columna en celular, hasta 3 o 4 en computador. */
+.rejilla-tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 1rem; }
+
+/* Foto de planta: misma altura en todas las tarjetas, sin deformar. */
+.foto-planta { display: block; width: 100%; height: 170px; object-fit: cover; background: var(--salvia); }
+.foto-pendiente { display: grid; place-items: center; height: 170px; background: var(--salvia-suave); color: #8b9a85; }
+.foto-pendiente .icono { width: 48px; height: 48px; stroke-width: 1.1; }
+.foto-planta-ficha { height: auto; max-height: 440px; object-fit: contain; border-radius: var(--radio); }
+.atribucion { font-size: .78rem; color: var(--apagado); overflow-wrap: anywhere; }
+
+/* Tarjetas de resumen: icono redondo, número grande con serifa y etiqueta. */
+.rejilla-resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 1rem; margin-bottom: 1.75rem; }
+.tarjeta-resumen { flex-direction: row; align-items: center; gap: 1.1rem; padding: 1rem 1.25rem; }
+.resumen-icono { display: grid; place-items: center; flex-shrink: 0; width: 56px; height: 56px; border-radius: 50%; background: var(--salvia-suave); color: var(--bosque); }
+.resumen-icono .icono { width: 26px; height: 26px; }
+.resumen-icono-acento { background: var(--durazno); color: var(--terracota); }
+.resumen-valor { display: block; font-family: var(--serif); font-size: 2.1rem; font-weight: 500; line-height: 1.1; }
+.resumen-etiqueta { display: block; font-size: .85rem; color: var(--apagado); }
+
+/* Estado de una planta: siempre con texto, el color solo acompaña. */
+.etiqueta {
+  display: inline-flex; align-items: center; gap: .35rem; width: fit-content; padding: .35rem .75rem; border-radius: 999px;
+  background: #e4e9d8; color: var(--bosque); font-size: .78rem; font-weight: 600; white-space: nowrap;
+}
+.etiqueta-acento { background: var(--durazno); color: var(--terracota); }
+.etiqueta .icono { width: 14px; height: 14px; }
+
+/* Barra de avance con su número visible al lado. */
+.avance { display: grid; gap: .3rem; }
+.avance-barra { height: .5rem; border-radius: 999px; background: #e4e9d8; overflow: hidden; }
+.avance-relleno { display: block; height: 100%; border-radius: inherit; background: var(--bosque); }
+.avance-texto { font-size: .85rem; color: var(--apagado); }
+
+/* Lista de elementos con borde (actividades recientes, historial) */
+.lista-filas { display: grid; gap: .6rem; padding: 0; margin: 0; list-style: none; }
+.fila { display: flex; align-items: center; gap: .85rem; padding: .9rem 1rem; border: 1px solid var(--linea); border-radius: var(--radio-control); background: var(--superficie); }
+.fila-texto { display: grid; flex: 1; min-width: 0; }
+.fila-texto strong { font-weight: 600; font-size: .95rem; }
+.fila-texto small { color: var(--apagado); font-size: .8rem; }
+
+/* --- Catálogo: ficha de planta y guía de actividades ------------------- */
+
+.volver { margin: 0 0 1.25rem; }
+.volver a { display: inline-flex; align-items: center; gap: .45rem; }
+.volver .icono { width: 18px; height: 18px; transform: scaleX(-1); }
+.etiquetas { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; }
+a.etiqueta-enlace { text-decoration: none; }
+a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
+.sin-dato { color: var(--apagado); font-style: italic; }
+.tarjeta-resumen p { margin: 0; font-size: .9rem; color: #46514c; }
+
+.ficha { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 2rem; align-items: start; margin-bottom: 2rem; }
+.ficha-foto figure { margin: 0; }
+.ficha-foto .foto-planta-ficha { width: 100%; height: auto; max-height: 520px; object-fit: cover; border-radius: var(--radio); }
+.foto-pendiente-ficha { height: 320px; border-radius: var(--radio); }
+.ficha-foto .atribucion { margin-top: .6rem; }
+.ficha-cientifico { font-size: 1.15rem; margin: 0; }
+.aviso-educativo { padding: .75rem 1rem; border-radius: var(--radio-control); background: var(--salvia-suave); font-size: .9rem; }
+
+.datos-ficha { display: grid; gap: .9rem; margin: 0; }
+.dato dt { font-size: .8rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--apagado); display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
+.dato dd { margin: .2rem 0 0; overflow-wrap: anywhere; }
+
+.ficha-secciones { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+.ficha-secciones > section { padding: 1.4rem 1.5rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.ficha-secciones h2 { margin-top: 0; font-size: 1.45rem; }
+.ficha-ancha { grid-column: 1 / -1; }
+.precauciones { border-left: 3px solid var(--terracota) !important; background: #fdf3ec !important; }
+.precauciones h2, .precauciones h3 { color: #7d3418; }
+.lista-fuentes { display: grid; gap: .6rem; padding-left: 1.3rem; margin: 0; }
+.lista-fuentes .ayuda { display: block; margin-top: .15rem; }
+
+.indice-guias { margin-bottom: 2rem; }
+.indice-guias ul { display: flex; flex-wrap: wrap; gap: .45rem; margin: 0; }
+.guia { scroll-margin-top: 1rem; margin-bottom: 1.5rem; padding: 1.75rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.guia-encabezado { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1.5rem; margin-bottom: 1rem; }
+.guia-encabezado h2 { margin: 0; font-size: 1.8rem; }
+.guia-pasos { max-width: 70ch; }
+.guia-pasos p { margin: 0 0 .55rem; }
+.plazo-obligatorio { padding: .8rem 1rem; border-radius: var(--radio-control); background: var(--durazno); color: #5e2610; font-weight: 600; }
+.plazo-obligatorio .etiqueta { margin-right: .4rem; background: var(--terracota); color: #fff; }
+.guia-detalles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin: 1.25rem 0; }
+.guia-detalles > section { padding: 1rem 1.15rem; border-radius: var(--radio-control); background: var(--marfil); border: 1px solid var(--linea); }
+.guia-detalles h3 { margin: 0 0 .6rem; font-size: 1.1rem; }
+.guia-detalles p { margin: 0; }
+.lista-chips { display: flex; flex-wrap: wrap; gap: .35rem; padding: 0; margin: 0; list-style: none; }
+.lista-chips li { padding: .3rem .7rem; border-radius: 999px; background: var(--salvia-suave); font-size: .85rem; }
+.guia-fuentes { margin-top: .5rem; }
+.volver-arriba { margin: 1rem 0 0; font-size: .85rem; text-align: right; }
+
+/* --- Comunidad, huerto y materiales ----------------------------------- */
+
+.bloques { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
+.bloques > .resumen { margin: 0; }
+.encabezado-seccion { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1rem; }
+.titulo-seccion { margin-top: 0; }
+.datos-dos-columnas { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem 1.5rem; }
+.avatar-pequeno { width: 34px; height: 34px; font-size: 1rem; }
+.tarjeta-opcion { display: grid; justify-items: start; gap: .6rem; }
+.tarjeta-opcion h2 { margin: .25rem 0 0; font-size: 1.4rem; }
+.tarjeta-opcion p { margin: 0 0 .5rem; color: var(--apagado); }
+.vacio { display: grid; justify-items: start; gap: .6rem; grid-column: 1 / -1; }
+.vacio h2 { margin: 0; font-size: 1.35rem; }
+.vacio p { margin: 0; color: var(--apagado); }
+.acciones-tarjeta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1rem; }
+.enlace-acento { color: var(--terracota); }
+.enlace-acento:hover { color: #9a3f1e; }
+
+/* Selección múltiple de Django (CheckboxSelectMultiple) como casillas en píldora */
+.opciones-multiples > div { display: flex; flex-wrap: wrap; gap: .5rem; }
+.opciones-multiples label {
+  display: inline-flex; align-items: center; gap: .55rem; margin: 0; padding: .55rem .9rem;
+  border: 1px solid var(--borde-campo); border-radius: 999px; background: rgba(255, 255, 255, .55);
+  color: var(--tinta); font-weight: 500; cursor: pointer;
+}
+.opciones-multiples label:hover { border-color: var(--bosque); }
+.opciones-multiples label:has(input:checked) { background: var(--salvia); border-color: var(--bosque); color: var(--bosque); font-weight: 600; }
+.opciones-multiples input { width: 18px; height: 18px; margin: 0; }
+.cuadricula-tres { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.explicacion-opciones { margin-top: .6rem; }
+.explicacion-opciones summary { cursor: pointer; color: var(--bosque); font-weight: 600; }
+.explicacion-opciones dl { margin: .6rem 0 0; padding: .75rem 1rem; border-radius: var(--radio-control); background: var(--marfil); }
+.explicacion-opciones dt { font-weight: 600; color: var(--tinta); margin-top: .5rem; }
+.explicacion-opciones dt:first-child { margin-top: 0; }
+.explicacion-opciones dd { margin: .1rem 0 0; }
+
+.seleccion-resumen { display: flex; align-items: center; gap: 1rem; margin: 0 0 1.25rem; padding: .9rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.seleccion-resumen p { margin: 0 0 .25rem; }
+.foto-miniatura { flex-shrink: 0; width: 88px; height: 88px; object-fit: cover; border-radius: var(--radio-control); }
+.foto-miniatura.foto-pendiente .icono { width: 32px; height: 32px; }
+.seleccion-nombre { font-family: var(--serif); font-size: 1.35rem; }
+
+.grupo-materiales { margin-bottom: 2rem; }
+.lista-materiales { display: grid; gap: .75rem; padding: 0; margin: 0; list-style: none; }
+.material {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: .75rem 1.25rem;
+  padding: 1rem 1.15rem; border: 1px solid var(--linea); border-left: 3px solid var(--linea); border-radius: var(--radio-control); background: var(--superficie);
+}
+.material-disponible { border-left-color: var(--bosque); }
+.material h3 { margin: 0; font-family: var(--sans); font-size: 1rem; font-weight: 700; letter-spacing: 0; }
+.material .ayuda { margin: .25rem 0 0; }
+.material .errores { grid-column: 1 / -1; margin: 0; }
+.material-formulario { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem 1rem; margin: 0; }
+.material-formulario .aceptacion { margin: 0; align-items: center; }
+.material-formulario .aceptacion label { font-size: .9rem; }
+.boton-pequeno { min-height: 38px; padding: .45rem .9rem; font-size: .9rem; }
+.etiqueta-neutra { background: #ecebe4; color: #5f6866; }
+
+/* --- Comunidad y perfil ------------------------------------------------- */
+
+.enlace-acceso { margin-top: 1.25rem; }
+.constancia { margin-top: 2rem; }
+.consulta-aviso { background: var(--superficie); border: 1px solid var(--linea); border-radius: var(--radio-control); padding: 1rem 1.15rem; }
+.consulta-aviso summary { cursor: pointer; font-weight: 600; color: var(--bosque); }
+.consulta-aviso[open] summary { margin-bottom: 1rem; }
+.datos-comunidad { margin: 0 0 1.5rem; }
+.datos-comunidad dt { font-size: .85rem; font-weight: 500; color: var(--apagado); margin-top: .9rem; }
+.datos-comunidad dd { margin: .1rem 0 0; overflow-wrap: anywhere; }
+.codigo-invitacion { display: inline-block; padding: .35rem .8rem; border-radius: var(--radio-control); background: var(--salvia); color: var(--bosque); font-size: 1.2rem; letter-spacing: .1em; overflow-wrap: anywhere; }
+.lista-miembros { padding-left: 1.2rem; }
+.lista-miembros li { margin-bottom: .5rem; overflow-wrap: anywhere; }
+
+/* --- Tableta y celular -------------------------------------------------- */
+
+@media (max-width: 1000px) {
+  .acceso { grid-template-columns: 1fr; }
+  .acceso-foto { position: relative; height: auto; min-height: 260px; padding: 1.5rem 1.75rem; }
+  .acceso-foto-titulo { font-size: clamp(2.4rem, 8vw, 3.4rem); max-width: none; }
+  .acceso-foto-texto { padding-top: 2rem; padding-bottom: 0; }
+  .acceso-panel { padding: 2rem 1.5rem 3rem; }
+  .marca-apilada { display: none; }
+  .acceso-encabezado { margin-bottom: 1.75rem; }
+}
+
+@media (max-width: 860px) {
+  /* La barra lateral pasa a ser una cabecera: marca y cuenta arriba, menú desplazable debajo. */
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; }
+  .barra-lateral { position: static; height: auto; overflow: visible; padding: .9rem 1rem 0; border-right: 0; border-bottom: 1px solid var(--linea); }
+  .barra-lateral-cabeza { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .barra-lateral .marca { padding: 0; font-size: 1.6rem; }
+  .barra-lateral .marca .icono { width: 32px; height: 32px; }
+  .menu-cuenta { margin: 0; border-top: 0; padding-top: 0; }
+  .menu-cuenta summary { padding: .25rem; }
+  .menu-cuenta summary::after { display: none; }
+  .menu-cuenta .usuario { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .menu-cuenta ul { left: auto; right: 0; bottom: auto; top: calc(100% + .35rem); min-width: 12rem; }
+  .etiqueta-menu, .pie-lateral { display: none; }
+  .menu-principal ul { flex-direction: row; overflow-x: auto; gap: .25rem; padding: .75rem 0; scrollbar-width: thin; }
+  .opcion-menu { gap: .5rem; padding: .55rem .8rem; white-space: nowrap; }
+  .opcion-menu .icono { width: 18px; height: 18px; }
+  .contenido { padding: 1.75rem 1.25rem 3rem; }
+  .heroe { grid-template-columns: 1fr 40%; }
+  .ficha { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
+  .guia-detalles { grid-template-columns: minmax(0, 1fr); }
+  .cuadricula-tres { grid-template-columns: minmax(0, 1fr); }
+  .material { grid-template-columns: minmax(0, 1fr) auto; }
+  .material-formulario { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+  .formulario { padding: 1.15rem; }
+  .cuadricula { grid-template-columns: minmax(0, 1fr); }
+  .acciones button, .acciones .boton { flex: 1 1 100%; }
+  .heroe { grid-template-columns: 1fr; }
+  .heroe-imagen { display: none; }
+  .heroe-texto { padding: 1.4rem; }
+  .tarjeta-resumen { padding: .85rem 1rem; }
+  .resumen-icono { width: 44px; height: 44px; }
+  .ficha-secciones { grid-template-columns: minmax(0, 1fr); }
+  .datos-dos-columnas { grid-template-columns: minmax(0, 1fr); }
+  .ficha-secciones > section, .guia { padding: 1.15rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; }
+}
+
+/* Pantallas integradas de comunidad, fichas y actividades.
+   Las clases que usan las vistas del equipo se adaptan a la guía de estilo. */
+.tarjetas { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 1rem; }
+.resumen { margin: 0 0 1.25rem; padding: 1.25rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.resumen > :first-child { margin-top: 0; }
+.tabla-desplazable { overflow-x: auto; }
+progress { width: 100%; height: .6rem; accent-color: var(--bosque); }

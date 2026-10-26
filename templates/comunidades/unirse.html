@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block titulo %}Unirse a una comunidad · Huertos medicinales{% endblock %}
+
+{% block contenido %}
+<div class="introduccion">
+  <h1>Unirse a una comunidad</h1>
+  <p>Introduce el código que te compartieron. En esta versión cada cuenta pertenece a una sola comunidad.</p>
+</div>
+{% include "componentes/errores.html" with form=form %}
+<form method="post" action="{% url 'comunidades:unirse' %}" class="formulario">
+  {% csrf_token %}
+  <div class="campo">
+    <label for="{{ form.codigo_invitacion.id_for_label }}">{{ form.codigo_invitacion.label }}</label>
+    {{ form.codigo_invitacion }}
+    <div class="ayuda" id="id_codigo_invitacion_helptext">{{ form.codigo_invitacion.help_text }}</div>
+  </div>
+  <div class="acciones">
+    <button type="submit">Unirme</button>
+    <a href="{% url 'comunidades:mi_comunidad' %}">Volver a mi comunidad</a>
+  </div>
+</form>
+{% endblock %}

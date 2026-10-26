@@ -1,0 +1,8 @@
+<section class="aviso" aria-labelledby="titulo-aviso">
+  <h2 id="titulo-aviso">Aviso sobre el uso de tus datos</h2>
+  <p class="version">Versión {{ aviso_version }}</p>
+  {% for titulo, texto in aviso_secciones %}
+    <h3>{{ titulo }}</h3>
+    <p>{{ texto }}</p>
+  {% endfor %}
+</section>
