@@ -1,15 +1,14 @@
 # Requisitos y fuentes del catálogo, guía ancestral y calendario lunar
 
-Texto actualizado el 26 de octubre de 2026 para incorporar al informe V1 (aporte M3-04 de Matthew).
+Texto actualizado el 27 de octubre de 2026 para incorporar al informe V1 (aporte M3-04 de Matthew).
 Historias: HU-05, HU-06 y HU-07. Las pruebas formales CP-03 y CP-04 quedan para noviembre.
 
 ## Funciones que cubre la versión
 
-El módulo catalogo reúne la información fija que consultan todas las comunidades: fichas
-de plantas, 13 guías de actividades, 23 opciones del configurador, 18 recomendaciones de
-materiales y 17 eventos lunares. En main hay 12 fichas cargadas (Juan y Matthew); las seis
-de Guillermo están en revisión en el PR #2 para completar las 18 que exige V1. Las vistas
-del catálogo solo aceptan consultas (GET) y todas requieren sesión.
+El módulo catalogo reúne la información fija que consultan todas las comunidades: las 18
+fichas de plantas que exige V1 (seis de Juan, seis de Matthew y seis de Guillermo), 13 guías
+de actividades, 23 opciones del configurador, 18 recomendaciones de materiales y 17 eventos
+lunares. Las vistas del catálogo solo aceptan consultas (GET) y todas requieren sesión.
 
 - **HU-05, fichas de plantas.** Lista y detalle con nombre común y científico, otros
   nombres, familia, altitud, provincias del Ecuador, ciclo corto/largo, cualidad ancestral
@@ -36,7 +35,7 @@ del catálogo solo aceptan consultas (GET) y todas requieren sesión.
 ## Organización de los datos fijos
 
 Los datos se escriben como listas de diccionarios Python en `catalogo/datos/`: un archivo de
-seis fichas por autor (Juan y Matthew en main; Guillermo en el PR #2), `actividades.py`,
+seis fichas por autor (Juan, Matthew y Guillermo), `actividades.py`,
 `huerto.py` y `luna.py`. `catalogo/datos/__init__.py` los reúne y el comando
 `cargar_catalogo` los crea en SQLite por un código estable, dentro de una sola transacción:
 si una fila falla, no queda un catálogo parcial. Repetir la carga no duplica ni modifica
@@ -47,7 +46,8 @@ Cada ficha guarda sus fuentes, indicando qué campos respalda cada una, y la lis
 `campos_no_verificados`. Los eventos lunares se guardan en UTC y se convierten a
 America/Guayaquil solo al mostrarlos; el mes se selecciona con los límites del mes local,
 de modo que un evento del 9 de diciembre a las 00:52 UTC aparece el 8 de diciembre a las
-19:52. Las 175 pruebas de desarrollo de main incluyen las del catálogo: formato de las
+19:52. En una base nueva la carga crea 89 registros (18 plantas, 13 tipos, 23 opciones,
+18 materiales y 17 eventos) y repetirla no crea más. Las 177 pruebas de desarrollo de main incluyen las del catálogo: formato de las
 fichas, carga repetida, guías, eventos en UTC y las pantallas de guía y calendario.
 
 ## Fuentes que respaldan el contenido
@@ -72,9 +72,9 @@ fichas, carga repetida, guías, eventos en UTC y las pantallas de guía y calend
 
 ## Estado de las historias del catálogo
 
-| Historia | Estado al 26 de octubre | Pendiente |
+| Historia | Estado al 27 de octubre | Pendiente |
 |---|---|---|
-| HU-05 | 12 fichas integradas en main con foto y crédito. Las fotos de las 18 especies ya están en main; las seis fichas de Guillermo están revisadas en el PR #2 y cargan con su corrección. | Actualizar el PR #2 y ejecutar CP-03. |
+| HU-05 | 18 fichas integradas en main, cada una con foto local, autor, licencia y fuentes. | Ejecutar CP-03. |
 | HU-06 | 13 guías completas con fuente. | Ejecutar CP-03. |
 | HU-07 | Calendario con 17 eventos verificados, hora local y recomendaciones. | Ejecutar CP-04. |
 
@@ -83,10 +83,10 @@ módulos. Ninguna historia se declara aprobada antes de su caso de prueba formal
 
 ## Limitaciones reales
 
-- **Datos sin respaldo**, mostrados como «No verificado». En main: otros nombres, ciclo y
-  contraindicaciones de matico; ciclo de llantén; contraindicaciones de marco; altitud de
-  violeta. En las fichas de Guillermo (PR #2): ciclo de paico y chilca; cualidad ancestral
-  de lavanda, salvia y laurel (el MSP no las clasifica); provincias de salvia.
+- **Datos sin respaldo**, mostrados como «No verificado»: otros nombres, ciclo y
+  contraindicaciones de matico; ciclo de llantén, paico y chilca; contraindicaciones de
+  marco; altitud de violeta; provincias de salvia; cualidad ancestral de lavanda, salvia y
+  laurel (el MSP no las clasifica).
 - **Identidad botánica:** «matico» y «ortiga» designan varias especies. Se eligieron
   *Aristeguietia glutinosa* y *Urtica dioica*, confirmadas con fotos verificadas.
 - **Tabla lunar:** cubre solo septiembre a diciembre de 2026 y no permite deducir la fase
