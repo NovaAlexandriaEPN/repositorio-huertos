@@ -1400,3 +1400,29 @@ class MaterialesRecomendadosCatalogoTests(TestCase):
         html = pagina.content.decode()
         posiciones = [html.index(f">{etiqueta}</h2>") for etiqueta in Material.Grupo.labels]
         self.assertEqual(posiciones, sorted(posiciones))
+
+    def estado_en_pantalla(self, actor, nombre):
+        cliente = Client()
+        cliente.force_login(actor)
+        html = cliente.get(reverse("comunidades:materiales")).content.decode()
+        inicio = html.index(f"<h3>{nombre}</h3>")
+        fila = html[inicio:html.index("</li>", inicio)]
+        return "Disponible" if '">Disponible</span>' in fila else "No disponible"
+
+    def test_marca_permanece_al_recargar_y_otra_comunidad_no_la_ve_ni_altera(self):
+        """J3-02: lo que marca un miembro lo ve otro al recargar; la otra comunidad no."""
+        configurar_huerto(actor=self.otro_responsable, **datos_configuracion(self.opciones))
+        pala = Material.objects.get(codigo="pala")
+        url = reverse("comunidades:marcar_material", args=[pala.pk])
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "No disponible")
+        self.client.force_login(self.participante)
+        self.client.post(url, {f"material-{pala.pk}-disponible": "on"})
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "Disponible")
+        self.assertEqual(self.estado_en_pantalla(self.otro_responsable, pala.nombre), "No disponible")
+        # La otra comunidad envía el mismo material: solo cambia su propia marca.
+        ajeno = Client()
+        ajeno.force_login(self.otro_responsable)
+        ajeno.post(url, {f"material-{pala.pk}-disponible": "on"})
+        ajeno.post(url, {})
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "Disponible")
+        self.assertEqual(MarcaMaterial.objects.filter(material=pala).count(), 2)
