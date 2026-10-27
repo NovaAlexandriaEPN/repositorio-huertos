@@ -1,3 +1,13 @@
+"""Fichas de Guillermo: paico, chilca, lavanda, salvia, cedrón y laurel.
+
+Entregadas en el pull request #2 (g-cevallos, 26-10-2026). Consolidación de
+Matthew (M2-10): se pasan al formato de 19 campos del modelo integrado, la foto
+usa las claves preparadas y verificadas por Doménica (docs/v1/diseno/
+fotos_plantas.md), se corrige «Laurel nobilis» por «Laurus nobilis L.» (como
+indica la fuente de Kew de la propia ficha) el nombre del campo
+«cualidad ancestral» en las fuentes y los caracteres tipográficos (guion
+largo por «-»), según la estandarización del equipo. El contenido botánico es el de Guillermo.
+"""
 PLANTAS = [
     {
         "codigo": "paico",
@@ -22,7 +32,10 @@ PLANTAS = [
             "causa mareo, vómito e irritación de la piel y, en casos graves, daño al hígado, parálisis o la muerte. "
             "Este riesgo se describe para el aceite, no para la infusión."
         ),
-        "imagen_ruta": 'static/img/plantas/Paico.jpg',
+        "imagen_ruta": "img/plantas/paico.jpg",
+        "imagen_autor": "SAplants",
+        "imagen_fuente": "https://commons.wikimedia.org/wiki/File:Dysphania_ambrosioides_1DS-II_4-1102.jpg",
+        "imagen_licencia": "CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/",
         "fuentes": [
             {
                 "autor": "Royal Botanic Gardens, Kew",
@@ -33,7 +46,7 @@ PLANTAS = [
             },
             {
                 "autor": "Universidad San Francisco de Quito (institución inferida del dominio; la ficha no nombra autor)",
-                "titulo": "Ficha «Paico – Dysphania ambrosioides» (archivo hierbas-ilalo-paico.pdf)",
+                "titulo": "Ficha «Paico - Dysphania ambrosioides» (archivo hierbas-ilalo-paico.pdf)",
                 "url": "https://www.usfq.edu.ec/sites/default/files/2025-03/hierbas-ilalo-paico.pdf",
                 "referencia": "Ficha completa: encabezado, altitud, propiedades, contraindicaciones, partes utilizables, usos medicinales y gastronómicos",
                 "campos": ["nombre_cientifico", "otros_nombres", "altitud_msnm", "parte_utilizada",
@@ -62,7 +75,7 @@ PLANTAS = [
             },
             {
                 "autor": "No identificado en el extracto",
-                "titulo": "Efecto de la Radiación UV-C en la Flora Nativa y Capacidad Antioxidante de la Mezcla para Té Compuesto por Toronjil, Ortiga, Perejil y Paico Provenientes de Cotacachi – Ecuador. Revista Politécnica 39(1), 2017",
+                "titulo": "Efecto de la Radiación UV-C en la Flora Nativa y Capacidad Antioxidante de la Mezcla para Té Compuesto por Toronjil, Ortiga, Perejil y Paico Provenientes de Cotacachi - Ecuador. Revista Politécnica 39(1), 2017",
                 "url": "https://scielo.senescyt.gob.ec/pdf/rpolit/v39n1/2477-8990-rpolit-39-01-00019.pdf",
                 "referencia": "Introducción (solo extracto de búsqueda)",
                 "campos": ["otros_nombres"],
@@ -82,14 +95,14 @@ PLANTAS = [
                     "MSP-Lineamientos-implementación-huertos-medicinales-PNA-2017-2.pdf. "
                     "P. 73: por sus efectos según la medicina andina. "
                 ),
-                "campos": ["cualidad ancestral"],
+                "campos": ["cualidad_ancestral"],
             },
             {
-                "autor": "Mark Marathon",
-                "titulo": "Dysphania ambrosioides flowers.jpg",
-                "url": "https://commons.wikimedia.org/wiki/File:Dysphania_ambrosioides_flowers.jpg",
-                "referencia": "Licencia: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)",
-                "campos": ["imagen_ruta"],
+                "autor": "SAplants",
+                "titulo": "Foto de la especie en Wikimedia Commons (preparada por Doménica, docs/v1/diseno/fotos_plantas.md)",
+                "url": "https://commons.wikimedia.org/wiki/File:Dysphania_ambrosioides_1DS-II_4-1102.jpg",
+                "referencia": "CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/",
+                "campos": ["imagen_ruta", "imagen_autor", "imagen_fuente", "imagen_licencia"],
             },
         ],
         "campos_no_verificados": [
@@ -127,7 +140,10 @@ PLANTAS = [
             "No hay una dosis oral segura establecida: es tóxica a dosis altas y se aconseja limitarla al uso tópico externo. "
             "Puede causar malestar gastrointestinal y reacciones cutáneas, sobre todo en personas alérgicas a las Asteraceae."
         ),
-        "imagen_ruta": 'static/img/plantas/Chilca.jpg',
+        "imagen_ruta": "img/plantas/chilca.jpg",
+        "imagen_autor": "Dick Culbert",
+        "imagen_fuente": "https://commons.wikimedia.org/wiki/File:Baccharis_latifolia_(14136636112).jpg",
+        "imagen_licencia": "CC BY 2.0 - https://creativecommons.org/licenses/by/2.0/",
         "fuentes": [
             {
                 "autor": "Royal Botanic Gardens, Kew",
@@ -194,7 +210,7 @@ PLANTAS = [
             },
             {
                 "autor": "No identificado (sitio 'urlic', cita a Romero Corral, Espinoza Pineda y Valle Bastidas, Universidad Técnica del Norte, 2019)",
-                "titulo": "Herbolaria – 15. Chilca",
+                "titulo": "Herbolaria - 15. Chilca",
                 "url": "https://sites.google.com/view/urlic/plantas/15-chilca",
                 "referencia": "Secciones Toxicología y Contraindicaciones (fuente secundaria)",
                 "campos": ["contraindicaciones"],
@@ -221,14 +237,14 @@ PLANTAS = [
                     "MSP-Lineamientos-implementación-huertos-medicinales-PNA-2017-2.pdf. "
                     "P. 73: por sus efectos según la medicina andina. "
                 ),
-                "campos": ["cualidad ancestral"],
+                "campos": ["cualidad_ancestral"],
             },
             {
-                "autor": "Ángel Toaquiza; identificación botánica: Ana Mireya Guerrero G.",
-                "titulo": "00550 Baccharis latifolia, CHILCA",
-                "url": "https://www.flickr.com/photos/154043720@N05/48183968196/",
-                "referencia": "Fotografía tomada el 9 de febrero de 2019 en la Reserva Geobotánica Pululahua, Quito, Ecuador. Licencia: CC BY-NC-SA 2.0 (https://creativecommons.org/licenses/by-nc-sa/2.0/)",
-                "campos": ["imagen_ruta"],
+                "autor": "Dick Culbert",
+                "titulo": "Foto de la especie en Wikimedia Commons (preparada por Doménica, docs/v1/diseno/fotos_plantas.md)",
+                "url": "https://commons.wikimedia.org/wiki/File:Baccharis_latifolia_(14136636112).jpg",
+                "referencia": "CC BY 2.0 - https://creativecommons.org/licenses/by/2.0/",
+                "campos": ["imagen_ruta", "imagen_autor", "imagen_fuente", "imagen_licencia"],
             },
         ],
         "campos_no_verificados": [
@@ -258,7 +274,10 @@ PLANTAS = [
             "Puede dar sueño, por eso no se debe manejar después de tomarla, y conviene dejarla unas 2 semanas antes de una cirugía. "
             "Sobre la piel puede causar alergia, y el aceite debe usarse con cuidado en niños."
         ),
-        "imagen_ruta": 'static/img/plantas/Lavanda.jpg',
+        "imagen_ruta": "img/plantas/lavanda.jpg",
+        "imagen_autor": "H. Zell",
+        "imagen_fuente": "https://commons.wikimedia.org/wiki/File:Lavandula_angustifolia_002.JPG",
+        "imagen_licencia": "CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/",
         "fuentes": [
             {
                 "autor": "Royal Botanic Gardens, Kew",
@@ -269,7 +288,7 @@ PLANTAS = [
             },
             {
                 "autor": "Universidad San Francisco de Quito (institución inferida del dominio; la ficha no nombra autor)",
-                "titulo": "Ficha «Lavanda – Lavandula angustifolia» (archivo hierbas-ilalo-lavanda.pdf)",
+                "titulo": "Ficha «Lavanda - Lavandula angustifolia» (archivo hierbas-ilalo-lavanda.pdf)",
                 "url": "https://www.usfq.edu.ec/sites/default/files/2025-03/hierbas-ilalo-lavanda.pdf",
                 "referencia": "Ficha completa: altitud, propiedades, contraindicaciones, partes utilizables y usos",
                 "campos": ["nombre_cientifico", "altitud_msnm", "parte_utilizada", "usos_documentados", "contraindicaciones"],
@@ -296,13 +315,6 @@ PLANTAS = [
                 "campos": ["familia", "provincias_ecuador"],
             },
             {
-                "autor": "H. Zell (vía Wikimedia Commons / Encyclopedia of Life)",
-                "titulo": "Lavandula angustifolia 001",
-                "url": "https://media.eol.org/media/29742587",
-                "referencia": "Ficha del archivo: autor, licencia cc-by-sa-3.0, foto del 5 de junio de 2009 en Karlsruhe, Alemania",
-                "campos": ["imagen_ruta"],
-            },
-            {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
                 "titulo": "Implementación de huertos medicinales en los establecimientos de salud del primer nivel de atención. Lineamientos (2017)",
                 "url": "https://www.salud.gob.ec/wp-content/uploads/2022/09/MSP-Lineamientos-implementaci%D0%B2n-huertos-medicinales-PNA-2017-2.pdf",
@@ -313,11 +325,11 @@ PLANTAS = [
                 "campos": ["ciclo"],
             },
             {
-                "autor": "Martín Vicente, M. (m. m. v.)",
-                "titulo": "Lavanda",
-                "url": "https://www.flickr.com/photos/martius/49739329972/",
-                "referencia": "Fotografía tomada el 19 de junio de 2015. Licencia: CC BY 2.0 (https://creativecommons.org/licenses/by/2.0/)",
-                "campos": ["imagen_ruta"],
+                "autor": "H. Zell",
+                "titulo": "Foto de la especie en Wikimedia Commons (preparada por Doménica, docs/v1/diseno/fotos_plantas.md)",
+                "url": "https://commons.wikimedia.org/wiki/File:Lavandula_angustifolia_002.JPG",
+                "referencia": "CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/",
+                "campos": ["imagen_ruta", "imagen_autor", "imagen_fuente", "imagen_licencia"],
             },
         ],
         "campos_no_verificados": [
@@ -352,7 +364,10 @@ PLANTAS = [
             "Dosis altas (especialmente del aceite esencial) pueden provocar taquicardia, sensación de calor, vértigo y convulsiones, "
             "por lo que deben evitarla las personas con epilepsia. Se aconseja no usar ininterrumpidamente por periodos prolongados."
         ),
-        "imagen_ruta": 'static/img/plantas/Salvia.jpg',
+        "imagen_ruta": "img/plantas/salvia.jpg",
+        "imagen_autor": "H. Zell",
+        "imagen_fuente": "https://commons.wikimedia.org/wiki/File:Salvia_officinalis_001.JPG",
+        "imagen_licencia": "CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/",
         "fuentes": [
             {
                 "autor": "Royal Botanic Gardens, Kew",
@@ -386,11 +401,11 @@ PLANTAS = [
                 "campos": ["ciclo"],
             },
             {
-                "autor": "Teresa Grau Ros",
-                "titulo": "Salvia officinalis",
-                "url": "https://www.flickr.com/photos/teresa_grau_ros/38942351610/",
-                "referencia": "Fotografía tomada el 11 de marzo de 2018. Licencia: CC BY-SA 2.0 (https://creativecommons.org/licenses/by-sa/2.0/)",
-                "campos": ["imagen_ruta"],
+                "autor": "H. Zell",
+                "titulo": "Foto de la especie en Wikimedia Commons (preparada por Doménica, docs/v1/diseno/fotos_plantas.md)",
+                "url": "https://commons.wikimedia.org/wiki/File:Salvia_officinalis_001.JPG",
+                "referencia": "CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/",
+                "campos": ["imagen_ruta", "imagen_autor", "imagen_fuente", "imagen_licencia"],
             },
         ],
         "campos_no_verificados": [
@@ -426,7 +441,10 @@ PLANTAS = [
             "ni en niños y adolescentes menores de 18 años. "
             "Puede afectar la capacidad para conducir y utilizar maquinaria, por lo que los pacientes afectados no deben conducir."
         ),
-        "imagen_ruta": 'static/img/plantas/Cedron.jpg',
+        "imagen_ruta": "img/plantas/cedron.jpg",
+        "imagen_autor": "H. Zell",
+        "imagen_fuente": "https://commons.wikimedia.org/wiki/File:Aloysia_citriodora_002.jpg",
+        "imagen_licencia": "CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/",
         "fuentes": [
             {
                 "autor": "Royal Botanic Gardens, Kew",
@@ -465,7 +483,7 @@ PLANTAS = [
             },
             {
                 "autor": "Universidad San Francisco de Quito (institución inferida del dominio; la ficha no nombra autor)",
-                "titulo": "Ficha «Toronjil – Melissa officinalis» (archivo hierbas-ilalo-toronjil.pdf)",
+                "titulo": "Ficha «Toronjil - Melissa officinalis» (archivo hierbas-ilalo-toronjil.pdf)",
                 "url": "https://www.usfq.edu.ec/sites/default/files/2025-03/hierbas-ilalo-toronjil.pdf",
                 "referencia": "Sección Usos medicinales: mención del uso de infusión combinada con cedrón para ansiedad, tristeza, depresión y gripes",
                 "campos": ["usos_documentados"],
@@ -478,16 +496,16 @@ PLANTAS = [
                 "MSP-Lineamientos-implementación-huertos-medicinales-PNA-2017-2.pdf. "
                     "P. 48: ciclo largo (cedrón, romero, laurel, marco). "
                 ),
-                "campos": ["ciclo", "cualidad ancestral"],
+                "campos": ["ciclo", "cualidad_ancestral"],
             },
             {
-                "autor": "Ana Mireya Guerrero G.",
-                "titulo": "00043 CEDRÓN: Aloysia citrodora",
-                "url": "https://www.flickr.com/photos/145662710@N06/32656516728/",
-                "referencia": "Fotografía tomada el 23 de noviembre de 2013 y publicada el 30 de diciembre de 2018. Licencia pendiente de verificación en Flickr.",
-                "campos": ["imagen_ruta"],
+                "autor": "H. Zell",
+                "titulo": "Foto de la especie en Wikimedia Commons (preparada por Doménica, docs/v1/diseno/fotos_plantas.md)",
+                "url": "https://commons.wikimedia.org/wiki/File:Aloysia_citriodora_002.jpg",
+                "referencia": "CC BY-SA 3.0 - https://creativecommons.org/licenses/by-sa/3.0/",
+                "campos": ["imagen_ruta", "imagen_autor", "imagen_fuente", "imagen_licencia"],
             },
-        ], 
+        ],
         "campos_no_verificados": [
         ],
         "observaciones": (
@@ -499,7 +517,7 @@ PLANTAS = [
     {
         "codigo": "laurel",
         "nombre_comun": "Laurel",
-        "nombre_cientifico": "Laurel nobilis",
+        "nombre_cientifico": "Laurus nobilis L.",
         "otros_nombres": ["laurel de cocina", "laurel común", "laurel europeo"],
         "familia": "Lauraceae",
         "altitud_msnm": "0-4000",
@@ -520,7 +538,10 @@ PLANTAS = [
             "Por vía tópica, el aceite esencial o los extractos pueden provocar dermatitis de contacto y reacciones de fotosensibilidad. "
             "La hoja entera no debe ingerirse directamente, ya que no se digiere y puede causar obstrucción o perforación en el tracto gastrointestinal."
         ),
-        "imagen_ruta": 'static/img/plantas/Laurel.jpeg',
+        "imagen_ruta": "img/plantas/laurel.jpg",
+        "imagen_autor": "Agnieszka Kwiecień, Nova",
+        "imagen_fuente": "https://commons.wikimedia.org/wiki/File:Laurus_nobilis_Wawrzyn_szlachetny_2019-05-26_01.jpg",
+        "imagen_licencia": "CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/",
         "fuentes": [
             {
                 "autor": "Royal Botanic Gardens, Kew",
@@ -547,11 +568,11 @@ PLANTAS = [
                 "campos": ["ciclo"],
             },
             {
-                "autor": "Gary Houston",
-                "titulo": "20050515-007-laurus-nobilis.jpg",
-                "url": "https://en.wikibooks.org/wiki/File:20050515-007-laurus-nobilis.jpg",
-                "referencia": "Licencia: CC0 1.0 (https://creativecommons.org/publicdomain/zero/1.0/)",
-                "campos": ["imagen_ruta"],
+                "autor": "Agnieszka Kwiecień, Nova",
+                "titulo": "Foto de la especie en Wikimedia Commons (preparada por Doménica, docs/v1/diseno/fotos_plantas.md)",
+                "url": "https://commons.wikimedia.org/wiki/File:Laurus_nobilis_Wawrzyn_szlachetny_2019-05-26_01.jpg",
+                "referencia": "CC BY-SA 4.0 - https://creativecommons.org/licenses/by-sa/4.0/",
+                "campos": ["imagen_ruta", "imagen_autor", "imagen_fuente", "imagen_licencia"],
             },
         ],
         "campos_no_verificados": [
