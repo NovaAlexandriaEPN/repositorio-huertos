@@ -9,7 +9,7 @@
   <h1>Materiales compartidos</h1>
   <p>Consulta las recomendaciones y marca lo que está disponible para tu comunidad. Todos sus miembros pueden actualizar estas casillas.</p>
 </div>
-<p class="recomendacion">Conserva los materiales en una bodega seca, ventilada y con luz natural.</p>
+<p class="recomendacion">{{ recomendacion_bodega }}</p>
 
 {% regroup materiales by material.get_grupo_display as grupos_materiales %}
 {% for grupo in grupos_materiales %}
