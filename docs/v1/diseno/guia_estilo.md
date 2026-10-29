@@ -72,6 +72,10 @@ La foto debe tener su autor, licencia y fuente como las del catálogo (D2-01).
 | Casillas múltiples | `opciones-multiples` alrededor de un `CheckboxSelectMultiple` | Diseños y abonos como píldoras; la marcada se ve en salvia |
 | Resumen de especie | `componentes/seleccion_resumen.html` | Foto pequeña, nombre y método actual (cambiar método, retirar) |
 | Material | `lista-materiales`, `material`, `material-disponible`, `material-formulario`, `boton-pequeno`, `etiqueta-neutra` | Casilla + botón por material; la etiqueta repite el estado guardado |
+| Calendario | `cabecera-mes` (`boton-mes`, `titulo-mes`), `formulario-fecha`, `tabla-calendario` (con `data-titulo` en cada celda), `fila-referencia`, `etiqueta-hora` | En celular cada fila de la tabla se lee como tarjeta |
+| Fase lunar | `luna luna-nueva`, `luna-creciente`, `luna-llena`, `luna-menguante` + `nombre-ancestral` | Círculo dibujado con CSS; siempre acompañado del nombre de la fase |
+| Eventos vecinos | `eventos-vecinos`, `evento-vecino` | Indican la fecha de referencia; no son la fase de cada día |
+| Vista del mes | `cuadricula-mes`, `dia-con-evento`, `dia-referencia`, `dia-enlace`, `leyenda-fases` + filtro `cuadricula_mes` | Lunes a domingo; solo se marcan los días con un evento verificado, nunca la fase de los demás días |
 
 Ejemplo de tarjeta de planta:
 
@@ -100,6 +104,8 @@ Los nombres de variables del ejemplo son orientativos; se usan los que entregue 
 - `texto|lineas`: una línea por paso de la guía.
 - `texto|elementos`: materiales escritos como «a; b; c.» en una lista.
 - `texto|licencia`: separa «CC BY-SA 4.0 - https://...» en nombre y enlace.
+- `numero|nombre_mes`: nombre del mes en español (12 -> «Diciembre»).
+- `filas|cuadricula_mes:mes`: semanas del mes con los eventos que entrega la vista, ubicados en su día de Guayaquil.
 
 ## Qué se tomó de la propuesta visual y qué se adaptó
 

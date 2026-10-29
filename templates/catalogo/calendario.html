@@ -1,11 +1,190 @@
 {% extends "base.html" %}
-{% block titulo %}Calendario lunar{% endblock %}
+{% load presentacion %}
+
+{% block titulo %}Calendario lunar · Huertos medicinales{% endblock %}
+{% block ancho %}contenido contenido-amplio{% endblock %}
+
 {% block contenido %}
-<h1>Calendario lunar de 2026</h1>
-<p>Período previsto: septiembre a diciembre. Horas de Ecuador (America/Guayaquil). No se asigna una fase principal a cada día.</p>
-{% if error %}<p role="alert">{{ error }}</p>{% endif %}
-<form method="get"><label for="mes">Mes (1 a 12)</label><input id="mes" name="mes" type="number" min="1" max="12" value="{{ mes }}"><label for="fecha">Fecha de referencia</label><input id="fecha" type="date" name="fecha" value="{{ fecha|date:'Y-m-d' }}"><button type="submit">Consultar</button></form>
-<ul>{% for fila in filas %}{% with evento=fila.evento %}<li>{{ evento.get_tipo_display }}{% if fila.nombre_ancestral %} ({{ fila.nombre_ancestral }}){% endif %}: {{ evento.instante|date:"d/m/Y H:i T" }}. <a href="{{ evento.fuente }}">Fuente</a>{% if fila.recomendaciones %}. Recomendado para: {% for guia in fila.recomendaciones %}<a href="{% url 'catalogo:guia' %}#{{ guia.codigo }}">{{ guia.nombre }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}{% endif %}</li>{% endwith %}{% empty %}<li>No hay eventos verificados cargados para este mes.</li>{% endfor %}</ul>
-<p>Las fases recomendadas son informativas: registrar una actividad no exige un evento lunar.</p>
-{% if dentro_periodo %}<p>Anterior: {% if anterior %}{{ anterior.get_tipo_display }}, {{ anterior.instante|date:"d/m/Y H:i T" }}{% else %}No disponible{% endif %}. Siguiente: {% if siguiente %}{{ siguiente.get_tipo_display }}, {{ siguiente.instante|date:"d/m/Y H:i T" }}{% else %}No disponible{% endif %}.</p>{% else %}<p>No hay datos para la fecha de referencia fuera del período septiembre-diciembre de 2026.</p>{% endif %}
+{% if error %}
+  <div class="introduccion">
+    <h1>Calendario lunar de 2026</h1>
+    <p>Fases principales de la luna de septiembre a diciembre de 2026.</p>
+  </div>
+  <p class="alert alert-danger" role="alert">{{ error }}</p>
+  <p><a class="boton boton-secundario" href="{% url 'catalogo:calendario' %}">Ver el mes actual</a></p>
+{% else %}
+{% with mes_anterior=mes|add:"-1" mes_siguiente=mes|add:"1" fecha_ref=fecha|date:"Y-m-d" %}
+<div class="encabezado-pagina">
+  <div class="introduccion">
+    <h1>Calendario lunar</h1>
+    <p>Fases principales de la luna de septiembre a diciembre de 2026.</p>
+  </div>
+  <p class="etiqueta etiqueta-hora"><svg class="icono" aria-hidden="true"><use href="#i-historial"/></svg>Hora de Guayaquil</p>
+</div>
+
+{% if mes < 9 %}
+  <p class="alert alert-info" role="status">{{ mes|nombre_mes }} está fuera del período cargado. Los datos van de septiembre a diciembre de 2026.</p>
+{% endif %}
+
+<section class="resumen vista-mes" aria-labelledby="titulo-mes">
+  <nav class="cabecera-mes" aria-label="Cambiar de mes">
+    {% if mes >= 10 and mes <= 12 %}
+      <a class="boton-mes" href="?mes={{ mes_anterior }}&amp;fecha={{ fecha_ref }}"><svg class="icono icono-volteado" aria-hidden="true"><use href="#i-flecha"/></svg><span><span class="visually-hidden">Mes anterior: </span>{{ mes_anterior|nombre_mes }}</span></a>
+    {% else %}
+      <span class="boton-mes boton-mes-vacio" aria-hidden="true"></span>
+    {% endif %}
+
+    <h2 id="titulo-mes" class="titulo-mes">{{ mes|nombre_mes }} de 2026</h2>
+
+    {% if mes >= 9 and mes <= 11 %}
+      <a class="boton-mes boton-mes-siguiente" href="?mes={{ mes_siguiente }}&amp;fecha={{ fecha_ref }}"><span><span class="visually-hidden">Mes siguiente: </span>{{ mes_siguiente|nombre_mes }}</span><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg></a>
+    {% elif mes < 9 %}
+      <a class="boton-mes boton-mes-siguiente" href="?mes=9&amp;fecha={{ fecha_ref }}"><span><span class="visually-hidden">Ir a: </span>Septiembre</span><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg></a>
+    {% else %}
+      <span class="boton-mes boton-mes-vacio" aria-hidden="true"></span>
+    {% endif %}
+  </nav>
+
+  {% if filas %}
+  <table class="cuadricula-mes">
+    <caption class="visually-hidden">{{ mes|nombre_mes }} de 2026. Solo se marcan los días con un evento lunar.</caption>
+    <thead>
+      <tr>
+        <th scope="col"><abbr title="Lunes">Lun</abbr></th>
+        <th scope="col"><abbr title="Martes">Mar</abbr></th>
+        <th scope="col"><abbr title="Miércoles">Mié</abbr></th>
+        <th scope="col"><abbr title="Jueves">Jue</abbr></th>
+        <th scope="col"><abbr title="Viernes">Vie</abbr></th>
+        <th scope="col"><abbr title="Sábado">Sáb</abbr></th>
+        <th scope="col"><abbr title="Domingo">Dom</abbr></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for semana in filas|cuadricula_mes:mes %}
+      <tr>
+        {% for dia in semana %}
+          {% if dia.dia %}
+          <td class="{% if dia.eventos %}dia-con-evento{% endif %}{% if dia.dia == fecha.day and mes == fecha.month %} dia-referencia{% endif %}">
+            {% if dia.eventos %}
+              {% with fila=dia.eventos.0 %}
+              <a class="dia-enlace" href="#evento-{{ fila.evento.codigo }}">
+                <span class="numero-dia">{{ dia.dia }}</span>
+                {% for otra in dia.eventos %}
+                  <span class="dia-evento">
+                    <span class="luna luna-{{ otra.evento.tipo }}" aria-hidden="true"></span>
+                    <span class="dia-evento-texto">{{ otra.evento.get_tipo_display }} <span class="dia-hora">{{ otra.evento.instante|date:"H:i" }}</span></span>
+                  </span>
+                {% endfor %}
+              </a>
+              {% endwith %}
+            {% else %}
+              <span class="numero-dia">{{ dia.dia }}</span>
+            {% endif %}
+          </td>
+          {% else %}
+          <td class="dia-vacio" aria-hidden="true"></td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <ul class="leyenda-fases" aria-label="Leyenda de fases">
+    <li><span class="luna luna-nueva" aria-hidden="true"></span>Luna nueva</li>
+    <li><span class="luna luna-creciente" aria-hidden="true"></span>Cuarto creciente</li>
+    <li><span class="luna luna-llena" aria-hidden="true"></span>Luna llena</li>
+    <li><span class="luna luna-menguante" aria-hidden="true"></span>Cuarto menguante</li>
+    <li><span class="muestra-referencia" aria-hidden="true"></span>Fecha de referencia</li>
+  </ul>
+  {% else %}
+    <p class="sin-dato">No hay eventos verificados cargados para este mes.</p>
+  {% endif %}
+</section>
+
+<section class="resumen" aria-labelledby="titulo-eventos">
+  <h2 id="titulo-eventos" class="titulo-seccion">Fases de {{ mes|nombre_mes|lower }}</h2>
+  {% if filas %}
+  <table class="tabla-calendario">
+    <thead>
+      <tr>
+        <th scope="col">Fecha y hora</th>
+        <th scope="col">Fase</th>
+        <th scope="col">Recomendada para</th>
+        <th scope="col">Fuente</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for fila in filas %}{% with evento=fila.evento %}
+      <tr id="evento-{{ evento.codigo }}"{% if evento.instante|date:"Y-m-d" == fecha_ref %} class="fila-referencia"{% endif %}>
+        <td data-titulo="Fecha y hora">
+          <span class="dia-semana">{{ evento.instante|date:"l" }}</span>
+          <time datetime="{{ evento.instante|date:'c' }}">{{ evento.instante|date:"d/m/Y H:i" }}</time>
+        </td>
+        <td data-titulo="Fase">
+          <span class="fase">
+            <span class="luna luna-{{ evento.tipo }}" aria-hidden="true"></span>
+            <span>
+              <strong>{{ evento.get_tipo_display }}</strong>
+              {% if fila.nombre_ancestral %}<span class="nombre-ancestral">{{ fila.nombre_ancestral }}</span>{% endif %}
+            </span>
+          </span>
+        </td>
+        <td data-titulo="Recomendada para">
+          {% if fila.recomendaciones %}
+            <ul class="lista-chips">
+              {% for guia in fila.recomendaciones %}<li><a href="{% url 'catalogo:guia' %}#{{ guia.codigo }}">{{ guia.nombre }}</a></li>{% endfor %}
+            </ul>
+          {% else %}
+            <span class="sin-dato">Sin recomendación en las guías</span>
+          {% endif %}
+        </td>
+        <td data-titulo="Fuente"><a href="{{ evento.fuente }}" rel="noreferrer">USNO</a></td>
+      </tr>
+      {% endwith %}{% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p class="sin-dato">No hay eventos verificados cargados para este mes.</p>
+  {% endif %}
+  <p class="ayuda">Las fases recomendadas son informativas: registrar una actividad no exige un evento lunar. Los instantes vienen del Observatorio Naval de EE. UU. (USNO) en hora universal y se muestran en hora de Guayaquil.</p>
+</section>
+
+<section class="resumen" aria-labelledby="titulo-vecinos">
+  <h2 id="titulo-vecinos" class="titulo-seccion">Fases cercanas a una fecha</h2>
+  <form method="get" class="formulario-fecha">
+    <input type="hidden" name="mes" value="{{ mes }}">
+    <div class="campo">
+      <label for="fecha">Fecha de referencia</label>
+      <input id="fecha" type="date" name="fecha" value="{{ fecha_ref }}">
+    </div>
+    <button type="submit" class="boton-pequeno">Ver fases cercanas</button>
+  </form>
+  {% if dentro_periodo %}
+    <p class="ayuda">Calculadas respecto de las 00:00 del {{ fecha|date:"d/m/Y" }}, hora de Guayaquil. No indican la fase de cada día.</p>
+    <div class="bloques eventos-vecinos">
+      <div class="evento-vecino">
+        <span class="resumen-etiqueta">Antes del {{ fecha|date:"d/m/Y" }}</span>
+        {% if anterior %}
+          <span class="fase"><span class="luna luna-{{ anterior.tipo }}" aria-hidden="true"></span><strong>{{ anterior.get_tipo_display }}</strong></span>
+          <span class="ayuda">{{ anterior.instante|date:"l d/m/Y H:i" }}</span>
+        {% else %}
+          <span class="sin-dato">No disponible</span>
+        {% endif %}
+      </div>
+      <div class="evento-vecino">
+        <span class="resumen-etiqueta">Desde el {{ fecha|date:"d/m/Y" }}</span>
+        {% if siguiente %}
+          <span class="fase"><span class="luna luna-{{ siguiente.tipo }}" aria-hidden="true"></span><strong>{{ siguiente.get_tipo_display }}</strong></span>
+          <span class="ayuda">{{ siguiente.instante|date:"l d/m/Y H:i" }}</span>
+        {% else %}
+          <span class="sin-dato">No disponible</span>
+        {% endif %}
+      </div>
+    </div>
+  {% else %}
+    <p class="alert alert-info" role="status">No hay datos para la fecha de referencia ({{ fecha|date:"d/m/Y" }}) fuera del período septiembre-diciembre de 2026.</p>
+  {% endif %}
+</section>
+{% endwith %}
+{% endif %}
 {% endblock %}
