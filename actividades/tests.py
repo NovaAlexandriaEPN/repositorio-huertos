@@ -36,6 +36,29 @@ class CalculosTests(SimpleTestCase):
         self.assertEqual(calcular_progreso(["cuidados", "riego", "riego"]), 100 / 6)
         self.assertEqual(calcular_progreso(["preparacion", "siembra", "riego", "cosecha", "secado", "empaquetado"]), 100)
 
+    def test_sin_hitos_es_cero_y_los_desconocidos_no_suman(self):
+        self.assertEqual(calcular_progreso([]), 0)
+        self.assertEqual(calcular_progreso(["baño", "gratitud", "limpieza"]), 0)
+
+    def test_cuidados_y_riego_juntos_son_un_solo_hito(self):
+        self.assertAlmostEqual(calcular_progreso(["preparacion", "cuidados", "riego"]), 100 / 3)
+        self.assertEqual(calcular_progreso(["cuidados", "riego"]), 100 / 6)
+
+    def test_hitos_repetidos_no_suman_dos_veces(self):
+        self.assertEqual(calcular_progreso(["siembra", "siembra", "siembra"]), 100 / 6)
+
+    def test_ejemplo_del_alcance_promedio_58_3(self):
+        completa = calcular_progreso(["preparacion", "siembra", "riego", "cosecha", "secado", "empaquetado"])
+        planeada = calcular_progreso(["preparacion"])
+        self.assertAlmostEqual((completa + planeada) / 2, 58.3, places=1)
+
+    def test_trescientos_puntos_no_nombran_maestro(self):
+        self.assertEqual(calcular_nivel(300)["nombre"], "Oficial")
+        self.assertEqual(calcular_nivel(300, True)["nombre"], "Maestro")
+
+    def test_elegibilidad_para_maestro_desde_cien_puntos(self):
+        self.assertFalse(calcular_nivel(99)["es_elegible_maestro"])
+        self.assertTrue(calcular_nivel(100)["es_elegible_maestro"])
 
 class ActividadesIntegradasTests(TestCase):
     @classmethod
