@@ -76,6 +76,11 @@ La foto debe tener su autor, licencia y fuente como las del catálogo (D2-01).
 | Fase lunar | `luna luna-nueva`, `luna-creciente`, `luna-llena`, `luna-menguante` + `nombre-ancestral` | Círculo dibujado con CSS; siempre acompañado del nombre de la fase |
 | Eventos vecinos | `eventos-vecinos`, `evento-vecino` | Indican la fecha de referencia; no son la fase de cada día |
 | Vista del mes | `cuadricula-mes`, `dia-con-evento`, `dia-referencia`, `dia-enlace`, `leyenda-fases` + filtro `cuadricula_mes` | Lunes a domingo; solo se marcan los días con un evento verificado, nunca la fase de los demás días |
+| Registro de actividad | `guia-actividades` (desplegable con las 13 guías), `enlace-derecha` | Las 3 actividades generales se nombran como `etiqueta` junto al campo de planta |
+| Filtros | `barra-filtros`, `barra-filtros-acciones` | Una fila de selects; «Quitar filtros» solo si hay alguno activo |
+| Historial | `tabla-calendario tabla-historial`, `nota-actividad`, `puntos`, `fila-anulada`, `fila-anulacion`, `detalle-anulacion`, `celda-sin-accion` | La anulada se atenúa, con los puntos tachados y su motivo, autor y fecha |
+| Avisos de una acción | `lista-avisos` | Reglas o consecuencias antes de confirmar (anular, nombrar maestro) |
+| Maestro vigente | `maestro-actual`, `motivo-maestro` | Avatar, nombre, quién lo nombró, fecha y motivo |
 
 Ejemplo de tarjeta de planta:
 

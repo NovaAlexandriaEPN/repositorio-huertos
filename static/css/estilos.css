@@ -461,6 +461,34 @@ a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
 .evento-vecino { display: grid; gap: .35rem; padding: 1rem 1.15rem; border: 1px solid var(--linea); border-radius: var(--radio-control); background: var(--marfil); }
 .evento-vecino .ayuda { margin: 0; text-transform: none; }
 
+/* --- Actividades: registro, historial, anulación y maestro ------------ */
+
+.enlace-derecha { margin-left: auto; }
+.guia-actividades { margin: .25rem 0 0; }
+.guia-actividades .lista-chips { margin-top: .25rem; }
+.campo .ayuda .etiqueta { margin: 0 .15rem .2rem 0; }
+
+.barra-filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem 1rem; margin-bottom: 1.25rem; padding: 1rem 1.15rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.barra-filtros .campo { flex: 1 1 180px; margin: 0; }
+.barra-filtros label { font-size: .8rem; }
+.barra-filtros select { min-height: 42px; }
+.barra-filtros-acciones { display: flex; align-items: center; gap: .75rem 1rem; }
+
+.tabla-historial td { font-size: .92rem; }
+.tabla-historial td:last-child, .tabla-historial td:nth-child(5) { white-space: nowrap; }
+.nota-actividad { display: block; margin-top: .2rem; font-size: .85rem; color: var(--apagado); }
+.puntos { font-weight: 700; }
+.fila-anulada td { color: var(--apagado); }
+.fila-anulada td, .tabla-calendario tbody tr.fila-anulada td { border-bottom: 0; }
+.fila-anulada .puntos { text-decoration: line-through; }
+.fila-anulacion td { padding-top: 0; white-space: normal !important; }
+.detalle-anulacion { display: block; padding: .5rem .75rem; border-left: 2px solid var(--terracota); border-radius: 0; background: #fdf3ec; font-size: .85rem; color: #6b2e15; }
+
+.lista-avisos { display: grid; gap: .45rem; margin: 0 0 1.25rem; padding: 1rem 1.15rem 1rem 2.2rem; border-radius: var(--radio-control); background: var(--salvia-suave); font-size: .92rem; }
+.maestro-actual { display: flex; align-items: flex-start; gap: 1rem; }
+.maestro-actual p { margin: 0 0 .3rem; }
+.motivo-maestro { font-style: italic; color: #46514c; }
+
 /* --- Comunidad, huerto y materiales ----------------------------------- */
 
 .bloques { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
@@ -581,6 +609,11 @@ a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
   .tabla-calendario tr { padding: .75rem 0; border-bottom: 1px solid var(--linea); }
   .tabla-calendario tbody tr:last-child { border-bottom: 0; }
   .tabla-calendario td { padding: .3rem 0; border: 0; }
+  .enlace-derecha { margin-left: 0; }
+  .barra-filtros-acciones { flex: 1 1 100%; }
+  .fila-anulacion td::before { display: none; }
+  .tabla-historial .celda-sin-accion { display: none; }
+  .detalle-anulacion { overflow-wrap: anywhere; }
   .tabla-calendario td::before { content: attr(data-titulo); display: block; font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--apagado); }
 }
 

@@ -7,8 +7,7 @@
 
 <div class="introduccion">
   <h1>Registrar actividad</h1>
-  <p>Huerto de {{ huerto.comunidad.nombre }}. {{ form.planta.help_text }}</p>
-  <p><a href="{% url 'catalogo:guia' %}">Consultar la guía de las 13 actividades</a>.</p>
+  <p>Huerto de {{ huerto.comunidad.nombre }}. Anota lo que hiciste; los puntos y el autor los asigna el sistema según tu sesión.</p>
 </div>
 
 {% include "componentes/errores.html" with form=form %}
@@ -20,24 +19,44 @@
     <div class="campo">
       <label for="{{ form.tipo.id_for_label }}">{{ form.tipo.label }}</label>
       {{ form.tipo }}
+      {% if form.tipo.value %}
+        <div class="ayuda"><a href="{% url 'catalogo:guia' %}#{{ form.tipo.value }}">Ver la guía de esta actividad</a></div>
+      {% endif %}
     </div>
     <div class="campo">
       <label for="{{ form.fecha.id_for_label }}">{{ form.fecha.label }}</label>
       {{ form.fecha }}
+      <div class="ayuda">No puede ser una fecha futura.</div>
     </div>
     <div class="campo ancho-completo">
       <label for="{{ form.planta.id_for_label }}">{{ form.planta.label }}</label>
       {{ form.planta }}
-      <div class="ayuda">{{ form.planta.help_text }}</div>
+      <div class="ayuda">
+        <span class="etiqueta">Preparación de la tierra</span>
+        <span class="etiqueta">Elaboración del diseño</span>
+        <span class="etiqueta">Ritual de siembra</span>
+        se registran para todo el huerto: deja la planta en «Todo el huerto». Las demás actividades necesitan una planta.
+      </div>
     </div>
     <div class="campo ancho-completo">
       <label for="{{ form.detalles.id_for_label }}">{{ form.detalles.label }} <span class="opcional">Opcional</span></label>
       {{ form.detalles }}
     </div>
   </div>
+
+  <details class="consulta-aviso guia-actividades">
+    <summary>Guía de cada actividad</summary>
+    <ul class="lista-chips">
+      {% for codigo, nombre in form.fields.tipo.choices %}
+        <li><a href="{% url 'catalogo:guia' %}#{{ codigo }}">{{ nombre }}</a></li>
+      {% endfor %}
+    </ul>
+  </details>
+
   <div class="acciones">
-    <button type="submit">Registrar</button>
-    <a href="{% url 'actividades:historial_actividades' huerto.id %}">Ver historial</a>
+    <button type="submit">Guardar actividad</button>
+    <a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Cancelar</a>
+    <a class="enlace-derecha" href="{% url 'actividades:historial_actividades' huerto.id %}">Ver historial</a>
   </div>
 </form>
 {% endblock %}

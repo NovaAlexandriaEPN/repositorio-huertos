@@ -7,7 +7,7 @@
 
 <div class="introduccion">
   <h1>Anular actividad</h1>
-  <p>La actividad no se borra: queda en el historial como anulada, con tu motivo, tu usuario y la fecha. Sus puntos dejan de contar.</p>
+  <p>Revisa el registro antes de confirmar.</p>
 </div>
 
 <section class="resumen" aria-label="Actividad que se anulará">
@@ -21,6 +21,12 @@
   </dl>
 </section>
 
+<ul class="lista-avisos" aria-label="Qué ocurre al anular">
+  <li>La actividad <strong>no se borra</strong>: queda en el historial como anulada, con tu motivo, tu usuario y la fecha.</li>
+  <li>Sus <strong>{{ actividad.puntos }} puntos dejan de contar</strong>. Quien la realizó sigue figurando como autor.</li>
+  <li>Si el Maestro del huerto queda con menos de 100 puntos, se retira su nombramiento.</li>
+</ul>
+
 {% include "componentes/errores.html" with form=form %}
 
 {% if actividad.es_activa %}
@@ -32,12 +38,12 @@
     <div class="ayuda">{{ form.motivo.help_text }}</div>
   </div>
   <div class="acciones">
-    <button type="submit" class="boton-acento">Anular actividad</button>
-    <a href="{% url 'actividades:historial_actividades' huerto.id %}">Cancelar</a>
+    <button type="submit" class="boton-acento">Confirmar anulación</button>
+    <a href="{% url 'actividades:historial_actividades' huerto.id %}">Volver</a>
   </div>
 </form>
 {% else %}
-<p>Esta actividad ya está anulada.</p>
+<p class="alert alert-info">Esta actividad ya está anulada.</p>
 <p><a href="{% url 'actividades:historial_actividades' huerto.id %}">Volver al historial</a></p>
 {% endif %}
 {% endblock %}

@@ -7,16 +7,29 @@
 
 <div class="introduccion">
   <h1>Maestro del huerto</h1>
-  <p>El responsable de la comunidad nombra un único Maestro entre quienes tienen al menos 100 puntos. Un nuevo nombramiento sustituye al anterior.</p>
+  <p>El responsable de la comunidad nombra a quien guiará la siembra y el cuidado del huerto.</p>
 </div>
+
+<ul class="lista-avisos" aria-label="Reglas del nombramiento">
+  <li>Solo puede ser Maestro un miembro con <strong>al menos 100 puntos</strong>.</li>
+  <li>Hay <strong>un solo Maestro</strong>: un nuevo nombramiento sustituye al anterior.</li>
+  <li>Llegar a 300 puntos <strong>no</strong> nombra a nadie automáticamente.</li>
+  <li>El título de Maestro no da permisos de administración.</li>
+</ul>
 
 <section class="resumen" aria-labelledby="titulo-actual">
   <h2 id="titulo-actual" class="titulo-seccion">Maestro actual</h2>
   {% if maestro %}
-    <p><span class="etiqueta etiqueta-acento">Maestro</span> <strong>{{ maestro.usuario.get_full_name|default:maestro.usuario.username }}</strong>, desde el {{ huerto.maestro_fecha|date:"d/m/Y H:i" }}.</p>
-    <p class="ayuda">{{ huerto.maestro_motivo }}</p>
+    <div class="maestro-actual">
+      <span class="avatar" aria-hidden="true">{{ maestro.usuario.get_full_name|default:maestro.usuario.username|first|upper }}</span>
+      <div>
+        <p class="seleccion-nombre">{{ maestro.usuario.get_full_name|default:maestro.usuario.username }} <span class="etiqueta etiqueta-acento">Maestro</span></p>
+        <p class="ayuda">Desde el {{ huerto.maestro_fecha|date:"d/m/Y H:i" }}{% if huerto.maestro_nombrado_por %}, nombrado por {{ huerto.maestro_nombrado_por.get_full_name|default:huerto.maestro_nombrado_por.username }}{% endif %}.</p>
+        {% if huerto.maestro_motivo %}<p class="motivo-maestro">«{{ huerto.maestro_motivo }}»</p>{% endif %}
+      </div>
+    </div>
   {% else %}
-    <p>Todavía no hay Maestro.</p>
+    <p class="sin-dato">Sin maestro nombrado.</p>
   {% endif %}
 </section>
 
@@ -41,7 +54,7 @@
   </div>
 </form>
 {% else %}
-<p>Ningún otro miembro tiene todavía 100 puntos o más.</p>
+<p class="alert alert-info">Ningún otro miembro tiene todavía 100 puntos o más.</p>
 <p><a href="{% url 'actividades:inicio_huerto_virtual' huerto.id %}">Volver al huerto virtual</a></p>
 {% endif %}
 {% endblock %}
