@@ -24,8 +24,8 @@ Funcionan registro y consentimiento, sesión y perfil privado, comunidad por có
 configuración, selección protegida por historial, materiales, registro y anulación de
 actividades, puntos, progreso, maestro, fichas, guía ancestral y calendario local.
 
-La carga nueva contiene **12 de las 18 fichas**, **13 guías**, **23 opciones**,
-**18 materiales** y **17 eventos lunares**. Faltan las seis fichas de Guillermo,
+La carga nueva contiene **las 18 fichas**, **13 guías**, **23 opciones**,
+**18 materiales** y **17 eventos lunares**. Faltan la consolidación de las fichas,
 fotos y datos expresamente señalados como no verificados, la base ficticia de demo,
 los resultados formales y la comprobación en otro computador. La revisión de código
 no sustituye la revisión de dominio de las fichas ni declara terminada V1.
@@ -338,6 +338,15 @@ de mostrarse temporalmente.
 El guardado usa POST con CSRF en `/comunidades/huerto/materiales/<material_id>/` y no acepta
 IDs de comunidad o huerto para cambiar el destino. No se administran cantidades ni compras.
 La guía B3-02 documenta los contratos de formulario y plantilla para la integración posterior.
+
+Contrato de la pantalla (J3) con el diseño de `templates/comunidades/materiales.html`:
+
+- `materiales`: filas de `listar_materiales` con `material`, `disponible` y `form`, ordenadas
+  por los grupos del catálogo (herramientas e implementos, material de siembra y abonos).
+- `recomendacion_bodega`: texto de `catalogo/datos/huerto.py` con su fuente (MSP p. 24).
+- Cada formulario envía POST con CSRF a `comunidades:marcar_material` con el campo
+  `material-<id>-disponible`. Al guardar se vuelve a la lista con el mensaje «La disponibilidad
+  del material se ha guardado para tu comunidad.»; los errores usan `componentes/errores.html`.
 
 ### Contrato con actividades para proteger el historial
 
