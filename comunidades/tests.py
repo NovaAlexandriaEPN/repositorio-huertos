@@ -1356,3 +1356,73 @@ class MaterialesCompartidosTests(TestCase):
         self.assertEqual(self.client.get(guardado).status_code, 405)
         self.assertEqual(self.client.post(listado).status_code, 405)
         self.assertFalse(MarcaMaterial.objects.exists())
+
+
+class MaterialesRecomendadosCatalogoTests(TestCase):
+    """J3-01: lista por métodos elegidos con los 18 materiales reales del catálogo."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from io import StringIO
+        from django.core.management import call_command
+        call_command("cargar_catalogo", stdout=StringIO())
+        preparar_datos_configurador(cls)
+        cls.huerto = configurar_huerto(actor=cls.responsable, **datos_configuracion(cls.opciones))
+        cls.generales = set(
+            Material.objects.filter(metodos_siembra=[]).values_list("codigo", flat=True)
+        )
+
+    def codigos(self, actor):
+        return [fila["material"].codigo for fila in listar_materiales(actor=actor)]
+
+    def test_huerto_sin_plantas_recibe_solo_los_materiales_generales(self):
+        self.assertTrue(self.generales)
+        self.assertEqual(set(self.codigos(self.participante)), self.generales)
+
+    def test_cada_metodo_agrega_solo_sus_materiales_a_los_generales(self):
+        elegir_planta(actor=self.responsable, planta=self.planta, metodo_siembra=MetodoSiembra.ESTACAS)
+        codigos = self.codigos(self.participante)
+        self.assertEqual(len(codigos), len(set(codigos)))
+        self.assertEqual(set(codigos), self.generales | {"barreton", "estacas"})
+        elegir_planta(actor=self.responsable, planta=self.otra_planta, metodo_siembra=MetodoSiembra.SEMILLAS)
+        self.assertEqual(set(self.codigos(self.participante)), self.generales | {"barreton", "estacas", "semillas"})
+        self.assertNotIn("esquejes", self.codigos(self.participante))
+
+    def test_grupos_siguen_el_orden_del_catalogo(self):
+        grupos = [fila["material"].grupo for fila in listar_materiales(actor=self.participante)]
+        self.assertEqual(list(dict.fromkeys(grupos)), Material.Grupo.values)
+
+    def test_pantalla_muestra_la_bodega_del_catalogo_y_los_grupos_en_orden(self):
+        from catalogo.datos.huerto import RECOMENDACION_BODEGA
+        self.client.force_login(self.participante)
+        pagina = self.client.get(reverse("comunidades:materiales"))
+        self.assertContains(pagina, RECOMENDACION_BODEGA)
+        html = pagina.content.decode()
+        posiciones = [html.index(f">{etiqueta}</h2>") for etiqueta in Material.Grupo.labels]
+        self.assertEqual(posiciones, sorted(posiciones))
+
+    def estado_en_pantalla(self, actor, nombre):
+        cliente = Client()
+        cliente.force_login(actor)
+        html = cliente.get(reverse("comunidades:materiales")).content.decode()
+        inicio = html.index(f"<h3>{nombre}</h3>")
+        fila = html[inicio:html.index("</li>", inicio)]
+        return "Disponible" if '">Disponible</span>' in fila else "No disponible"
+
+    def test_marca_permanece_al_recargar_y_otra_comunidad_no_la_ve_ni_altera(self):
+        """J3-02: lo que marca un miembro lo ve otro al recargar; la otra comunidad no."""
+        configurar_huerto(actor=self.otro_responsable, **datos_configuracion(self.opciones))
+        pala = Material.objects.get(codigo="pala")
+        url = reverse("comunidades:marcar_material", args=[pala.pk])
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "No disponible")
+        self.client.force_login(self.participante)
+        self.client.post(url, {f"material-{pala.pk}-disponible": "on"})
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "Disponible")
+        self.assertEqual(self.estado_en_pantalla(self.otro_responsable, pala.nombre), "No disponible")
+        # La otra comunidad envía el mismo material: solo cambia su propia marca.
+        ajeno = Client()
+        ajeno.force_login(self.otro_responsable)
+        ajeno.post(url, {f"material-{pala.pk}-disponible": "on"})
+        ajeno.post(url, {})
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "Disponible")
+        self.assertEqual(MarcaMaterial.objects.filter(material=pala).count(), 2)

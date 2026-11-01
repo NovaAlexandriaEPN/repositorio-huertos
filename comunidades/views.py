@@ -25,6 +25,7 @@ from .servicios import (
     obtener_comunidad_editable,
     obtener_huerto,
     obtener_seleccion_editable,
+    recomendacion_bodega,
     retirar_planta,
     unirse_comunidad,
 )
@@ -241,7 +242,9 @@ def _pagina_materiales(request, *, material_id=None, form_con_errores=None):
             fila["form"] = DisponibilidadMaterialForm(
                 prefix=f"material-{identificador}", initial={"disponible": fila["disponible"]},
             )
-    return render(request, "comunidades/materiales.html", {"materiales": filas})
+    return render(request, "comunidades/materiales.html", {
+        "materiales": filas, "recomendacion_bodega": recomendacion_bodega(),
+    })
 
 
 @never_cache

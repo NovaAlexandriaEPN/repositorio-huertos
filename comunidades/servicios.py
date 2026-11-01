@@ -10,6 +10,7 @@ from django.db import IntegrityError, OperationalError, transaction
 from django.db.models import F, Prefetch
 from django.db.models.deletion import ProtectedError
 
+from catalogo.datos.huerto import RECOMENDACION_BODEGA
 from catalogo.models import Material, OpcionHuerto, Planta
 
 from .models import Comunidad, Huerto, MarcaMaterial, Miembro, PlantaHuerto
@@ -283,12 +284,24 @@ def listar_materiales(*, actor) -> list[dict]:
     marcas = dict(
         MarcaMaterial.objects.filter(huerto=huerto).values_list("material_id", "disponible")
     )
+    # Grupos en el orden del catálogo (herramientas, siembra, abonos); dentro de cada
+    # grupo se conserva el orden por nombre del modelo.
+    orden_grupos = {grupo: indice for indice, grupo in enumerate(Material.Grupo.values)}
+    materiales = sorted(
+        Material.objects.all(),
+        key=lambda material: orden_grupos.get(material.grupo, len(orden_grupos)),
+    )
     # El catálogo es pequeño; se filtra en Python para mantener compatibilidad con SQLite.
     return [
         {"material": material, "disponible": marcas.get(material.pk, False)}
-        for material in Material.objects.all()
+        for material in materiales
         if _material_corresponde(material, metodos)
     ]
+
+
+def recomendacion_bodega() -> str:
+    """Orientación fija del catálogo para guardar los materiales (alcance 1.4, sección 9)."""
+    return RECOMENDACION_BODEGA
 
 
 def marcar_material(*, actor, material_id: int, disponible: bool) -> MarcaMaterial:

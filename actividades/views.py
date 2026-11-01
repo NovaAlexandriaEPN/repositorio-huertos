@@ -86,7 +86,16 @@ def registrar_actividad(request, huerto_id):
                     messages.info(request, "Esta actividad ya estaba registrada; no se duplicó.")
                 return redirect("actividades:historial_actividades", huerto_id=huerto.pk)
     else:
-        form = RegistroActividadForm(huerto=huerto)
+        # Las tarjetas del huerto virtual y el historial abren el formulario con la planta
+        # (y, si corresponde, la actividad) ya elegidas. Solo se aceptan valores válidos.
+        inicial = {}
+        planta_id = request.GET.get("planta", "").strip()
+        if planta_id.isdigit() and huerto.plantas.filter(pk=int(planta_id)).exists():
+            inicial["planta"] = int(planta_id)
+        tipo = request.GET.get("tipo", "").strip()
+        if tipo in Actividad.Tipo.values:
+            inicial["tipo"] = tipo
+        form = RegistroActividadForm(huerto=huerto, initial=inicial)
 
     return render(request, "actividades/registrar_actividad.html", {
         "form": form,

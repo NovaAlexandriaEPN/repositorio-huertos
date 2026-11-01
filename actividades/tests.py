@@ -36,6 +36,29 @@ class CalculosTests(SimpleTestCase):
         self.assertEqual(calcular_progreso(["cuidados", "riego", "riego"]), 100 / 6)
         self.assertEqual(calcular_progreso(["preparacion", "siembra", "riego", "cosecha", "secado", "empaquetado"]), 100)
 
+    def test_sin_hitos_es_cero_y_los_desconocidos_no_suman(self):
+        self.assertEqual(calcular_progreso([]), 0)
+        self.assertEqual(calcular_progreso(["baño", "gratitud", "limpieza"]), 0)
+
+    def test_cuidados_y_riego_juntos_son_un_solo_hito(self):
+        self.assertAlmostEqual(calcular_progreso(["preparacion", "cuidados", "riego"]), 100 / 3)
+        self.assertEqual(calcular_progreso(["cuidados", "riego"]), 100 / 6)
+
+    def test_hitos_repetidos_no_suman_dos_veces(self):
+        self.assertEqual(calcular_progreso(["siembra", "siembra", "siembra"]), 100 / 6)
+
+    def test_ejemplo_del_alcance_promedio_58_3(self):
+        completa = calcular_progreso(["preparacion", "siembra", "riego", "cosecha", "secado", "empaquetado"])
+        planeada = calcular_progreso(["preparacion"])
+        self.assertAlmostEqual((completa + planeada) / 2, 58.3, places=1)
+
+    def test_trescientos_puntos_no_nombran_maestro(self):
+        self.assertEqual(calcular_nivel(300)["nombre"], "Oficial")
+        self.assertEqual(calcular_nivel(300, True)["nombre"], "Maestro")
+
+    def test_elegibilidad_para_maestro_desde_cien_puntos(self):
+        self.assertFalse(calcular_nivel(99)["es_elegible_maestro"])
+        self.assertTrue(calcular_nivel(100)["es_elegible_maestro"])
 
 class ActividadesIntegradasTests(TestCase):
     @classmethod
@@ -298,6 +321,25 @@ class ActividadesIntegradasTests(TestCase):
                 with self.subTest(ruta=ruta, metodo=metodo):
                     esperado = 405 if metodo == "post" and ruta in {"actividades:inicio_huerto_virtual", "actividades:historial_actividades"} else 403
                     self.assertEqual(getattr(self.client, metodo)(reverse(ruta, args=args)).status_code, esperado)
+
+    def test_tarjeta_abre_el_registro_con_planta_y_actividad_sugerida(self):
+        """F3-03: desde cada tarjeta se registra la siguiente actividad de esa planta."""
+        self.client.force_login(self.participante)
+        pagina = self.client.get(reverse("actividades:inicio_huerto_virtual", args=[self.huerto.pk]))
+        enlace = reverse("actividades:registrar_actividad", args=[self.huerto.pk]) + f"?planta={self.planta.pk}&amp;tipo=siembra"
+        self.assertContains(pagina, enlace)
+        self.assertContains(pagina, reverse("actividades:historial_actividades", args=[self.huerto.pk]) + f"?planta={self.planta.pk}")
+        formulario = self.client.get(reverse("actividades:registrar_actividad", args=[self.huerto.pk]),
+                                     {"planta": self.planta.pk, "tipo": "siembra"}).context["form"]
+        self.assertEqual(formulario["planta"].value(), self.planta.pk)
+        self.assertEqual(formulario["tipo"].value(), "siembra")
+
+    def test_preseleccion_ignora_plantas_ajenas_y_tipos_invalidos(self):
+        self.client.force_login(self.participante)
+        formulario = self.client.get(reverse("actividades:registrar_actividad", args=[self.huerto.pk]),
+                                     {"planta": "999999", "tipo": "inventado"}).context["form"]
+        self.assertIsNone(formulario["planta"].value())
+        self.assertNotEqual(formulario["tipo"].value(), "inventado")
 
     def test_post_real_con_csrf_y_reenvio_no_duplica(self):
         client = Client(enforce_csrf_checks=True); client.force_login(self.participante)

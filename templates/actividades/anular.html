@@ -3,19 +3,23 @@
 {% block titulo %}Anular actividad · {{ huerto.comunidad.nombre }}{% endblock %}
 
 {% block contenido %}
+<p class="volver"><a href="{% url 'actividades:historial_actividades' huerto.id %}"><svg class="icono" aria-hidden="true"><use href="#i-flecha"/></svg>Volver al historial</a></p>
+
 <div class="introduccion">
   <h1>Anular actividad</h1>
   <p>La actividad no se borra: queda en el historial como anulada, con tu motivo, tu usuario y la fecha. Sus puntos dejan de contar.</p>
 </div>
 
-<dl class="detalle">
-  <dt>Actividad</dt><dd>{{ actividad.get_tipo_display }}</dd>
-  <dt>Planta</dt><dd>{{ actividad.nombre_planta }}</dd>
-  <dt>Fecha</dt><dd>{{ actividad.fecha|date:"d/m/Y" }}</dd>
-  <dt>Realizó</dt><dd>{{ actividad.actor_original.get_full_name|default:actividad.actor_original.username }}</dd>
-  <dt>Puntos</dt><dd>{{ actividad.puntos }}</dd>
-  <dt>Estado</dt><dd>{{ actividad.get_estado_display }}</dd>
-</dl>
+<section class="resumen" aria-label="Actividad que se anulará">
+  <dl class="datos-ficha datos-dos-columnas">
+    <div class="dato"><dt>Actividad</dt><dd>{{ actividad.get_tipo_display }}</dd></div>
+    <div class="dato"><dt>Planta</dt><dd>{{ actividad.nombre_planta }}</dd></div>
+    <div class="dato"><dt>Fecha y hora</dt><dd>{{ actividad.fecha|date:"d/m/Y H:i" }}</dd></div>
+    <div class="dato"><dt>Realizó</dt><dd>{{ actividad.actor_original.get_full_name|default:actividad.actor_original.username }}</dd></div>
+    <div class="dato"><dt>Puntos</dt><dd>{{ actividad.puntos }}</dd></div>
+    <div class="dato"><dt>Estado</dt><dd><span class="etiqueta{% if actividad.es_anulada %} etiqueta-acento{% endif %}">{{ actividad.get_estado_display }}</span></dd></div>
+  </dl>
+</section>
 
 {% include "componentes/errores.html" with form=form %}
 
@@ -28,7 +32,7 @@
     <div class="ayuda">{{ form.motivo.help_text }}</div>
   </div>
   <div class="acciones">
-    <button type="submit">Anular actividad</button>
+    <button type="submit" class="boton-acento">Anular actividad</button>
     <a href="{% url 'actividades:historial_actividades' huerto.id %}">Cancelar</a>
   </div>
 </form>
