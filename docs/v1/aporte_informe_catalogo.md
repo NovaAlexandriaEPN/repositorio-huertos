@@ -1,7 +1,7 @@
 # Requisitos y fuentes del catálogo, guía ancestral y calendario lunar
 
 Texto actualizado el 27 de octubre de 2026 para incorporar al informe V1 (aporte M3-04 de Matthew).
-Historias: HU-05, HU-06 y HU-07. Las pruebas formales CP-03 y CP-04 quedan para noviembre.
+Historias: HU-005, HU-006 y HU-007. Las pruebas formales CP-03 y CP-04 quedan para noviembre.
 
 ## Funciones que cubre la versión
 
@@ -10,20 +10,20 @@ fichas de plantas que exige V1 (seis de Juan, seis de Matthew y seis de Guillerm
 de actividades, 23 opciones del configurador, 18 recomendaciones de materiales y 17 eventos
 lunares. Las vistas del catálogo solo aceptan consultas (GET) y todas requieren sesión.
 
-- **HU-05, fichas de plantas.** Lista y detalle con nombre común y científico, otros
+- **HU-005, fichas de plantas.** Lista y detalle con nombre común y científico, otros
   nombres, familia, altitud, provincias del Ecuador, ciclo corto/largo, cualidad ancestral
   caliente/fría, parte utilizada, usos, contraindicaciones, foto local con autor y licencia,
   y fuentes. Un atributo sin respaldo se muestra como «No verificado» en lugar de un valor
   supuesto; si faltan contraindicaciones, la ficha pide consultar a personal de salud. La
   información es educativa y no indica dosis.
-- **HU-06, guía ancestral.** Cada uno de los 13 tipos muestra instrucciones, materiales,
+- **HU-006, guía ancestral.** Cada uno de los 13 tipos muestra instrucciones, materiales,
   precauciones y su fuente; el MSP se cita con página. La hora y la fase lunar recomendadas
   aparecen cuando la fuente las indica; si no, la guía muestra «No indicada en la fuente».
   Las dos condiciones obligatorias (15 días entre preparación y siembra; 10 días entre
   inicio del secado y empaquetado) aparecen primero, marcadas como plazo obligatorio, y
   separadas de las recomendaciones. El módulo actividades es el que exige esos plazos al
   registrar; las recomendaciones no bloquean registros.
-- **HU-07, calendario lunar.** Lista mensual de luna nueva, cuarto creciente, luna llena y
+- **HU-007, calendario lunar.** Lista mensual de luna nueva, cuarto creciente, luna llena y
   cuarto menguante entre septiembre y diciembre de 2026, en hora de Guayaquil y con enlace
   a la fuente. Cada evento muestra el nombre ancestral de la fase (Yana Killa, Wiñak killa,
   Pura killa, Wañuk killa, según el MSP) y las actividades que la guía recomienda para esa
@@ -74,11 +74,11 @@ fichas, carga repetida, guías, eventos en UTC y las pantallas de guía y calend
 
 | Historia | Estado al 27 de octubre | Pendiente |
 |---|---|---|
-| HU-05 | 18 fichas integradas en main, cada una con foto local, autor, licencia y fuentes. | Ejecutar CP-03. |
-| HU-06 | 13 guías completas con fuente. | Ejecutar CP-03. |
-| HU-07 | Calendario con 17 eventos verificados, hora local y recomendaciones. | Ejecutar CP-04. |
+| HU-005 | 18 fichas integradas en main, cada una con foto local, autor, licencia y fuentes. | Ejecutar CP-03. |
+| HU-006 | 13 guías completas con fuente. | Ejecutar CP-03. |
+| HU-007 | Calendario con 17 eventos verificados, hora local y recomendaciones. | Ejecutar CP-04. |
 
-Las otras historias (HU-01 a HU-04 y HU-08 a HU-12) se describen en los aportes de sus
+Las otras historias (HU-001 a HU-004 y HU-008 a HU-012) se describen en los aportes de sus
 módulos. Ninguna historia se declara aprobada antes de su caso de prueba formal.
 
 ## Limitaciones reales
