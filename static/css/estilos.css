@@ -489,6 +489,28 @@ a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
 .maestro-actual p { margin: 0 0 .3rem; }
 .motivo-maestro { font-style: italic; color: #46514c; }
 
+/* --- Mi huerto (huerto virtual) --------------------------------------- */
+
+.accesos-huerto { display: flex; flex-wrap: wrap; gap: .5rem; margin: -.75rem 0 1.25rem; }
+.accesos-huerto a { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .9rem; border: 1px solid var(--linea); border-radius: 999px; background: var(--superficie); font-size: .9rem; text-decoration: none; }
+.accesos-huerto a:hover { border-color: var(--bosque); background: var(--salvia-suave); text-decoration: none; }
+.accesos-huerto .icono { width: 18px; height: 18px; }
+.heroe-texto .boton .icono { width: 18px; height: 18px; }
+.heroe-imagen-hojas {
+  background-color: var(--bosque);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' fill='none' stroke='%23dfe5d3' stroke-opacity='.22' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M70 400C80 300 120 230 190 170'/%3E%3Cpath d='M120 270c-40-10-62-42-60-84 40 6 62 38 60 84Z'/%3E%3Cpath d='M150 220c10-42 44-66 88-62-8 42-42 64-88 62Z'/%3E%3Cpath d='M300 400c-6-90 10-170 60-240'/%3E%3Cpath d='M318 300c-34-14-50-46-42-84 34 12 50 44 42 84Z'/%3E%3C/svg%3E");
+  background-size: cover; background-position: center;
+}
+
+.contenido-dividido { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; margin-bottom: 1.5rem; }
+.rejilla-plantas { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+.columna-lateral { padding-left: 1.5rem; border-left: 1px solid var(--linea); }
+.columna-lateral .ayuda { margin-top: .75rem; }
+.fila-siguiente { align-items: flex-start; }
+.fila-siguiente .fila-texto a { width: fit-content; margin-top: .25rem; font-size: .85rem; }
+.resumen-icono-pequeno { width: 40px; height: 40px; }
+.resumen-icono-pequeno .icono { width: 20px; height: 20px; }
+
 /* --- Comunidad, huerto y materiales ----------------------------------- */
 
 .bloques { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
@@ -591,6 +613,8 @@ a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
   .opcion-menu .icono { width: 18px; height: 18px; }
   .contenido { padding: 1.75rem 1.25rem 3rem; }
   .heroe { grid-template-columns: 1fr 40%; }
+  .contenido-dividido { grid-template-columns: minmax(0, 1fr); }
+  .columna-lateral { padding-left: 0; border-left: 0; }
   .ficha { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
   .guia-detalles { grid-template-columns: minmax(0, 1fr); }
   .cuadricula-tres { grid-template-columns: minmax(0, 1fr); }
