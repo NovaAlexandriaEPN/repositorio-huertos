@@ -16,7 +16,7 @@ from . import servicios
 
 
 class RegistroActividadForm(forms.Form):
-    """Registro de una actividad (HU-08).
+    """Registro de una actividad (HU-008).
 
     El campo oculto `uuid` identifica este envío: si el formulario se envía dos veces,
     el servicio reconoce el mismo UUID y no duplica la actividad ni sus puntos.
@@ -72,7 +72,7 @@ class RegistroActividadForm(forms.Form):
 
 
 class AnulacionActividadForm(forms.Form):
-    """Motivo obligatorio para anular una actividad (HU-09)."""
+    """Motivo obligatorio para anular una actividad (HU-009)."""
 
     motivo = forms.CharField(
         label="Motivo de la anulación",
@@ -84,7 +84,7 @@ class AnulacionActividadForm(forms.Form):
 
 
 class NombramientoMaestroForm(forms.Form):
-    """Nombramiento o sustitución del Maestro del huerto (HU-11).
+    """Nombramiento o sustitución del Maestro del huerto (HU-011).
 
     Solo lista miembros con al menos 100 puntos. El campo oculto `maestro_esperado` guarda
     qué Maestro había al abrir el formulario, para detectar si otra persona lo cambió.

@@ -147,18 +147,18 @@ Estas doce historias y sus criterios constituyen la base de requisitos. No se ex
 
 | ID e historia | Criterios de aceptación |
 | --- | --- |
-| HU-01<br>Como persona usuaria, quiero registrarme y editar mi perfil para participar con mis datos. | Cuenta única, contraseña validada, consentimiento guardado; nacimiento válido y género visibles solo al titular. Los 14 años son un aviso, sin bloqueo. |
-| HU-02<br>Como miembro, quiero iniciar y cerrar sesión para acceder a mi comunidad. | Acceso con usuario y contraseña; páginas privadas protegidas y cierre por POST. |
-| HU-03<br>Como miembro, quiero crear una comunidad o unirme con código para trabajar con otras personas. | Una pertenencia por cuenta; creador responsable. Solo este edita nombre, tipo y contacto; no se transfiere el rol. |
-| HU-04<br>Como responsable, quiero configurar el huerto y elegir plantas para representar el cultivo. | Ubicación manual, área positiva, opciones válidas y una selección por especie; método e identidad protegidos si existe historial. |
-| HU-05<br>Como miembro, quiero consultar las plantas para conocer sus características y precauciones. | Las 18 fichas tienen los campos acordados, foto, licencia y fuentes; los datos no verificados se identifican. |
-| HU-06<br>Como miembro, quiero consultar la guía ancestral para realizar las actividades. | Los 13 tipos contienen instrucciones, materiales, precauciones y recomendaciones con fuente; se distinguen las restricciones obligatorias. |
-| HU-07<br>Como miembro, quiero consultar eventos lunares para organizar las actividades. | Tabla mensual local, hora de Guayaquil y fuente; sin fases diarias inventadas ni datos fuera del período cargado. |
-| HU-08<br>Como miembro, quiero registrar mis actividades para conservar lo realizado. | Actor de la sesión; fecha, estado y comunidad válidos. Se cumplen los plazos de 15 y 10 días y se controlan reenvíos. |
-| HU-09<br>Como responsable, quiero anular registros erróneos para corregir el historial. | Motivo, autor y fecha de anulación; orden inverso por planta, preparación protegida, diseño y ritual independientes; no se transfiere autoría. |
-| HU-10<br>Como miembro, quiero ver puntos, nivel y progreso para conocer el avance. | Recompensas sin duplicación, seis hitos, estado derivado y promedio de las plantas; anulaciones recalculan los valores afectados. |
-| HU-11<br>Como responsable, quiero nombrar a un maestro para reconocer quién puede guiar la siembra. | Como máximo uno, de la comunidad y con al menos 100 puntos; motivo, autor y fecha. Sustitución y retiro si baja de 100; 300 no nombra automáticamente. |
-| HU-12<br>Como miembro, quiero marcar los materiales disponibles para coordinar su uso. | Lista recomendada y marcas compartidas persistentes, limitadas a la comunidad; sin cantidades ni compras. |
+| HU-001<br>Como persona usuaria, quiero registrarme y editar mi perfil para participar con mis datos. | Cuenta única, contraseña validada, consentimiento guardado; nacimiento válido y género visibles solo al titular. Los 14 años son un aviso, sin bloqueo. |
+| HU-002<br>Como miembro, quiero iniciar y cerrar sesión para acceder a mi comunidad. | Acceso con usuario y contraseña; páginas privadas protegidas y cierre por POST. |
+| HU-003<br>Como miembro, quiero crear una comunidad o unirme con código para trabajar con otras personas. | Una pertenencia por cuenta; creador responsable. Solo este edita nombre, tipo y contacto; no se transfiere el rol. |
+| HU-004<br>Como responsable, quiero configurar el huerto y elegir plantas para representar el cultivo. | Ubicación manual, área positiva, opciones válidas y una selección por especie; método e identidad protegidos si existe historial. |
+| HU-005<br>Como miembro, quiero consultar las plantas para conocer sus características y precauciones. | Las 18 fichas tienen los campos acordados, foto, licencia y fuentes; los datos no verificados se identifican. |
+| HU-006<br>Como miembro, quiero consultar la guía ancestral para realizar las actividades. | Los 13 tipos contienen instrucciones, materiales, precauciones y recomendaciones con fuente; se distinguen las restricciones obligatorias. |
+| HU-007<br>Como miembro, quiero consultar eventos lunares para organizar las actividades. | Tabla mensual local, hora de Guayaquil y fuente; sin fases diarias inventadas ni datos fuera del período cargado. |
+| HU-008<br>Como miembro, quiero registrar mis actividades para conservar lo realizado. | Actor de la sesión; fecha, estado y comunidad válidos. Se cumplen los plazos de 15 y 10 días y se controlan reenvíos. |
+| HU-009<br>Como responsable, quiero anular registros erróneos para corregir el historial. | Motivo, autor y fecha de anulación; orden inverso por planta, preparación protegida, diseño y ritual independientes; no se transfiere autoría. |
+| HU-010<br>Como miembro, quiero ver puntos, nivel y progreso para conocer el avance. | Recompensas sin duplicación, seis hitos, estado derivado y promedio de las plantas; anulaciones recalculan los valores afectados. |
+| HU-011<br>Como responsable, quiero nombrar a un maestro para reconocer quién puede guiar la siembra. | Como máximo uno, de la comunidad y con al menos 100 puntos; motivo, autor y fecha. Sustitución y retiro si baja de 100; 300 no nombra automáticamente. |
+| HU-012<br>Como miembro, quiero marcar los materiales disponibles para coordinar su uso. | Lista recomendada y marcas compartidas persistentes, limitadas a la comunidad; sin cantidades ni compras. |
 
 ## Entregables de la versión 1
 

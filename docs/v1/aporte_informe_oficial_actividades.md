@@ -2,7 +2,7 @@
 
 Texto actualizado el 25 de octubre de 2026 para incorporar al informe V1.
 La entrega inicial de Fernando se integró y corrigió en bryan contra el alcance acordado.
-Historias: HU-08 a HU-11. Las pruebas formales CP-05 a CP-08 quedan para noviembre.
+Historias: HU-008 a HU-011. Las pruebas formales CP-05 a CP-08 quedan para noviembre.
 
 El módulo actividades registra las tres labores generales del huerto y diez por planta.
 Las vistas reciben formularios propios y llaman a servicios. Actividad referencia el

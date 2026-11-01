@@ -19,13 +19,13 @@ Las pantallas solo muestran lo que entregan las vistas. Puntos, nivel, estado de
 
 | Historias | Pantallas |
 |---|---|
-| HU-01, HU-02 | Crear cuenta, iniciar sesión y perfil |
-| HU-03, HU-04 | Mi comunidad, crear, unirse y editar; plantas del huerto, configurar huerto, elegir, cambiar método y retirar especie |
-| HU-05, HU-06 | Catálogo, ficha de planta y guía de actividades |
-| HU-07 | Calendario lunar en hora de Guayaquil, con vista del mes y tabla de fases |
-| HU-08 a HU-11 | Registrar actividad, historial, anular y nombrar Maestro |
-| HU-10 | Mi huerto: tarjetas con estado, porcentaje y siguiente acción; avance del huerto, nivel, Maestro y puntos por miembro |
-| HU-12 | Materiales compartidos con su marca de disponibilidad |
+| HU-001, HU-002 | Crear cuenta, iniciar sesión y perfil |
+| HU-003, HU-004 | Mi comunidad, crear, unirse y editar; plantas del huerto, configurar huerto, elegir, cambiar método y retirar especie |
+| HU-005, HU-006 | Catálogo, ficha de planta y guía de actividades |
+| HU-007 | Calendario lunar en hora de Guayaquil, con vista del mes y tabla de fases |
+| HU-008 a HU-011 | Registrar actividad, historial, anular y nombrar Maestro |
+| HU-010 | Mi huerto: tarjetas con estado, porcentaje y siguiente acción; avance del huerto, nivel, Maestro y puntos por miembro |
+| HU-012 | Materiales compartidos con su marca de disponibilidad |
 
 Todas se leen en un ancho de celular de 375 px sin desplazamiento lateral, y los estados y niveles siempre tienen texto, no solo color.
 

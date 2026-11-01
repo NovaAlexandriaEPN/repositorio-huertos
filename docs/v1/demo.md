@@ -78,7 +78,7 @@ El sistema funciona sin internet. Tiempo disponible: `{{DURACION_TOTAL}}`.
 Explicar en una frase qué hace la aplicación: configurar un huerto medicinal comunitario,
 consultar saberes ancestrales, registrar actividades y observar plantas, puntos y niveles.
 
-### 2. Cuenta y comunidad · `{{PRESENTA_2}}` · HU-01 a HU-03
+### 2. Cuenta y comunidad · `{{PRESENTA_2}}` · HU-001 a HU-003
 
 1. En la tercera ventana, todavía sin sesión, abrir **Crear cuenta** y señalar el aviso de datos
    y su aceptación.
@@ -86,13 +86,13 @@ consultar saberes ancestrales, registrar actividades y observar plantas, puntos 
    código de invitación.
 3. Abrir el perfil y explicar que nacimiento y género solo los ve su titular.
 
-### 3. Huerto y materiales · `{{PRESENTA_3}}` · HU-04 y HU-12
+### 3. Huerto y materiales · `{{PRESENTA_3}}` · HU-004 y HU-012
 
 1. Con el responsable, abrir **Plantas del huerto** y mostrar la configuración y las especies elegidas.
 2. Con `{{USUARIO_PARTICIPANTE}}`, abrir **Materiales** y marcar `{{MATERIAL_DEMO}}` como disponible.
 3. Con el responsable, recargar **Materiales** y comprobar que aparece **Disponible**.
 
-### 4. Catálogo, guía y calendario · `{{PRESENTA_4}}` · HU-05 a HU-07
+### 4. Catálogo, guía y calendario · `{{PRESENTA_4}}` · HU-005 a HU-007
 
 1. Abrir **Catálogo** y la ficha de lavanda. Señalar la foto con su crédito, las fuentes y el
    dato **No verificado** en la cualidad ancestral.
@@ -100,7 +100,7 @@ consultar saberes ancestrales, registrar actividades y observar plantas, puntos 
 3. Abrir **Calendario**, ir a diciembre con la fecha de referencia 2026-12-08 y mostrar que la
    luna nueva de las 00:52 UTC del día 9 aparece el 8 a las 19:52 en Guayaquil.
 
-### 5. Actividades y reglas · `{{PRESENTA_5}}` · HU-08 y HU-10
+### 5. Actividades y reglas · `{{PRESENTA_5}}` · HU-008 y HU-010
 
 Con `{{USUARIO_PARTICIPANTE}}`:
 
@@ -112,7 +112,7 @@ Con `{{USUARIO_PARTICIPANTE}}`:
 4. Volver a **Mi huerto**: la planta pasa a **Sembrada**, el avance sube y el participante gana
    15 puntos.
 
-### 6. Anulación y maestro · `{{PRESENTA_6}}` · HU-09 y HU-11
+### 6. Anulación y maestro · `{{PRESENTA_6}}` · HU-009 y HU-011
 
 Con `{{USUARIO_RESPONSABLE}}`:
 
@@ -122,7 +122,7 @@ Con `{{USUARIO_RESPONSABLE}}`:
 3. Abrir **Mi huerto**, pulsar **Nombrar Maestro**, elegir al participante y escribir el motivo.
 4. Explicar que maestro es un reconocimiento: no da permisos de administración.
 
-### 7. Protección de datos · HU-08
+### 7. Protección de datos · HU-008
 
 Con `{{USUARIO_AJENO}}`, abrir `http://127.0.0.1:8000/actividades/{{ID_HUERTO_A}}/`. El sistema
 responde **403**: un huerto de otra comunidad no se puede consultar cambiando la dirección.
