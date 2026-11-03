@@ -360,7 +360,7 @@ Cada aplicación incluye además `__init__.py`, `apps.py` y `migrations/`.
 
 ## 9. Base de datos de demostración
 
-# 9.1. Respaldar la base de datos de trabajo
+### 9.1. Respaldar la base de datos de trabajo
 
 Antes de ejecutar cambios importantes en el proyecto o preparar el escenario de demostración, se recomienda crear una copia de seguridad de la base de datos de trabajo (db.sqlite3). Esto permite recuperar la información registrada en caso de que ocurra algún problema durante las pruebas.
 
@@ -389,7 +389,7 @@ copias/
 
 - No subir a Git bases de datos que contengan información personal o real del proyecto.
 
-# 9.2. Preparar la base de datos de demostración
+### 9.2. Preparar la base de datos de demostración
 
 El proyecto incluye un escenario ficticio para presentar las funcionalidades de la versión 1. Este contiene dos comunidades, cuatro cuentas, dos huertos, actividades registradas de un ciclo avanzado y un participante nombrado Maestro.
 
