@@ -15,16 +15,15 @@ Proyecto de **Calidad de Software (ISWD652, período 2026B)**.
 
 ## Estado actual del proyecto
 
-Estado al 1 de noviembre de 2026. `main` integra el trabajo de todo el equipo y las doce
-historias de usuario están implementadas.
+## Estado actual del proyecto
 
-La carga nueva contiene **18 fichas**, **13 guías**, **23 opciones**, **18 materiales** y
-**17 eventos lunares**. Las 188 pruebas automáticas pasan; son comprobaciones de desarrollo y
-no sustituyen a los casos formales.
+Estado al 2 de noviembre de 2026. `main` integra el trabajo de todo el equipo y las doce historias de usuario están implementadas.
 
-Pendiente: la base ficticia de demo, la ejecución de los casos CP-01 a CP-10 y la instalación
-en otro computador. Algunos datos de las fichas siguen marcados como «No verificado» porque
-no tienen fuente, y la aplicación los muestra así.
+La carga del catálogo contiene **18 fichas**, **13 guías**, **23 opciones**, **18 materiales** y **17 eventos lunares**. Las 188 pruebas automáticas pasan; son comprobaciones de desarrollo y no sustituyen a los casos formales.
+
+El escenario ficticio de demostración está preparado mediante `scripts/crear_demo.py`. Incluye dos comunidades, cuatro cuentas ficticias, dos huertos, actividades de un ciclo avanzado y un participante nombrado Maestro. La copia de la base se mantiene fuera de Git.
+
+Pendiente: la ejecución formal de los casos CP-01 a CP-10, el registro de sus resultados y la instalación en otro computador. Algunos datos de las fichas siguen marcados como «No verificado» porque no tienen fuente, y la aplicación los muestra así.
 
 ---
 
@@ -190,18 +189,86 @@ if (-not $env:DJANGO_SECRET_KEY) { throw 'Configura la clave siguiendo la secci�
 
 ## 5. Pruebas
 
+Las pruebas del proyecto se dividen en dos grupos:
+
+- **Pruebas automatizadas:** comprueban las reglas y el comportamiento de los módulos mediante Django `TestCase`.
+- **Pruebas manuales:** permiten verificar el funcionamiento desde el navegador siguiendo los casos CP-01 a CP-10.
+
+### 5.1 Comprobaciones previas
+
+Desde PowerShell, dentro de la carpeta del repositorio:
+
 ```powershell
-& .\.venv\Scripts\python.exe manage.py test                 # todas las aplicaciones
-& .\.venv\Scripts\python.exe manage.py test cuentas         # una sola aplicación
-& .\.venv\Scripts\python.exe manage.py test -v 2            # salida detallada
+# Comprobar la configuración del proyecto
+& .\.venv\Scripts\python.exe manage.py check
+
+# Verificar las dependencias instaladas
+& .\.venv\Scripts\python.exe -m pip check
+
+# Aplicar migraciones pendientes
+& .\.venv\Scripts\python.exe manage.py migrate
+
+# Verificar o cargar los datos del catálogo
+& .\.venv\Scripts\python.exe manage.py cargar_catalogo
 ```
 
-Las pruebas usan una base temporal; no modifican `db.sqlite3`. Cubren el ciclo de las trece
-actividades, privacidad, permisos, plazos, reenvíos, anulaciones, progreso, maestro y la carga
-del catálogo.
+### 5.2 Ejecutar las pruebas automatizadas
 
-Los casos manuales (CP-01 a CP-10) y sus resultados reales se registran en
-[`docs/v1/resultados.md`](docs/v1/resultados.md).
+```powershell
+# Ejecutar todas las pruebas
+& .\.venv\Scripts\python.exe manage.py test
+
+# Ejecutar las pruebas de una aplicación
+& .\.venv\Scripts\python.exe manage.py test cuentas
+
+# Mostrar información detallada
+& .\.venv\Scripts\python.exe manage.py test -v 2
+```
+
+Las pruebas automatizadas utilizan una base de datos temporal de Django, por lo que no modifican `db.sqlite3`.
+
+### 5.3 Preparar el escenario de demostración
+
+Para generar los datos ficticios, primero se debe contar con una base preparada mediante las migraciones y la carga del catálogo.
+
+```powershell
+& .\.venv\Scripts\python.exe manage.py migrate
+& .\.venv\Scripts\python.exe manage.py cargar_catalogo
+```
+
+Después, ejecutar el script:
+
+```powershell
+Get-Content -Raw .\scripts\crear_demo.py |
+    & .\.venv\Scripts\python.exe manage.py shell
+```
+
+El script comprueba las condiciones necesarias antes de crear el escenario. Debe ejecutarse una sola vez sobre una base preparada que todavía no contenga las cuentas ficticias.
+
+El escenario se crea en `db.sqlite3` y se genera una copia en `copias/demo_huertos.sqlite3`. Ambos archivos son locales y no deben subirse a Git.
+
+Para consultar las cuentas y el recorrido de demostración, revisar [`docs/v1/demo.md`](docs/v1/demo.md).
+
+### 5.4 Ejecutar las pruebas manuales
+
+Levantar el servidor:
+
+```powershell
+& .\.venv\Scripts\python.exe manage.py runserver
+```
+
+Abrir <http://127.0.0.1:8000/> y ejecutar los casos siguiendo las instrucciones de `docs/v1/resultados.md`.
+
+Cada ejecutor debe registrar:
+
+- Identificador del caso de prueba.
+- Resultado obtenido: aprobado, fallido o bloqueado.
+- Evidencia, como captura de pantalla o salida de consola.
+- Observaciones y defectos encontrados.
+
+La ejecución formal está prevista del 1 al 9, según la planificación del equipo. Hasta que se realice, los casos deben permanecer como pendientes y no se deben presentar resultados como comprobados.
+
+Los resultados se registran en [`docs/v1/resultados.md`](docs/v1/resultados.md).
 
 ## 6. Arquitectura
 
@@ -253,6 +320,8 @@ repositorio-huertos/
     |-- aprendizaje/         # guías internas de implementación
     `-- v1/                  # alcance, arquitectura, plan, resultados y guion de demo
         `-- diseno/          # diseño de la interfaz, bocetos y diagramas
+|-- scripts/                 # Preparación del escenario ficticio de demostración
+|   `-- crear_demo.py
 ```
 
 Cada aplicación incluye además `__init__.py`, `apps.py` y `migrations/`.
@@ -291,23 +360,72 @@ Cada aplicación incluye además `__init__.py`, `apps.py` y `migrations/`.
 
 ## 9. Base de datos de demostración
 
-La base ficticia, con un ciclo avanzado y dos comunidades, **está pendiente** y se guardará
-fuera de Git. Las pruebas automáticas crean sus propios datos y no preparan esa base. El
-recorrido y los datos que debe tener están en [`docs/v1/demo.md`](docs/v1/demo.md).
+### 9.1. Respaldar la base de datos de trabajo
 
-Para usarla, detén el servidor y ejecuta desde el repositorio:
+Antes de ejecutar cambios importantes en el proyecto o preparar el escenario de demostración, se recomienda crear una copia de seguridad de la base de datos de trabajo (db.sqlite3). Esto permite recuperar la información registrada en caso de que ocurra algún problema durante las pruebas.
+
+Para crear el respaldo desde PowerShell, primero detenga el servidor Django y ejecute los siguientes comandos:
 
 ```powershell
-# Respaldar tu base de trabajo
-$respaldoHuertos = 'db_trabajo_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.sqlite3'
-Copy-Item -LiteralPath db.sqlite3 -Destination $respaldoHuertos
-
-# Usar una copia de la base de demo (cambia <ruta> por su ubicación)
-Copy-Item -LiteralPath <ruta>\db_demo.sqlite3 -Destination db.sqlite3
-& .\.venv\Scripts\python.exe manage.py runserver
+New-Item -ItemType Directory -Force -Path .\copias
+Copy-Item .\db.sqlite3 ".\copias\db_respaldo_$(Get-Date -Format 'yyyyMMdd_HHmmss').sqlite3"
 ```
 
-Trabaja siempre sobre una copia: el recorrido de la demo modifica la base.
+El respaldo se guardará dentro de la carpeta copias/, con la fecha y hora en el nombre del archivo. Por ejemplo:
+
+```text
+copias/
+├── db_respaldo_20261102_193000.sqlite3
+└── demo_huertos.sqlite3
+```
+
+**Recomendaciones:**
+
+- Realizar un respaldo antes de ejecutar scripts que modifiquen los datos o preparar el escenario de demostración.
+
+- No modificar ni eliminar los respaldos originales hasta comprobar que la base de trabajo funciona correctamente.
+
+- La carpeta copias/ está excluida de Git, por lo que los respaldos permanecen únicamente en el equipo de cada integrante.
+
+- No subir a Git bases de datos que contengan información personal o real del proyecto.
+
+### 9.2. Preparar la base de datos de demostración
+
+El proyecto incluye un escenario ficticio para presentar las funcionalidades de la versión 1. Este contiene dos comunidades, cuatro cuentas, dos huertos, actividades registradas de un ciclo avanzado y un participante nombrado Maestro.
+
+La preparación se realiza mediante scripts/crear_demo.py. Cada integrante puede generar el escenario en su propia base de datos siguiendo estos pasos:
+
+Instalar las dependencias y configurar DJANGO_SECRET_KEY según las secciones anteriores.
+
+Aplicar las migraciones.
+
+Cargar el catálogo.
+
+Ejecutar el script de demostración.
+
+```powershell
+& .\.venv\Scripts\python.exe manage.py migrate
+& .\.venv\Scripts\python.exe manage.py cargar_catalogo
+
+Get-Content -Raw .\scripts\crear_demo.py |
+    & .\.venv\Scripts\python.exe manage.py shell
+```
+
+El script crea los datos ficticios en db.sqlite3 y genera una copia de respaldo en copias/demo_huertos.sqlite3.
+
+**Importante:**
+
+- Ejecutar el script una sola vez sobre una base preparada que no tenga las cuentas ficticias.
+
+- Si las cuentas ya existen, el script se detiene para evitar duplicar el escenario.
+
+- La base de demostración y sus copias se mantienen fuera de Git.
+
+- Se recomienda respaldar la base de trabajo antes de preparar el escenario.
+
+- El recorrido de demostración puede modificar los datos, por lo que se recomienda trabajar sobre una copia.
+
+Para consultar las cuentas y el recorrido de demostración, revisar [`docs/v1/demo.md`](docs/v1/demo.md).
 
 ## 10. Documentación
 
