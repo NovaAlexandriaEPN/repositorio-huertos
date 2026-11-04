@@ -2,7 +2,7 @@
 
 ## Organización del código
 
-La aplicación utiliza Python 3.13.14, Django 5.2.18 y SQLite. El servidor recibe solicitudes del navegador, aplica las reglas del producto y devuelve páginas HTML. La interfaz implementada usa plantillas Django y CSS local. Bootstrap 5.3 permanece previsto para la presentación.
+La aplicación utiliza Python 3.13.14, Django 5.2.18 y SQLite. El servidor recibe solicitudes del navegador, aplica las reglas del producto y devuelve páginas HTML. La interfaz usa plantillas Django, Bootstrap 5.3.8 incluido en el repositorio y CSS propio.
 
 Se conserva la arquitectura de una sola aplicación con cuatro módulos: `cuentas`, `catalogo`, `comunidades` y `actividades`. `cuentas` gestiona la identidad y el perfil. `comunidades` utiliza esa identidad y las referencias del catálogo para organizar los grupos y sus huertos. El registro de actividades se integra sobre los modelos compartidos de esos módulos.
 
@@ -36,7 +36,7 @@ El huerto se crea al completar su primera configuración válida. Guarda provinc
 
 Una especie se puede elegir una sola vez por huerto y distintas comunidades pueden elegirla de manera independiente. La selección apunta a la ficha del catálogo y no la duplica. Su método de siembra puede cambiarse o la selección puede retirarse únicamente mientras no tenga historial. Retirar la selección conserva la ficha del catálogo.
 
-`PlantaHuerto.tiene_historial` consulta todos los registros relacionados, incluidas actividades anuladas. El modelo rechaza cambiar el método con historial y los servicios bloquean tanto ese cambio como el retiro. El campo `Actividad.planta` apunta a `PlantaHuerto`, usar `PROTECT` y declarar `related_name="actividades"`. El contrato permite las actividades generales mediante una referencia opcional. Una comprobación registrada en Django informa `comunidades.E001` si el modelo de actividades no cumple esa relación. Esta conexión utiliza el registro de aplicaciones y la relación inversa, sin importar `actividades.models` desde comunidades.
+`PlantaHuerto.tiene_historial` consulta todos los registros relacionados, incluidas actividades anuladas. El modelo rechaza cambiar el método con historial y los servicios bloquean tanto ese cambio como el retiro. El campo `Actividad.planta` apunta a `PlantaHuerto`, usa `PROTECT` y declara `related_name="actividades"`. El contrato permite las actividades generales mediante una referencia opcional. Una comprobación registrada en Django informa `comunidades.E001` si el modelo de actividades no cumple esa relación. Esta conexión utiliza el registro de aplicaciones y la relación inversa, sin importar `actividades.models` desde comunidades.
 
 ## Permisos y materiales compartidos
 
@@ -74,10 +74,12 @@ Las pruebas de `cuentas/tests.py` y `comunidades/tests.py` comprueban privacidad
 El 24 de octubre de 2026 se verificó una copia temporal de las fuentes `c9e7747` en el mismo computador de desarrollo. Un entorno virtual nuevo instaló las dependencias fijadas y completó las migraciones sobre una base vacía. Las 122 pruebas descubiertas por `manage.py test` terminaron con resultado `OK`. Un servidor WSGI local respondió correctamente para acceso, registro y CSS y redirigió al acceso cuando se solicitó la entrada privada. La revisión de instalación en otro computador permanece pendiente.
 
 La protección de historial se verifica con una tabla temporal que contiene registros activos y anulados. La comprobación incluye el modelo, los servicios y los envíos de formularios abiertos antes de que se registrara la actividad. La integración con Actividad ya se comprueba también con registros y anulaciones reales.
-La suite integrada actual contiene 167 pruebas con resultado OK; véase `integracion_equipo.md`.
+El 3 de noviembre de 2026 pasaron las 188 pruebas automáticas de la versión integrada. En una base temporal y con CSRF activo se revisaron el registro y la privacidad (CP-01), la pertenencia, los permisos y el historial del huerto (CP-02) y las marcas compartidas de materiales (CP-09). Un POST con un material incompatible recibió HTTP 404 y conservó las marcas. La ejecución formal de cada caso se registra en [resultados.md](resultados.md).
 
 ## Estado de integración
 
-La implementación de cuentas y comunidades está disponible en `bryan`. La base compartida en main conserva actividades corregidas, las seis fichas de Juan, el diseño de Doménica y la entrega de Matthew: seis fichas adicionales, guía ampliada, materiales y eventos lunares. Permanecen pendientes seis fichas, las fotos y atributos señalados como no verificados y los casos formales. El producto conserva el requisito de las 18 especies. Las pruebas emplean contenido ficticio en su base temporal y no completan las fichas ni preparan la base de demo.
+La implementación de cuentas y comunidades está integrada en la base compartida. El catálogo incluye 18 fichas con sus fotos, 13 guías de actividades, opciones del huerto, materiales y eventos lunares. La demo usa cuentas y registros ficticios y mantiene su respaldo fuera de Git.
 
-La estructura de módulos, los modelos compartidos y los contratos de formulario y plantilla se mantienen según la arquitectura acordada. La incorporación de estas pruebas y de las instrucciones de arranque no requiere modificar esa arquitectura. El informe final deberá incorporar los resultados formales y el recorrido completo cuando estén disponibles las entregas del equipo.
+En Windows se corrigió el respaldo de la demo cerrando las conexiones a SQLite antes de reemplazar el archivo. El README ejecuta el guion completo como archivo. En una instalación limpia del mismo computador se aplicaron las migraciones, se cargó dos veces el catálogo y se verificó que la segunda carga añadió cero registros. El respaldo `copias/demo_huertos.sqlite3` pasó la comprobación de integridad y los datos se conservaron al reiniciar el servidor.
+
+La corrección conserva los módulos, los modelos y los contratos de la arquitectura acordada. El cierre del informe incorpora los resultados de los ejecutores y la comprobación en otro computador.

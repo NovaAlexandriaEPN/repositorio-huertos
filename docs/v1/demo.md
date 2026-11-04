@@ -62,9 +62,17 @@ scripts/crear_demo.py
 
 Para ejecutarlo desde la raíz del proyecto:
 
-\`\`\`bash
-.venv/bin/python manage.py shell < scripts/crear_demo.py
-\`\`\`
+En Windows (PowerShell):
+
+```powershell
+& .\.venv\Scripts\python.exe manage.py shell -c "import runpy; runpy.run_path('scripts/crear_demo.py', run_name='__main__')"
+```
+
+En Linux o macOS:
+
+```bash
+.venv/bin/python manage.py shell -c "import runpy; runpy.run_path('scripts/crear_demo.py', run_name='__main__')"
+```
 
 El script realiza las siguientes comprobaciones antes de crear información:
 
