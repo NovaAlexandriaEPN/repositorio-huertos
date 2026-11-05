@@ -24,14 +24,10 @@ def _texto_error(error: ValidationError) -> str:
 
 @require_GET
 def mi_huerto(request):
-    """Lleva al Huerto Virtual de la comunidad del usuario.
-
-    Si todavía no pertenece a una comunidad con huerto configurado, lo indica y vuelve al perfil.
-    """
+    """Abre el huerto virtual o guía a la cuenta hacia su configuración inicial."""
     huerto = servicios.huerto_del_usuario(request.user)
     if huerto is None:
-        messages.info(request, "Tu comunidad todavía no tiene un huerto configurado.")
-        return redirect("cuentas:perfil")
+        return redirect("comunidades:mi_huerto")
     return redirect("actividades:inicio_huerto_virtual", huerto_id=huerto.pk)
 
 

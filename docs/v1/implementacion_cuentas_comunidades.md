@@ -67,7 +67,7 @@ El [README](../../README.md) contiene los pasos de clonación de `main` y trabaj
 & .\.venv\Scripts\python.exe manage.py runserver
 ```
 
-La dirección `http://127.0.0.1:8000/` exige sesión y lleva a la comunidad de la persona conectada. El menú vincula perfil, comunidad y huerto. Desde el huerto se accede a la selección de especies y los materiales compartidos.
+La dirección `http://127.0.0.1:8000/` exige sesión y abre Mi huerto si ya está configurado. Una cuenta sin comunidad ve las opciones para crear una o unirse. Si la comunidad aún no tiene huerto, la aplicación muestra el paso de configuración. El menú vincula perfil, comunidad y huerto. Desde el huerto se accede a la selección de especies y los materiales compartidos.
 
 Las pruebas de `cuentas/tests.py` y `comunidades/tests.py` comprueban privacidad, pertenencia única, autorización, configuración, selección y disponibilidad compartida. El recorrido integrado registra dos cuentas, inicia sus sesiones y conecta comunidad, huerto, plantas y materiales en una misma base temporal con CSRF activo. Las comprobaciones de desarrollo no registran una ejecución formal de los casos del curso.
 

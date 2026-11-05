@@ -317,6 +317,7 @@ class SesionesTests(TestCase):
     def setUp(self):
         self.url_login = reverse("cuentas:login")
         self.url_perfil = reverse("cuentas:perfil")
+        self.url_huerto = reverse("actividades:mi_huerto")
         self.url_logout = reverse("cuentas:logout")
 
     def test_login_publico_muestra_formulario_sin_datos_personales(self):
@@ -338,7 +339,7 @@ class SesionesTests(TestCase):
             {"username": self.usuario.username, "password": self.password},
         )
 
-        self.assertRedirects(respuesta, self.url_perfil)
+        self.assertRedirects(respuesta, self.url_huerto, fetch_redirect_response=False)
         self.assertEqual(self.client.session[SESSION_KEY], str(self.usuario.pk))
         self.assertNotEqual(self.client.session.session_key, clave_previa)
         perfil = self.client.get(self.url_perfil)
@@ -402,7 +403,7 @@ class SesionesTests(TestCase):
                 )
 
                 self.assertEqual(respuesta.status_code, 302)
-                self.assertEqual(respuesta["Location"], self.url_perfil)
+                self.assertEqual(respuesta["Location"], self.url_huerto)
 
     def test_cuenta_con_sesion_no_vuelve_a_registrarse_ni_cambia_de_identidad(self):
         self.client.force_login(self.usuario)
@@ -411,7 +412,7 @@ class SesionesTests(TestCase):
                 with self.subTest(url=url, metodo=metodo.__name__):
                     respuesta = metodo(url)
 
-                    self.assertRedirects(respuesta, self.url_perfil)
+                    self.assertRedirects(respuesta, self.url_huerto, fetch_redirect_response=False)
                     self.assertEqual(self.client.session[SESSION_KEY], str(self.usuario.pk))
                     self.assertEqual(Usuario.objects.count(), 2)
 
@@ -442,7 +443,7 @@ class SesionesTests(TestCase):
             self.url_login,
             {**credenciales, "csrfmiddlewaretoken": pagina.context["csrf_token"]},
         )
-        self.assertRedirects(entrada, self.url_perfil)
+        self.assertRedirects(entrada, self.url_huerto, fetch_redirect_response=False)
 
         perfil = cliente.get(self.url_perfil)
         datos = {
