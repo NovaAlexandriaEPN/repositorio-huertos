@@ -2,7 +2,7 @@
 Crea un escenario ficticio para demostrar el sistema de huertos medicinales.
 
 Ejecución desde la raíz del proyecto:
-    .venv/bin/python manage.py shell < scripts/crear_demo.py
+    .venv/bin/python manage.py shell -c "import runpy; runpy.run_path('scripts/crear_demo.py', run_name='__main__')"
 
 El script no elimina ni modifica datos preexistentes. Si detecta alguna cuenta
 o comunidad del escenario, se detiene antes de comenzar.
@@ -11,6 +11,7 @@ La creación de los datos se realiza dentro de una transacción. La copia de
 seguridad se genera después de confirmar la transacción.
 """
 
+from contextlib import closing
 from datetime import date, timedelta
 from pathlib import Path
 import os
@@ -332,12 +333,12 @@ def crear_copia_sqlite():
     temporal = Path(nombre_temporal)
 
     try:
-        with sqlite3.connect(str(ruta_bd)) as origen:
-            with sqlite3.connect(str(temporal)) as copia:
+        with closing(sqlite3.connect(str(ruta_bd))) as origen:
+            with closing(sqlite3.connect(str(temporal))) as copia:
                 origen.backup(copia)
 
         # Verificar la integridad de la copia.
-        with sqlite3.connect(str(temporal)) as copia:
+        with closing(sqlite3.connect(str(temporal))) as copia:
             resultado = copia.execute(
                 "PRAGMA integrity_check"
             ).fetchone()[0]

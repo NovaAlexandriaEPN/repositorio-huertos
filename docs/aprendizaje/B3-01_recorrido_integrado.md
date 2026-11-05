@@ -2,15 +2,15 @@
 
 ## Qué se conectó
 
-La aplicación tiene una entrada en `/`, que lleva a la comunidad de la cuenta identificada por la sesión. Antes esa dirección no tenía una ruta.
+La entrada `/` abre Mi huerto. Las cuentas nuevas llegan a Mi comunidad para crear una o unirse con un código.
 
 El menú permite ir a perfil, comunidad y huerto. El perfil incluye **Continuar a mi comunidad**. Las plantillas usan nombres de rutas reales mediante `{% url ... %}`; no necesitan escribir direcciones distintas a las del servidor.
 
 El recorrido es:
 
 ```text
-Registro → Inicio de sesión → Perfil → Mi comunidad
-                                          │
+Registro → Inicio de sesión → Mi comunidad
+                                  │
                        Crear comunidad o unirse con código
                                           ↓
                              Mi huerto → Configurar
@@ -65,7 +65,7 @@ Esta documentación prepara la integración técnica; no sustituye una revisión
 
 ## Cómo leer la conexión desde Python
 
-En `huertos/urls.py`, la ruta vacía selecciona `huertos.views.inicio`. Esa vista redirige a `comunidades:mi_comunidad`. El middleware de Django exige sesión y la vista de comunidad obtiene la pertenencia desde `request.user`.
+En `huertos/urls.py`, la ruta vacía selecciona `huertos.views.inicio`. Esa vista redirige a `actividades:mi_huerto`, que busca el huerto asociado a la cuenta. El middleware de Django exige sesión y la vista de comunidad obtiene la pertenencia desde `request.user`.
 
 `request.user` es la conexión entre iniciar sesión y trabajar en una comunidad. No hay que pedir nuevamente el nombre ni aceptar un ID de usuario del formulario para averiguar quién actúa.
 

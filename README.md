@@ -239,8 +239,7 @@ Para generar los datos ficticios, primero se debe contar con una base preparada 
 Después, ejecutar el script:
 
 ```powershell
-Get-Content -Raw .\scripts\crear_demo.py |
-    & .\.venv\Scripts\python.exe manage.py shell
+& .\.venv\Scripts\python.exe manage.py shell -c "import runpy; runpy.run_path('scripts/crear_demo.py', run_name='__main__')"
 ```
 
 El script comprueba las condiciones necesarias antes de crear el escenario. Debe ejecutarse una sola vez sobre una base preparada que todavía no contenga las cuentas ficticias.
@@ -407,8 +406,7 @@ Ejecutar el script de demostración.
 & .\.venv\Scripts\python.exe manage.py migrate
 & .\.venv\Scripts\python.exe manage.py cargar_catalogo
 
-Get-Content -Raw .\scripts\crear_demo.py |
-    & .\.venv\Scripts\python.exe manage.py shell
+& .\.venv\Scripts\python.exe manage.py shell -c "import runpy; runpy.run_path('scripts/crear_demo.py', run_name='__main__')"
 ```
 
 El script crea los datos ficticios en db.sqlite3 y genera una copia de respaldo en copias/demo_huertos.sqlite3.

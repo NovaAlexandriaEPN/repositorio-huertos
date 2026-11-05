@@ -118,7 +118,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LOGIN_URL = 'cuentas:login'
-LOGIN_REDIRECT_URL = 'cuentas:perfil'
+LOGIN_REDIRECT_URL = 'actividades:mi_huerto'
 LOGOUT_REDIRECT_URL = 'cuentas:login'
 
 

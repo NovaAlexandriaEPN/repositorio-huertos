@@ -1134,7 +1134,8 @@ class RecorridoInicialIntegradoTests(TestCase):
         response = self.enviar(cliente, reverse("cuentas:login"), {
             "username": username, "password": clave_prueba,
         })
-        self.assertRedirects(response, reverse("cuentas:perfil"))
+        self.assertRedirects(response, reverse("actividades:mi_huerto"), fetch_redirect_response=False)
+        self.assertTemplateUsed(cliente.get(response.url, follow=True), "comunidades/mi_comunidad.html")
         return Usuario.objects.get(username=username)
 
     def test_recorrido_completo_registro_sesion_comunidad_huerto_y_seleccion(self):
@@ -1143,7 +1144,7 @@ class RecorridoInicialIntegradoTests(TestCase):
         ana = self.registrar_y_entrar(responsable, "ana_recorrido")
         perfil = responsable.get(reverse("cuentas:perfil"))
         self.assertContains(perfil, "Continuar a mi comunidad")
-        self.assertRedirects(responsable.get(reverse("inicio")), reverse("comunidades:mi_comunidad"))
+        self.assertTemplateUsed(responsable.get(reverse("inicio"), follow=True), "comunidades/mi_comunidad.html")
         response = self.enviar(responsable, reverse("comunidades:crear"), {
             "nombre": "Comunidad del recorrido", "tipo": Comunidad.Tipo.FAMILIA,
             "contacto_nombre": "Ana de prueba", "contacto_telefono": "0991234567",
@@ -1151,6 +1152,9 @@ class RecorridoInicialIntegradoTests(TestCase):
         })
         self.assertRedirects(response, reverse("comunidades:mi_comunidad"))
         comunidad = Comunidad.objects.get(responsable=ana)
+        sin_configurar = responsable.get(reverse("actividades:mi_huerto"), follow=True)
+        self.assertContains(sin_configurar, "El huerto aún no está configurado.")
+        self.assertContains(sin_configurar, reverse("comunidades:configurar_huerto"))
         response = self.enviar(responsable, reverse("comunidades:configurar_huerto"), {
             "provincia": "Provincia de prueba", "parroquia": "Parroquia de prueba",
             "direccion": "Dirección ficticia", "area_m2": "12.50",
@@ -1165,6 +1169,25 @@ class RecorridoInicialIntegradoTests(TestCase):
         self.assertRedirects(response, reverse("comunidades:mi_huerto"))
         huerto = Huerto.objects.get(comunidad=comunidad)
         self.assertTrue(PlantaHuerto.objects.filter(huerto=huerto, planta=self.planta).exists())
+        destino_huerto = reverse("actividades:inicio_huerto_virtual", args=[huerto.pk])
+        for entrada in ("cuentas:login", "inicio"):
+            with self.subTest(entrada=entrada):
+                cliente = Client(enforce_csrf_checks=True)
+                pagina = cliente.get(reverse(entrada), follow=True)
+                inicio = cliente.post(reverse("cuentas:login"), {
+                    "username": ana.username, "password": "Recorrido!Semilla82Valida",
+                    "next": pagina.context["next"],
+                    "csrfmiddlewaretoken": cliente.cookies["csrftoken"].value,
+                }, follow=True)
+                self.assertEqual(inicio.request["PATH_INFO"], destino_huerto)
+                self.assertTemplateUsed(inicio, "actividades/inicio_huerto_virtual.html")
+
+        with self.subTest(accion="descartar perfil"):
+            perfil = responsable.get(reverse("cuentas:perfil"))
+            url_descartar = reverse("actividades:mi_huerto")
+            self.assertContains(perfil, f'<a href="{url_descartar}">Descartar cambios</a>', html=True)
+            self.assertRedirects(responsable.get(url_descartar), destino_huerto)
+
         luis = self.registrar_y_entrar(participante, "luis_recorrido")
         response = self.enviar(participante, reverse("comunidades:unirse"), {
             "codigo_invitacion": comunidad.codigo_invitacion,
