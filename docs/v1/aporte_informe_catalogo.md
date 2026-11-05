@@ -1,7 +1,7 @@
 # Requisitos y fuentes del catálogo, guía ancestral y calendario lunar
 
-Texto actualizado el 27 de octubre de 2026 para incorporar al informe V1 (aporte M3-04 de Matthew).
-Historias: HU-005, HU-006 y HU-007. Las pruebas formales CP-03 y CP-04 quedan para noviembre.
+Texto actualizado el 5 de noviembre de 2026 para incorporar al informe V1 (aporte M3-04 de Matthew).
+Historias: HU-005, HU-006 y HU-007. Las pruebas formales CP-03 y CP-04 se ejecutaron el 5 de noviembre de 2026 y resultaron aprobadas.
 
 ## Funciones que cubre la versión
 
@@ -47,7 +47,7 @@ Cada ficha guarda sus fuentes, indicando qué campos respalda cada una, y la lis
 America/Guayaquil solo al mostrarlos; el mes se selecciona con los límites del mes local,
 de modo que un evento del 9 de diciembre a las 00:52 UTC aparece el 8 de diciembre a las
 19:52. En una base nueva la carga crea 89 registros (18 plantas, 13 tipos, 23 opciones,
-18 materiales y 17 eventos) y repetirla no crea más. Las 177 pruebas de desarrollo de main incluyen las del catálogo: formato de las
+18 materiales y 17 eventos) y repetirla no crea más. Las 188 pruebas de desarrollo de main incluyen las del catálogo: formato de las
 fichas, carga repetida, guías, eventos en UTC y las pantallas de guía y calendario.
 
 ## Fuentes que respaldan el contenido
@@ -72,14 +72,33 @@ fichas, carga repetida, guías, eventos en UTC y las pantallas de guía y calend
 
 ## Estado de las historias del catálogo
 
-| Historia | Estado al 27 de octubre | Pendiente |
+| Historia | Estado al 5 de noviembre | Prueba formal |
 |---|---|---|
-| HU-005 | 18 fichas integradas en main, cada una con foto local, autor, licencia y fuentes. | Ejecutar CP-03. |
-| HU-006 | 13 guías completas con fuente. | Ejecutar CP-03. |
-| HU-007 | Calendario con 17 eventos verificados, hora local y recomendaciones. | Ejecutar CP-04. |
+| HU-005 | 18 fichas integradas en main, cada una con foto local, autor, licencia y fuentes. | CP-03 aprobado (2026-11-05). |
+| HU-006 | 13 guías completas con fuente. | CP-03 aprobado (2026-11-05). |
+| HU-007 | Calendario con 17 eventos verificados, hora local y recomendaciones. | CP-04 aprobado (2026-11-05). |
 
 Las otras historias (HU-001 a HU-004 y HU-008 a HU-012) se describen en los aportes de sus
 módulos. Ninguna historia se declara aprobada antes de su caso de prueba formal.
+
+## Resultados de CP-03 y CP-04
+
+Ambos casos se ejecutaron el 5 de noviembre de 2026 en Windows, sobre una base nueva
+(`migrate` y `cargar_catalogo`, 89 registros), con la cuenta `cp_rosa`. El detalle está en
+`resultados.md`.
+
+- **CP-03 (HU-005, HU-006): aprobado.** El catálogo muestra las 18 plantas con foto, autor y
+  licencia; ninguna ficha muestra «None» ni campos en blanco; «No verificado» aparece en los
+  campos marcados en los archivos de datos; la guía muestra los 13 tipos con fuente y separa
+  los dos plazos obligatorios de las recomendaciones. Observaciones: en Menta, «otros
+  nombres» se muestra como «No verificado» por estar vacío sin figurar en
+  `campos_no_verificados` (comunicado a Juan); en Matico, Marco, Ortiga y Violeta se quitaron
+  notas de trabajo ya resueltas sobre la elección de la foto.
+- **CP-04 (HU-007, HU-008): aprobado.** Los eventos se muestran en hora de Guayaquil,
+  incluidos los que cambian de día respecto a UTC (8 de diciembre a las 19:52; 23 de
+  diciembre a las 20:28; 25 de octubre a las 23:12); los extremos del período muestran «No
+  disponible»; las fechas fuera del período se informan y los datos inválidos responden con
+  estado 400; y el registro de una actividad no exige fase lunar.
 
 ## Limitaciones reales
 
