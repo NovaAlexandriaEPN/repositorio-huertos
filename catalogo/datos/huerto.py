@@ -11,7 +11,7 @@
 
 `metodos_siembra` de un material lista códigos de METODOS_SIEMBRA. Lista vacía =
 común a todos los métodos. Así, elegir un método devuelve sus materiales específicos
-más los comunes, sin duplicar ninguno (ver servicios.materiales_para_metodo).
+más los comunes, sin duplicar ninguno (ver comunidades.servicios.listar_materiales).
 
 Fuentes de las explicaciones (páginas impresas del documento del MSP):
 - MSP (2017), Lineamientos para la implementación de huertos medicinales:

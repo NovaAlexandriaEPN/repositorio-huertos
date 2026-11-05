@@ -38,18 +38,18 @@ carpetas o hacer squash perdería información útil para las próximas integrac
 
 | Historia | Estado del progreso integrado | Lo que sigue pendiente |
 | --- | --- | --- |
-| HU-01 Registro y perfil | Registro con aviso/versionado del consentimiento; edad recomendada sin bloqueo; perfil propio y nacimiento válido. | Ejecución formal y revisión visual final. |
-| HU-02 Sesión | Autenticación Django, acceso privado, salida por POST y CSRF. | Ejecución formal. |
-| HU-03 Comunidad | Una pertenencia, código, responsable creador y permisos de edición en servidor. | Ejecución formal. |
-| HU-04 Huerto y plantas | Ubicación manual, área positiva, categorías, selección única y protección de historial activo o anulado. | Ejecución formal. |
-| HU-05 Fichas | 12 fichas con sus fuentes y pendientes visibles. | Seis fichas: paico, chilca, lavanda, salvia, cedrón y laurel. Faltan las seis fotos de Matthew y verificar foto/créditos de toronjil, además de los atributos marcados. |
-| HU-06 Guía ancestral | 13 guías con instrucciones, materiales, precauciones y referencias al MSP. No se inventan horas/fases donde la fuente no las indica. | Revisión final de dominio y prueba formal. |
-| HU-07 Calendario | 17 instantes USNO de septiembre a diciembre, hora de Guayaquil, anterior/siguiente y enlaces a recomendaciones. Funciona con datos locales. | Prueba formal de meses, extremos y conversión de día. |
-| HU-08 Registro | Actor de la sesión, alcance, estados, fecha/hora, mínimos 15/10 días y UUID/carga. | Prueba formal con el equipo. |
-| HU-09 Anulación | Solo responsable y con motivo; orden inverso por planta, preparación protegida y diseño/ritual independientes. Conserva autor y constancia. | Prueba formal. |
-| HU-10 Progreso y puntos | Seis hitos; cuidado o riego forman uno; promedio de plantas; valores históricos, niveles aprendiz/oficial/maestro. | Prueba formal y datos ficticios de demo. |
-| HU-11 Maestro | Umbral de 100, motivo, autor y fecha, sustitución con maestro esperado y retiro bajo 100. No añade permisos ni se concede por 300. | Prueba formal. |
-| HU-12 Materiales | Lista por métodos y marcas compartidas con permisos en servidor, sin cantidades ni compras. | Revisar marcas de bases antiguas y ejecutar la prueba formal. |
+| HU-001 Registro y perfil | Registro con aviso/versionado del consentimiento; edad recomendada sin bloqueo; perfil propio y nacimiento válido. | Ejecución formal y revisión visual final. |
+| HU-002 Sesión | Autenticación Django, acceso privado, salida por POST y CSRF. | Ejecución formal. |
+| HU-003 Comunidad | Una pertenencia, código, responsable creador y permisos de edición en servidor. | Ejecución formal. |
+| HU-004 Huerto y plantas | Ubicación manual, área positiva, categorías, selección única y protección de historial activo o anulado. | Ejecución formal. |
+| HU-005 Fichas | 12 fichas con sus fuentes y pendientes visibles. | Seis fichas: paico, chilca, lavanda, salvia, cedrón y laurel. Faltan las seis fotos de Matthew y verificar foto/créditos de toronjil, además de los atributos marcados. |
+| HU-006 Guía ancestral | 13 guías con instrucciones, materiales, precauciones y referencias al MSP. No se inventan horas/fases donde la fuente no las indica. | Revisión final de dominio y prueba formal. |
+| HU-007 Calendario | 17 instantes USNO de septiembre a diciembre, hora de Guayaquil, anterior/siguiente y enlaces a recomendaciones. Funciona con datos locales. | Prueba formal de meses, extremos y conversión de día. |
+| HU-008 Registro | Actor de la sesión, alcance, estados, fecha/hora, mínimos 15/10 días y UUID/carga. | Prueba formal con el equipo. |
+| HU-009 Anulación | Solo responsable y con motivo; orden inverso por planta, preparación protegida y diseño/ritual independientes. Conserva autor y constancia. | Prueba formal. |
+| HU-010 Progreso y puntos | Seis hitos; cuidado o riego forman uno; promedio de plantas; valores históricos, niveles aprendiz/oficial/maestro. | Prueba formal y datos ficticios de demo. |
+| HU-011 Maestro | Umbral de 100, motivo, autor y fecha, sustitución con maestro esperado y retiro bajo 100. No añade permisos ni se concede por 300. | Prueba formal. |
+| HU-012 Materiales | Lista por métodos y marcas compartidas con permisos en servidor, sin cantidades ni compras. | Revisar marcas de bases antiguas y ejecutar la prueba formal. |
 
 La versión unifica el progreso disponible. No equivale a V1 terminada ni sustituye el
 informe oficial, los resultados reales de noviembre o la revisión en otro computador.

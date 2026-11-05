@@ -136,16 +136,16 @@ Diez casos cubren las doce historias. Cada uno tiene pasos y datos concretos; la
 
 | Caso e historias | Comprobación y ejecutor |
 | --- | --- |
-| CP-01<br>HU-01, HU-02 | Registro, aviso y sesiones. Cuenta válida/duplicada, entradas inválidas, consentimiento ausente y acceso privado. Una fecha de nacimiento de menor de 14 es aceptada. Nacimiento/género solo del titular; cierre de sesión.<br>Ejecuta: Doménica |
-| CP-02<br>HU-03, HU-04 | Comunidad y configurador. Código válido/inválido, pertenencia única, área/opciones válidas y selección repetida. Rechazar edición ajena y cambio de método/especie con historial; comprobar el promedio al añadir una planta.<br>Ejecuta: Guillermo |
-| CP-03<br>HU-05, HU-06 | Catálogo y guía. 18 fichas/fotos y 13 actividades; campos, saberes, materiales, advertencias, fuentes/licencias y datos no verificados. No repetir el ciclo completo para cada especie.<br>Ejecuta: Matthew |
-| CP-04<br>HU-07 | Calendario. Evento UTC mostrado en Guayaquil, incluyendo cambio de día; listado mensual, anterior/siguiente cuando existan y mensaje fuera del período. Registrar sin exigir fase lunar.<br>Ejecuta: Matthew |
-| CP-05<br>HU-08, HU-10 | Actividades y fechas. Recorrer los 13 tipos con datos ficticios: estado y resultado. Preparación 14/15 días y secado 9/10; fecha futura/anterior, empate por ID y cuidado después de cosecha.<br>Ejecuta: Guillermo |
-| CP-06<br>HU-08, HU-10 | Reenvíos y puntos. UUID/carga iguales devuelve el existente; carga distinta rechazada y anulado no reactivado. Otro UUID no duplica hito; cuidado/riego primero 5 y siguientes 0; actor y objetos ajenos protegidos.<br>Ejecuta: Guillermo |
-| CP-07<br>HU-09, HU-10 | Anulaciones. Última activa por planta, preparación con siembras bloqueada, diseño/ritual independientes. Motivo/autor/fecha; conservar actor original; puntos/estado/progreso correctos tras anular y volver a registrar.<br>Ejecuta: Guillermo |
-| CP-08<br>HU-11 | Maestro. Permiso, pertenencia, umbral 100 y motivo. Como máximo uno; sustitución, formulario desactualizado y retiro bajo 100; 300 no concede nombramiento ni administración.<br>Ejecuta: Guillermo |
-| CP-09<br>HU-12 | Materiales. Recomendaciones por método y marcas compartidas al recargar. Miembro autorizado puede marcar/desmarcar; otro huerto no puede leer ni alterar las marcas; POST protegido.<br>Ejecuta: Juan |
-| CP-10<br>HU-01 a HU-12 | Recorrido y entrega. Instalación desde README en otro equipo, carga inicial repetida, reinicio y persistencia. Un flujo final integrado; celular, computador y teclado, errores claros; respaldo de la base ficticia y demo local.<br>Ejecuta: Juan |
+| CP-01<br>HU-001, HU-002 | Registro, aviso y sesiones. Cuenta válida/duplicada, entradas inválidas, consentimiento ausente y acceso privado. Una fecha de nacimiento de menor de 14 es aceptada. Nacimiento/género solo del titular; cierre de sesión.<br>Ejecuta: Doménica |
+| CP-02<br>HU-003, HU-004 | Comunidad y configurador. Código válido/inválido, pertenencia única, área/opciones válidas y selección repetida. Rechazar edición ajena y cambio de método/especie con historial; comprobar el promedio al añadir una planta.<br>Ejecuta: Guillermo |
+| CP-03<br>HU-005, HU-006 | Catálogo y guía. 18 fichas/fotos y 13 actividades; campos, saberes, materiales, advertencias, fuentes/licencias y datos no verificados. No repetir el ciclo completo para cada especie.<br>Ejecuta: Matthew |
+| CP-04<br>HU-007 | Calendario. Evento UTC mostrado en Guayaquil, incluyendo cambio de día; listado mensual, anterior/siguiente cuando existan y mensaje fuera del período. Registrar sin exigir fase lunar.<br>Ejecuta: Matthew |
+| CP-05<br>HU-008, HU-010 | Actividades y fechas. Recorrer los 13 tipos con datos ficticios: estado y resultado. Preparación 14/15 días y secado 9/10; fecha futura/anterior, empate por ID y cuidado después de cosecha.<br>Ejecuta: Guillermo |
+| CP-06<br>HU-008, HU-010 | Reenvíos y puntos. UUID/carga iguales devuelve el existente; carga distinta rechazada y anulado no reactivado. Otro UUID no duplica hito; cuidado/riego primero 5 y siguientes 0; actor y objetos ajenos protegidos.<br>Ejecuta: Guillermo |
+| CP-07<br>HU-009, HU-010 | Anulaciones. Última activa por planta, preparación con siembras bloqueada, diseño/ritual independientes. Motivo/autor/fecha; conservar actor original; puntos/estado/progreso correctos tras anular y volver a registrar.<br>Ejecuta: Guillermo |
+| CP-08<br>HU-011 | Maestro. Permiso, pertenencia, umbral 100 y motivo. Como máximo uno; sustitución, formulario desactualizado y retiro bajo 100; 300 no concede nombramiento ni administración.<br>Ejecuta: Guillermo |
+| CP-09<br>HU-012 | Materiales. Recomendaciones por método y marcas compartidas al recargar. Miembro autorizado puede marcar/desmarcar; otro huerto no puede leer ni alterar las marcas; POST protegido.<br>Ejecuta: Juan |
+| CP-10<br>HU-001 a HU-012 | Recorrido y entrega. Instalación desde README en otro equipo, carga inicial repetida, reinicio y persistencia. Un flujo final integrado; celular, computador y teclado, errores claros; respaldo de la base ficticia y demo local.<br>Ejecuta: Juan |
 
 ## Resultados y correcciones
 

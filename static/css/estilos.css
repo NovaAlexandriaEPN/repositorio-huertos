@@ -394,6 +394,123 @@ a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
 .guia-fuentes { margin-top: .5rem; }
 .volver-arriba { margin: 1rem 0 0; font-size: .85rem; text-align: right; }
 
+/* --- Calendario lunar -------------------------------------------------- */
+
+.etiqueta-hora { gap: .45rem; padding: .45rem .9rem; font-size: .85rem; }
+.etiqueta-hora .icono { width: 16px; height: 16px; }
+.icono-volteado { transform: scaleX(-1); }
+
+/* Cabecera del mes: anterior, título y siguiente, como en una aplicación de calendario. */
+.cabecera-mes { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: .75rem; margin-bottom: 1rem; }
+.titulo-mes { margin: 0; font-size: 1.7rem; text-align: center; }
+.boton-mes {
+  display: inline-flex; align-items: center; gap: .5rem; justify-self: start; min-height: 40px; padding: .45rem .9rem;
+  border: 1px solid var(--linea); border-radius: 999px; background: var(--marfil); color: var(--bosque); font-weight: 600; text-decoration: none;
+}
+.boton-mes:hover { border-color: var(--bosque); background: var(--salvia-suave); text-decoration: none; }
+.boton-mes .icono { width: 18px; height: 18px; }
+.boton-mes-siguiente { justify-self: end; }
+.boton-mes-vacio { visibility: hidden; }
+
+/* Fecha de referencia junto a las fases cercanas */
+.formulario-fecha { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem 1rem; margin: 0 0 1rem; }
+.formulario-fecha .campo { margin: 0; }
+.formulario-fecha input[type="date"].form-control, .formulario-fecha input[type="date"] { width: auto; min-height: 42px; }
+
+.tabla-calendario { width: 100%; border-collapse: collapse; }
+.tabla-calendario th { padding: .6rem .75rem; border-bottom: 1px solid var(--linea); font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--apagado); text-align: left; }
+.tabla-calendario td { padding: .85rem .75rem; border-bottom: 1px solid var(--linea); vertical-align: middle; }
+.tabla-calendario tbody tr:last-child td { border-bottom: 0; }
+.tabla-calendario tbody tr:hover { background: var(--marfil); }
+.fila-referencia { background: var(--salvia-suave); }
+.dia-semana { display: block; font-size: .8rem; color: var(--apagado); text-transform: capitalize; }
+.tabla-calendario time { font-weight: 600; white-space: nowrap; }
+.fase { display: inline-flex; align-items: center; gap: .7rem; }
+.nombre-ancestral { display: block; font-size: .85rem; font-style: italic; color: var(--apagado); }
+
+/* Fase dibujada con CSS: la parte clara es la cara iluminada de la luna. */
+.luna { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; border: 1.5px solid var(--bosque); background: var(--superficie); }
+.luna-nueva { background: var(--bosque); }
+.luna-llena { background: #f3e7c4; }
+.luna-creciente { background: linear-gradient(90deg, var(--bosque) 50%, #f3e7c4 50%); }
+.luna-menguante { background: linear-gradient(90deg, #f3e7c4 50%, var(--bosque) 50%); }
+
+/* Vista del mes: cuadrícula de lunes a domingo; solo se marcan días con evento. */
+.cuadricula-mes { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: .35rem; margin: 0 -.35rem; }
+.cuadricula-mes th { padding: .25rem 0 .4rem; font-size: .75rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--apagado); text-align: center; }
+.cuadricula-mes abbr { text-decoration: none; }
+.cuadricula-mes td { height: 92px; padding: .45rem .5rem; vertical-align: top; border: 1px solid var(--linea); border-radius: var(--radio-control); background: var(--marfil); }
+.cuadricula-mes td.dia-vacio { border-color: transparent; background: transparent; }
+.numero-dia { display: block; font-size: .85rem; font-weight: 600; color: var(--apagado); }
+.dia-con-evento { background: var(--superficie) !important; border-color: var(--borde-campo) !important; }
+.dia-con-evento .numero-dia { color: var(--tinta); }
+.dia-enlace { display: grid; gap: .35rem; height: 100%; color: var(--tinta); font-weight: 400; text-decoration: none; }
+.dia-enlace:hover { color: var(--bosque); text-decoration: none; }
+.dia-enlace:hover .dia-evento-texto { text-decoration: underline; }
+.dia-evento { display: flex; align-items: center; gap: .4rem; }
+.dia-evento .luna { width: 20px; height: 20px; }
+.dia-evento-texto { font-size: .78rem; line-height: 1.25; }
+.dia-hora { display: block; color: var(--apagado); }
+.dia-referencia { box-shadow: inset 0 0 0 2px var(--terracota); }
+.leyenda-fases { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; padding: 0; margin: 1rem 0 .5rem; list-style: none; font-size: .85rem; }
+.leyenda-fases li { display: inline-flex; align-items: center; gap: .45rem; }
+.leyenda-fases .luna { width: 18px; height: 18px; }
+.muestra-referencia { width: 18px; height: 18px; border-radius: 4px; box-shadow: inset 0 0 0 2px var(--terracota); }
+
+.eventos-vecinos { margin: 1rem 0 0; }
+.evento-vecino { display: grid; gap: .35rem; padding: 1rem 1.15rem; border: 1px solid var(--linea); border-radius: var(--radio-control); background: var(--marfil); }
+.evento-vecino .ayuda { margin: 0; text-transform: none; }
+
+/* --- Actividades: registro, historial, anulación y maestro ------------ */
+
+.enlace-derecha { margin-left: auto; }
+.guia-actividades { margin: .25rem 0 0; }
+.guia-actividades .lista-chips { margin-top: .25rem; }
+.campo .ayuda .etiqueta { margin: 0 .15rem .2rem 0; }
+
+.barra-filtros { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem 1rem; margin-bottom: 1.25rem; padding: 1rem 1.15rem; border: 1px solid var(--linea); border-radius: var(--radio); background: var(--superficie); }
+.barra-filtros .campo { flex: 1 1 180px; margin: 0; }
+.barra-filtros label { font-size: .8rem; }
+.barra-filtros select { min-height: 42px; }
+.barra-filtros-acciones { display: flex; align-items: center; gap: .75rem 1rem; }
+
+.tabla-historial td { font-size: .92rem; }
+.tabla-historial td:last-child, .tabla-historial td:nth-child(5) { white-space: nowrap; }
+.nota-actividad { display: block; margin-top: .2rem; font-size: .85rem; color: var(--apagado); }
+.puntos { font-weight: 700; }
+.fila-anulada td { color: var(--apagado); }
+.fila-anulada td, .tabla-calendario tbody tr.fila-anulada td { border-bottom: 0; }
+.fila-anulada .puntos { text-decoration: line-through; }
+.fila-anulacion td { padding-top: 0; white-space: normal !important; }
+.detalle-anulacion { display: block; padding: .5rem .75rem; border-left: 2px solid var(--terracota); border-radius: 0; background: #fdf3ec; font-size: .85rem; color: #6b2e15; }
+
+.lista-avisos { display: grid; gap: .45rem; margin: 0 0 1.25rem; padding: 1rem 1.15rem 1rem 2.2rem; border-radius: var(--radio-control); background: var(--salvia-suave); font-size: .92rem; }
+.maestro-actual { display: flex; align-items: flex-start; gap: 1rem; }
+.maestro-actual p { margin: 0 0 .3rem; }
+.motivo-maestro { font-style: italic; color: #46514c; }
+
+/* --- Mi huerto (huerto virtual) --------------------------------------- */
+
+.accesos-huerto { display: flex; flex-wrap: wrap; gap: .5rem; margin: -.75rem 0 1.25rem; }
+.accesos-huerto a { display: inline-flex; align-items: center; gap: .45rem; padding: .45rem .9rem; border: 1px solid var(--linea); border-radius: 999px; background: var(--superficie); font-size: .9rem; text-decoration: none; }
+.accesos-huerto a:hover { border-color: var(--bosque); background: var(--salvia-suave); text-decoration: none; }
+.accesos-huerto .icono { width: 18px; height: 18px; }
+.heroe-texto .boton .icono { width: 18px; height: 18px; }
+.heroe-imagen-hojas {
+  background-color: var(--bosque);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400' fill='none' stroke='%23dfe5d3' stroke-opacity='.22' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M70 400C80 300 120 230 190 170'/%3E%3Cpath d='M120 270c-40-10-62-42-60-84 40 6 62 38 60 84Z'/%3E%3Cpath d='M150 220c10-42 44-66 88-62-8 42-42 64-88 62Z'/%3E%3Cpath d='M300 400c-6-90 10-170 60-240'/%3E%3Cpath d='M318 300c-34-14-50-46-42-84 34 12 50 44 42 84Z'/%3E%3C/svg%3E");
+  background-size: cover; background-position: center;
+}
+
+.contenido-dividido { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); gap: 1.5rem; align-items: start; margin-bottom: 1.5rem; }
+.rejilla-plantas { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
+.columna-lateral { padding-left: 1.5rem; border-left: 1px solid var(--linea); }
+.columna-lateral .ayuda { margin-top: .75rem; }
+.fila-siguiente { align-items: flex-start; }
+.fila-siguiente .fila-texto a { width: fit-content; margin-top: .25rem; font-size: .85rem; }
+.resumen-icono-pequeno { width: 40px; height: 40px; }
+.resumen-icono-pequeno .icono { width: 20px; height: 20px; }
+
 /* --- Comunidad, huerto y materiales ----------------------------------- */
 
 .bloques { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); gap: 1.25rem; margin-bottom: 1.25rem; }
@@ -496,11 +613,32 @@ a.etiqueta-enlace:hover { background: var(--salvia); text-decoration: none; }
   .opcion-menu .icono { width: 18px; height: 18px; }
   .contenido { padding: 1.75rem 1.25rem 3rem; }
   .heroe { grid-template-columns: 1fr 40%; }
+  .contenido-dividido { grid-template-columns: minmax(0, 1fr); }
+  .columna-lateral { padding-left: 0; border-left: 0; }
   .ficha { grid-template-columns: minmax(0, 1fr); gap: 1.25rem; }
   .guia-detalles { grid-template-columns: minmax(0, 1fr); }
   .cuadricula-tres { grid-template-columns: minmax(0, 1fr); }
   .material { grid-template-columns: minmax(0, 1fr) auto; }
   .material-formulario { grid-column: 1 / -1; }
+  .titulo-mes { font-size: 1.3rem; }
+  .boton-mes { padding: .4rem .6rem; }
+  .boton-mes > span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .cuadricula-mes { border-spacing: .2rem; margin: 0 -.2rem; }
+  .cuadricula-mes td { height: 54px; padding: .25rem; text-align: center; }
+  .dia-enlace { justify-items: center; gap: .15rem; }
+  .dia-evento-texto { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .dia-evento .luna { width: 16px; height: 16px; }
+  .tabla-calendario thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .tabla-calendario, .tabla-calendario tbody, .tabla-calendario tr, .tabla-calendario td { display: block; }
+  .tabla-calendario tr { padding: .75rem 0; border-bottom: 1px solid var(--linea); }
+  .tabla-calendario tbody tr:last-child { border-bottom: 0; }
+  .tabla-calendario td { padding: .3rem 0; border: 0; }
+  .enlace-derecha { margin-left: 0; }
+  .barra-filtros-acciones { flex: 1 1 100%; }
+  .fila-anulacion td::before { display: none; }
+  .tabla-historial .celda-sin-accion { display: none; }
+  .detalle-anulacion { overflow-wrap: anywhere; }
+  .tabla-calendario td::before { content: attr(data-titulo); display: block; font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--apagado); }
 }
 
 @media (max-width: 600px) {

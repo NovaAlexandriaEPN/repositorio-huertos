@@ -24,20 +24,16 @@ def _texto_error(error: ValidationError) -> str:
 
 @require_GET
 def mi_huerto(request):
-    """Lleva al Huerto Virtual de la comunidad del usuario.
-
-    Si todavía no pertenece a una comunidad con huerto configurado, lo indica y vuelve al perfil.
-    """
+    """Abre el huerto virtual o guía a la cuenta hacia su configuración inicial."""
     huerto = servicios.huerto_del_usuario(request.user)
     if huerto is None:
-        messages.info(request, "Tu comunidad todavía no tiene un huerto configurado.")
-        return redirect("cuentas:perfil")
+        return redirect("comunidades:mi_huerto")
     return redirect("actividades:inicio_huerto_virtual", huerto_id=huerto.pk)
 
 
 @require_GET
 def huerto_virtual(request, huerto_id):
-    """Huerto Virtual (HU-10): progreso, tarjetas por planta, totales, puntos y Maestro.
+    """Huerto Virtual (HU-010): progreso, tarjetas por planta, totales, puntos y Maestro.
 
     Recibe: GET con huerto_id. Valida: pertenencia a la comunidad. No guarda nada.
     Permiso: ser miembro de la comunidad.
@@ -49,7 +45,7 @@ def huerto_virtual(request, huerto_id):
 
 @require_http_methods(["GET", "POST"])
 def registrar_actividad(request, huerto_id):
-    """Registro de actividades (HU-08).
+    """Registro de actividades (HU-008).
 
     Recibe: GET (formulario) o POST con uuid, tipo, planta, fecha y detalles.
     Valida: formulario y reglas del servicio (pertenencia, reenvío, plazos, puntos).
@@ -106,7 +102,7 @@ def registrar_actividad(request, huerto_id):
 
 @require_GET
 def historial(request, huerto_id):
-    """Historial de actividades (HU-10), con filtros por planta, tipo y estado.
+    """Historial de actividades (HU-010), con filtros por planta, tipo y estado.
 
     Recibe: GET con filtros opcionales. Valida: pertenencia. No guarda nada.
     Permiso: ser miembro de la comunidad.
@@ -137,7 +133,7 @@ def historial(request, huerto_id):
 
 @require_http_methods(["GET", "POST"])
 def anular_actividad(request, actividad_id):
-    """Anulación con motivo (HU-09).
+    """Anulación con motivo (HU-009).
 
     Recibe: GET (confirmación) o POST con el motivo.
     Valida: permiso (solo el responsable), estado y orden del ciclo.
@@ -182,7 +178,7 @@ def anular_actividad(request, actividad_id):
 
 @require_http_methods(["GET", "POST"])
 def nombrar_maestro(request, huerto_id):
-    """Nombramiento o sustitución del Maestro del huerto (HU-11).
+    """Nombramiento o sustitución del Maestro del huerto (HU-011).
 
     Recibe: GET (formulario) o POST con candidato, motivo y maestro_esperado.
     Valida: responsable, formulario desactualizado, pertenencia, 100 puntos y motivo.

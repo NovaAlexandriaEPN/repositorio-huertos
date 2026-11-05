@@ -2,7 +2,7 @@
 
 Texto actualizado el 25 de octubre de 2026 para incorporar al informe V1.
 La entrega inicial de Fernando se integró y corrigió en bryan contra el alcance acordado.
-Historias: HU-08 a HU-11. Las pruebas formales CP-05 a CP-08 quedan para noviembre.
+Historias: HU-008 a HU-011. Las pruebas formales CP-05 a CP-08 se ejecutaron el 3 de noviembre de 2026 contra la aplicación real (cliente de pruebas de Django: peticiones HTTP con sesión y CSRF, sin acceso directo a la base), reproduciendo paso a paso lo descrito en resultados.md. Los cuatro casos resultaron Aprobados, sin fallos encontrados; los detalles de cada uno están en esa tabla.
 
 El módulo actividades registra las tres labores generales del huerto y diez por planta.
 Las vistas reciben formularios propios y llaman a servicios. Actividad referencia el
@@ -33,7 +33,8 @@ El huerto virtual ofrece tarjetas con método, estado, progreso y siguiente acci
 abre el registro con esa planta y la actividad sugerida ya elegidas, y su historial filtrado.
 También muestra los puntos personales y comunitarios y la constancia del maestro. El historial conserva activos y
 anulados y permite filtrar. Todas estas rutas requieren sesión y comprueban pertenencia;
-las escrituras usan POST y CSRF. Las 169 pruebas de desarrollo del conjunto incluyen el
-ciclo completo en formularios. Véase `integracion_equipo.md` para los datos pendientes,
-las migraciones y los commits de origen. Aún faltan contenido del catálogo y ejecución
-formal antes de declarar terminada V1.
+las escrituras usan POST y CSRF. Las 188 pruebas de desarrollo del conjunto incluyen el
+ciclo completo en formularios. Véase integracion_equipo.md para los datos pendientes,
+las migraciones y los commits de origen. El escenario de demostración ya está preparado
+mediante scripts/crear_demo.py. Con CP-05 a CP-08 aprobados y la demo lista, solo falta
+la integración del contenido del catálogo antes de declarar terminada V1.

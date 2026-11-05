@@ -1134,7 +1134,8 @@ class RecorridoInicialIntegradoTests(TestCase):
         response = self.enviar(cliente, reverse("cuentas:login"), {
             "username": username, "password": clave_prueba,
         })
-        self.assertRedirects(response, reverse("cuentas:perfil"))
+        self.assertRedirects(response, reverse("actividades:mi_huerto"), fetch_redirect_response=False)
+        self.assertTemplateUsed(cliente.get(response.url, follow=True), "comunidades/mi_comunidad.html")
         return Usuario.objects.get(username=username)
 
     def test_recorrido_completo_registro_sesion_comunidad_huerto_y_seleccion(self):
@@ -1143,7 +1144,7 @@ class RecorridoInicialIntegradoTests(TestCase):
         ana = self.registrar_y_entrar(responsable, "ana_recorrido")
         perfil = responsable.get(reverse("cuentas:perfil"))
         self.assertContains(perfil, "Continuar a mi comunidad")
-        self.assertRedirects(responsable.get(reverse("inicio")), reverse("comunidades:mi_comunidad"))
+        self.assertTemplateUsed(responsable.get(reverse("inicio"), follow=True), "comunidades/mi_comunidad.html")
         response = self.enviar(responsable, reverse("comunidades:crear"), {
             "nombre": "Comunidad del recorrido", "tipo": Comunidad.Tipo.FAMILIA,
             "contacto_nombre": "Ana de prueba", "contacto_telefono": "0991234567",
@@ -1151,6 +1152,9 @@ class RecorridoInicialIntegradoTests(TestCase):
         })
         self.assertRedirects(response, reverse("comunidades:mi_comunidad"))
         comunidad = Comunidad.objects.get(responsable=ana)
+        sin_configurar = responsable.get(reverse("actividades:mi_huerto"), follow=True)
+        self.assertContains(sin_configurar, "El huerto aún no está configurado.")
+        self.assertContains(sin_configurar, reverse("comunidades:configurar_huerto"))
         response = self.enviar(responsable, reverse("comunidades:configurar_huerto"), {
             "provincia": "Provincia de prueba", "parroquia": "Parroquia de prueba",
             "direccion": "Dirección ficticia", "area_m2": "12.50",
@@ -1165,6 +1169,25 @@ class RecorridoInicialIntegradoTests(TestCase):
         self.assertRedirects(response, reverse("comunidades:mi_huerto"))
         huerto = Huerto.objects.get(comunidad=comunidad)
         self.assertTrue(PlantaHuerto.objects.filter(huerto=huerto, planta=self.planta).exists())
+        destino_huerto = reverse("actividades:inicio_huerto_virtual", args=[huerto.pk])
+        for entrada in ("cuentas:login", "inicio"):
+            with self.subTest(entrada=entrada):
+                cliente = Client(enforce_csrf_checks=True)
+                pagina = cliente.get(reverse(entrada), follow=True)
+                inicio = cliente.post(reverse("cuentas:login"), {
+                    "username": ana.username, "password": "Recorrido!Semilla82Valida",
+                    "next": pagina.context["next"],
+                    "csrfmiddlewaretoken": cliente.cookies["csrftoken"].value,
+                }, follow=True)
+                self.assertEqual(inicio.request["PATH_INFO"], destino_huerto)
+                self.assertTemplateUsed(inicio, "actividades/inicio_huerto_virtual.html")
+
+        with self.subTest(accion="descartar perfil"):
+            perfil = responsable.get(reverse("cuentas:perfil"))
+            url_descartar = reverse("actividades:mi_huerto")
+            self.assertContains(perfil, f'<a href="{url_descartar}">Descartar cambios</a>', html=True)
+            self.assertRedirects(responsable.get(url_descartar), destino_huerto)
+
         luis = self.registrar_y_entrar(participante, "luis_recorrido")
         response = self.enviar(participante, reverse("comunidades:unirse"), {
             "codigo_invitacion": comunidad.codigo_invitacion,
@@ -1356,3 +1379,73 @@ class MaterialesCompartidosTests(TestCase):
         self.assertEqual(self.client.get(guardado).status_code, 405)
         self.assertEqual(self.client.post(listado).status_code, 405)
         self.assertFalse(MarcaMaterial.objects.exists())
+
+
+class MaterialesRecomendadosCatalogoTests(TestCase):
+    """J3-01: lista por métodos elegidos con los 18 materiales reales del catálogo."""
+
+    @classmethod
+    def setUpTestData(cls):
+        from io import StringIO
+        from django.core.management import call_command
+        call_command("cargar_catalogo", stdout=StringIO())
+        preparar_datos_configurador(cls)
+        cls.huerto = configurar_huerto(actor=cls.responsable, **datos_configuracion(cls.opciones))
+        cls.generales = set(
+            Material.objects.filter(metodos_siembra=[]).values_list("codigo", flat=True)
+        )
+
+    def codigos(self, actor):
+        return [fila["material"].codigo for fila in listar_materiales(actor=actor)]
+
+    def test_huerto_sin_plantas_recibe_solo_los_materiales_generales(self):
+        self.assertTrue(self.generales)
+        self.assertEqual(set(self.codigos(self.participante)), self.generales)
+
+    def test_cada_metodo_agrega_solo_sus_materiales_a_los_generales(self):
+        elegir_planta(actor=self.responsable, planta=self.planta, metodo_siembra=MetodoSiembra.ESTACAS)
+        codigos = self.codigos(self.participante)
+        self.assertEqual(len(codigos), len(set(codigos)))
+        self.assertEqual(set(codigos), self.generales | {"barreton", "estacas"})
+        elegir_planta(actor=self.responsable, planta=self.otra_planta, metodo_siembra=MetodoSiembra.SEMILLAS)
+        self.assertEqual(set(self.codigos(self.participante)), self.generales | {"barreton", "estacas", "semillas"})
+        self.assertNotIn("esquejes", self.codigos(self.participante))
+
+    def test_grupos_siguen_el_orden_del_catalogo(self):
+        grupos = [fila["material"].grupo for fila in listar_materiales(actor=self.participante)]
+        self.assertEqual(list(dict.fromkeys(grupos)), Material.Grupo.values)
+
+    def test_pantalla_muestra_la_bodega_del_catalogo_y_los_grupos_en_orden(self):
+        from catalogo.datos.huerto import RECOMENDACION_BODEGA
+        self.client.force_login(self.participante)
+        pagina = self.client.get(reverse("comunidades:materiales"))
+        self.assertContains(pagina, RECOMENDACION_BODEGA)
+        html = pagina.content.decode()
+        posiciones = [html.index(f">{etiqueta}</h2>") for etiqueta in Material.Grupo.labels]
+        self.assertEqual(posiciones, sorted(posiciones))
+
+    def estado_en_pantalla(self, actor, nombre):
+        cliente = Client()
+        cliente.force_login(actor)
+        html = cliente.get(reverse("comunidades:materiales")).content.decode()
+        inicio = html.index(f"<h3>{nombre}</h3>")
+        fila = html[inicio:html.index("</li>", inicio)]
+        return "Disponible" if '">Disponible</span>' in fila else "No disponible"
+
+    def test_marca_permanece_al_recargar_y_otra_comunidad_no_la_ve_ni_altera(self):
+        """J3-02: lo que marca un miembro lo ve otro al recargar; la otra comunidad no."""
+        configurar_huerto(actor=self.otro_responsable, **datos_configuracion(self.opciones))
+        pala = Material.objects.get(codigo="pala")
+        url = reverse("comunidades:marcar_material", args=[pala.pk])
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "No disponible")
+        self.client.force_login(self.participante)
+        self.client.post(url, {f"material-{pala.pk}-disponible": "on"})
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "Disponible")
+        self.assertEqual(self.estado_en_pantalla(self.otro_responsable, pala.nombre), "No disponible")
+        # La otra comunidad envía el mismo material: solo cambia su propia marca.
+        ajeno = Client()
+        ajeno.force_login(self.otro_responsable)
+        ajeno.post(url, {f"material-{pala.pk}-disponible": "on"})
+        ajeno.post(url, {})
+        self.assertEqual(self.estado_en_pantalla(self.responsable, pala.nombre), "Disponible")
+        self.assertEqual(MarcaMaterial.objects.filter(material=pala).count(), 2)

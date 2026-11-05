@@ -34,7 +34,9 @@ Los módulos inferiores no importan actividades. Los cálculos que necesitan su 
 
 cuentas, comunidades y actividades tienen formularios propios en forms.py y vistas propias en views.py, con campos y validaciones de su función. catalogo tiene vistas de consulta. Se mantiene servicios.py en las cuatro aplicaciones, aunque algunas funciones solo hagan consultas. No se impone usar formularios o vistas genéricas como atajo.
 
-base.html comparte menú y estilos. componentes/errores.html muestra errores de campo y del formulario; componentes/mensajes.html muestra mensajes de resultado. Las pantallas pueden tener plantillas de formulario distintas. La autenticación, el hash de contraseñas, las sesiones y CSRF siguen a cargo de Django.
+base.html comparte menú y estilos: con sesión iniciada muestra una barra lateral con el menú y la cuenta; iniciar sesión y crear cuenta usan base_acceso.html, una pantalla dividida que hereda de base.html. componentes/errores.html muestra errores de campo y del formulario; componentes/mensajes.html muestra mensajes de resultado. Las pantallas pueden tener plantillas de formulario distintas. La autenticación, el hash de contraseñas, las sesiones y CSRF siguen a cargo de Django.
+
+Cada vista entrega a su plantilla los datos ya calculados (contexto) y el formulario con el nombre form; la plantilla solo los muestra. Bootstrap 5.3.8, estilos.css, iconos y fotos son locales y no hay JavaScript. El detalle de pantallas, componentes y estilos está en docs/v1/diseno/README.md.
 
 ## Modelo de datos
 
@@ -136,6 +138,7 @@ repositorio-huertos/
 |-- huertos/                 # settings.py, urls.py, wsgi.py, asgi.py
 |-- cuentas/                 # models, forms, servicios, views, urls, tests
 |-- catalogo/                # models, servicios, views, urls, tests
+|   |-- templatetags/presentacion.py   # filtros que solo dan formato a textos
 |   |-- datos/
 |   |   |-- __init__.py
 |   |   |-- plantas_juan.py
@@ -149,22 +152,28 @@ repositorio-huertos/
 |-- actividades/             # models, forms, servicios, views, urls, tests
 |   `-- reglas.py            # nivel y porcentaje sin consultas
 |-- templates/
-|   |-- base.html
-|   |-- componentes/errores.html; componentes/mensajes.html
+|   |-- base.html            # barra lateral, menú y mensajes
+|   |-- base_acceso.html     # pantalla dividida de iniciar sesión y crear cuenta
+|   |-- componentes/errores.html; mensajes.html; iconos.html; enlace_menu.html
+|   |               aviso_datos.html; dato_ficha.html; opciones_huerto.html
+|   |               seleccion_resumen.html
 |   |-- cuentas/registro.html; login.html; perfil.html
 |   |-- catalogo/lista_plantas.html; detalle_planta.html
 |   |             guia.html; calendario.html
-|   |-- comunidades/crear.html; unirse.html; mi_comunidad.html
-|   |                 configurar_huerto.html; materiales.html
+|   |-- comunidades/mi_comunidad.html; formulario.html; unirse.html
+|   |                 mi_huerto.html; configurar_huerto.html; elegir_planta.html
+|   |                 cambiar_metodo.html; retirar_planta.html; materiales.html
 |   `-- actividades/inicio_huerto_virtual.html
 |                     registrar_actividad.html; historial.html
 |                     anular.html; nombrar_maestro.html
-|-- static/vendor/bootstrap/; css/estilos.css; img/plantas/
+|-- static/vendor/bootstrap/ # Bootstrap 5.3.8 local
+|-- static/css/estilos.css   # paleta y estilos propios
+|-- static/img/plantas/      # 18 fotos <codigo>.jpg
 `-- docs/v1/
     |-- 01_Alcance_V1_Huertos_Medicinales.md
     |-- 02_Arquitectura_V1_Django.md
     |-- 03_Plan_de_trabajo_V1.md
-    |-- diseno/              # pocos bocetos y capturas finales
+    |-- diseno/              # README, guía de estilo, fotos, bocetos y capturas finales
     |-- resultados.md        # casos, ejecución y fallos
     |-- demo.md              # datos ficticios y recorrido
     |-- informe.docx         # plantilla oficial, un archivo
