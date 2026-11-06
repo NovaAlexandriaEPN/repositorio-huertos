@@ -7,7 +7,7 @@
 
 <div class="introduccion">
   <h1>Registrar actividad</h1>
-  <p>Huerto de {{ huerto.comunidad.nombre }}. Anota lo que hiciste; los puntos y el autor los asigna el sistema según tu sesión.</p>
+  <p>{{ huerto.comunidad.nombre }}: anota lo que hiciste; los puntos y el autor los asigna el sistema según tu sesión.</p>
 </div>
 
 {% include "componentes/errores.html" with form=form %}
