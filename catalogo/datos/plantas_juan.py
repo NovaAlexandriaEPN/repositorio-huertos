@@ -89,6 +89,7 @@ PLANTAS = [
             },
         ],
         "campos_no_verificados": [
+            "otros_nombres",
         ],
         "observaciones": '',
     },
