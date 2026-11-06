@@ -149,8 +149,9 @@ PLANTAS = [
             'como sinónimo. «Matico» también designa a otras especies: Piper '
             'aduncum (Perú y mercados del sur de Ecuador), Salvia scutellarioides '
             '(sur de Ecuador) y Buddleja globosa (Chile y Argentina). Se eligió '
-            'A. glutinosa por ser el matico andino ecuatoriano; confirmar con el '
-            'material del curso antes de elegir la foto. No se encontraron '
+            'A. glutinosa por ser el matico andino ecuatoriano; la foto es una '
+            'observación de iNaturalist de esta especie con grado de '
+            'investigación. No se encontraron '
             'contraindicaciones documentadas: eso no significa que no existan.'
         ),
     },
@@ -300,9 +301,7 @@ PLANTAS = [
             'Nativa de los Andes de Ecuador según Kew. Los usos de hoja y zumo '
             'proceden de comunidades andinas de Perú; los de Ecuador, del '
             'estudio de mercados del sur del país. No se encontraron '
-            'contraindicaciones documentadas: eso no significa que no existan. '
-            'Confirmar con el material del curso que «marco» corresponde a esta '
-            'especie.'
+            'contraindicaciones documentadas: eso no significa que no existan.'
         ),
     },
     # ------------------------------------------------------------------ M2-04
@@ -450,7 +449,7 @@ PLANTAS = [
         'observaciones': (
             'En Ecuador «ortiga» y «chine» se aplican a Urtica dioica y a Urtica '
             'urens; la monografía de EMA cubre la hoja de ambas. Se eligió U. '
-            'dioica; confirmar con el material del curso. La altitud se basa en '
+            'dioica, la especie que cubre la foto. La altitud se basa en '
             'pocos ejemplares y es aproximada. La advertencia sobre pelos '
             'urticantes es una precaución de manipulación, no de consumo.'
         ),
@@ -526,8 +525,8 @@ PLANTAS = [
             'Ciclo: el MSP (p. 48) llama de ciclo corto a las plantas listas para cosechar en 6 a 8 semanas desde la siembra. Sembrada de semilla, la violeta no florece el primer año (Kušen et al. 2026); como se usa la flor, se clasifica como largo. '
             'Violeta de olor, introducida y cultivada en Ecuador. No confundir '
             'con la violeta africana (Saintpaulia), que es ornamental, ni con el '
-            'pensamiento (Viola tricolor), que tiene otra monografía. Para la '
-            'foto, Doménica debe buscar Viola odorata. La altitud queda pendiente: '
+            'pensamiento (Viola tricolor), que tiene otra monografía. La foto '
+            'corresponde a Viola odorata. La altitud queda pendiente: '
             'los ejemplares de GBIF van de 10 a 3000 m, mezclando Galápagos y '
             'jardines andinos, y no describen bien la especie.'
         ),
