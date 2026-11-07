@@ -15,8 +15,6 @@ Proyecto de **Calidad de Software (ISWD652, período 2026B)**.
 
 ## Estado actual del proyecto
 
-## Estado actual del proyecto
-
 Estado al 2 de noviembre de 2026. `main` integra el trabajo de todo el equipo y las doce historias de usuario están implementadas.
 
 La carga del catálogo contiene **18 fichas**, **13 guías**, **23 opciones**, **18 materiales** y **17 eventos lunares**. Las 188 pruebas automáticas pasan; son comprobaciones de desarrollo y no sustituyen a los casos formales.
@@ -163,6 +161,52 @@ una base antigua, consulta
 Abrir <http://127.0.0.1:8000/>. Sin sesión lleva al inicio de sesión; el enlace «Crear cuenta»
 permite registrarse. Detener el servidor con `Ctrl + C`.
 
+Así, el servidor solo responde en este computador. Para abrirlo desde un celular u otro equipo,
+usa la sección 3.7.
+
+### 3.7 Abrir la aplicación desde otro dispositivo de la red
+
+El celular u otro computador deben estar conectados a **la misma red** que el computador que
+ejecuta el servidor. Ejecuta este bloque cada vez que cambies de red: detecta las direcciones IP
+de la red actual, las permite en Django y muestra la dirección que debes abrir.
+
+```powershell
+# 1. Permitir en Django las direcciones IPv4 de este computador en la red actual.
+$ipsHuertos = Get-NetIPAddress -AddressFamily IPv4 -AddressState Preferred |
+    Where-Object { $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*' }
+$env:DJANGO_ALLOWED_HOSTS = $ipsHuertos.IPAddress -join ','
+
+# 2. Elegir la conexión con salida a la red, para mostrar la dirección correcta.
+$rutaHuertos = Get-NetRoute -AddressFamily IPv4 -DestinationPrefix '0.0.0.0/0' -ErrorAction SilentlyContinue |
+    Sort-Object { $_.RouteMetric + (Get-NetIPInterface -InterfaceIndex $_.ifIndex -AddressFamily IPv4).InterfaceMetric } |
+    Select-Object -First 1
+$ipRedHuertos = ($ipsHuertos | Where-Object InterfaceIndex -eq $rutaHuertos.ifIndex | Select-Object -First 1).IPAddress
+if ($ipRedHuertos) { "Abre en el celular: http://${ipRedHuertos}:8000/" } else { 'No se detectó una red conectada.' }
+
+# 3. Escuchar en todas las interfaces, no solo en 127.0.0.1.
+& .\.venv\Scripts\python.exe manage.py runserver 0.0.0.0:8000
+```
+
+Abre en el celular la dirección que muestra el bloque, por ejemplo `http://192.168.100.70:8000/`.
+`DJANGO_ALLOWED_HOSTS` solo dura mientras esté abierta esta terminal, así que no queda guardada
+una dirección vieja al cambiar de red. Si el computador tiene VPN o máquinas virtuales, sus
+direcciones también se permiten, pero el bloque muestra solo la de la red real.
+
+Si el celular no carga la página:
+
+- **Firewall de Windows.** La primera vez que el servidor escucha en `0.0.0.0`, Windows pregunta si
+  Python puede comunicarse en la red: permítelo en **redes privadas**.
+- **Perfil de red.** En el perfil **Público**, Windows bloquea las conexiones entrantes. Revisa el
+  perfil con `Get-NetConnectionProfile` y, si es una red de confianza, cámbialo a **Privado** en
+  *Configuración → Red e Internet → Wi-Fi → propiedades de la red*.
+- **Red que aísla dispositivos.** Algunas redes institucionales o públicas no permiten que los
+  dispositivos se vean entre sí. En ese caso, conecta el computador a la zona Wi-Fi del celular y
+  vuelve a ejecutar el bloque.
+
+> Con `0.0.0.0`, cualquier persona en la misma red puede abrir la aplicación, que corre en modo
+> depuración. Úsalo solo en redes de confianza o durante la demo, y detén el servidor con
+> `Ctrl + C` al terminar.
+
 ## 4. Uso diario
 
 Cada vez que abras una terminal nueva, dentro de la carpeta del repositorio:
@@ -185,7 +229,7 @@ if (-not $env:DJANGO_SECRET_KEY) { throw 'Configura la clave siguiendo la secci�
 |---|---|---|---|
 | `DJANGO_SECRET_KEY` | Sí | - | Clave secreta local (sección 3.4). |
 | `DJANGO_DEBUG` | No | `1` | `0` desactiva el modo depuración. |
-| `DJANGO_ALLOWED_HOSTS` | No | vacío | Hosts extra separados por comas (por ejemplo, tu IP local). |
+| `DJANGO_ALLOWED_HOSTS` | No | vacío | Hosts extra separados por comas. La sección 3.7 la completa con las IP de la red actual. |
 
 ## 5. Pruebas
 

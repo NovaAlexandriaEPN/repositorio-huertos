@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block titulo %}Huerto virtual · {{ huerto.comunidad.nombre }}{% endblock %}
+{% block titulo %}Mi huerto · {{ huerto.comunidad.nombre }}{% endblock %}
 {% block ancho %}contenido contenido-amplio{% endblock %}
 
 {% block contenido %}
 <div class="encabezado-pagina">
   <div class="introduccion">
-    <h1>Huerto de {{ huerto.comunidad.nombre }}</h1>
-    <p>Avance del ciclo, plantas, puntos y Maestro del huerto.</p>
+    <h1>Mi huerto</h1>
+    <p>{{ huerto.comunidad.nombre }}: avance del ciclo, plantas, puntos y Maestro del huerto.</p>
   </div>
   <div class="acciones">
     <a class="boton" href="{% url 'actividades:registrar_actividad' huerto.id %}"><svg class="icono" aria-hidden="true"><use href="#i-brote"/></svg>Registrar actividad</a>

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block titulo %}Huerto de {{ comunidad.nombre }} · Huertos medicinales{% endblock %}
+{% block titulo %}Plantas del huerto · {{ comunidad.nombre }}{% endblock %}
 {% block ancho %}contenido contenido-amplio{% endblock %}
 
 {% block contenido %}
@@ -9,8 +9,8 @@
 
 <div class="encabezado-pagina">
   <div class="introduccion">
-    <h1>Huerto de {{ comunidad.nombre }}</h1>
-    <p>{% if puede_editar %}Configura el lugar y elige las especies que cultivará tu comunidad.{% else %}Consulta cómo está configurado el huerto y qué especies se cultivan.{% endif %}</p>
+    <h1>Plantas del huerto</h1>
+    <p>{{ comunidad.nombre }}: {% if puede_editar %}configura el lugar y elige las especies que cultivará tu comunidad.{% else %}consulta cómo está configurado el huerto y qué especies se cultivan.{% endif %}</p>
   </div>
   {% if huerto %}
   <div class="acciones">
