@@ -81,13 +81,6 @@ PLANTAS = [
                 "campos": ["otros_nombres"],
             },
             {
-                "autor": "WebMD / Natural Medicines Database",
-                "titulo": "Chenopodium oil",
-                "url": "https://www.webmd.com/vitamins/ai/ingredientmono-898/chenopodium-oil",
-                "referencia": "Secciones Side Effects y Special Precautions (se refiere al aceite)",
-                "campos": ["contraindicaciones"],
-            },
-            {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
                 "titulo": "Implementación de huertos medicinales en los establecimientos de salud del primer nivel de atención. Lineamientos (2017)",
                 "url": "https://www.salud.gob.ec/wp-content/uploads/2022/09/MSP-Lineamientos-implementaci%D0%B2n-huertos-medicinales-PNA-2017-2.pdf",
@@ -109,8 +102,6 @@ PLANTAS = [
             "ciclo",
         ],
         "observaciones": (
-            "Origen: USFQ y Zea Cobos et al. lo describen como nativo, pero POWO lista Ecuador como 'introducido' "
-            "y Tinitana et al. (2016) lo marca 'Introduced'. Conviene resolverlo con el Catálogo de Plantas Vasculares del Ecuador. "
             "Altitud: USFQ indica 2200-3200 msnm (cultivo/presencia) y Zea Cobos et al. indican 0-4000 msnm (distribución). "
             "Familia: Amaranthaceae es la vigente; fuentes antiguas (Field Museum, Zea Cobos) usan Chenopodiaceae. "
             "Sinónimo científico: Chenopodium ambrosioides L."
@@ -480,13 +471,6 @@ PLANTAS = [
                 "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5514338/",
                 "referencia": "Tabla de especies, ítem 10: Aloysia triphylla (L'Hér.) Britton, Verbenaceae, infusión para resfriados y cólicos en San Lucas (Loja)",
                 "campos": ["familia", "provincias_ecuador", "usos_documentados"],
-            },
-            {
-                "autor": "Universidad San Francisco de Quito (institución inferida del dominio; la ficha no nombra autor)",
-                "titulo": "Ficha «Toronjil - Melissa officinalis» (archivo hierbas-ilalo-toronjil.pdf)",
-                "url": "https://www.usfq.edu.ec/sites/default/files/2025-03/hierbas-ilalo-toronjil.pdf",
-                "referencia": "Sección Usos medicinales: mención del uso de infusión combinada con cedrón para ansiedad, tristeza, depresión y gripes",
-                "campos": ["usos_documentados"],
             },
             {
                 "autor": "Ministerio de Salud Pública del Ecuador, Dirección Nacional de Salud Intercultural",
