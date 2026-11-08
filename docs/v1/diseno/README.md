@@ -12,6 +12,7 @@ Este documento explica **cómo está construida la interfaz** de Huertos medicin
 | [guia_estilo.md](guia_estilo.md) | Referencia visual: colores, tipografía y clases CSS por tipo de pantalla |
 | [fotos_plantas.md](fotos_plantas.md) | Las 18 fotos del catálogo: autor, licencia, fuente y cómo se muestra el crédito |
 | `01_iniciar_sesion.png`, `02_crear_cuenta.png`, `03_mi_huerto.png` | Bocetos que guiaron el diseño (sección 6) |
+| `mi_huerto_aplicacion.png`, `ficha_planta_aplicacion.png` | Capturas finales de las pantallas, usadas en el README y el informe (sección 8) |
 | `actualizar_fotos_base.py` | Corrige los datos de foto en una base SQLite cargada antes del 25 de octubre |
 
 Índice:
@@ -194,7 +195,7 @@ Comprobación de desarrollo del 1 de noviembre de 2026 (no es un resultado forma
 | Catálogo, ficha, guía y calendario | Matthew | Sí | 18 fichas con foto y crédito |
 | Actividades y Mi huerto | Fernando | Sí | UUID conservado ante error; anuladas visibles |
 
-**Pendiente:** recorrer cada pantalla con su autor (paso 8 de la guía D3-03) y tomar las capturas finales en noviembre (D4-03).
+**Capturas finales (D4-03):** `mi_huerto_aplicacion.png` y `ficha_planta_aplicacion.png`, tomadas el 7 de noviembre de 2026 con la base de demostración. Se muestran en el README del proyecto y en el informe.
 
 ## 9. Cómo hacer cambios frecuentes
 

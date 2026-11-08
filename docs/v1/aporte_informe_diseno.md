@@ -39,10 +39,16 @@ Se dibujaron tres bocetos: iniciar sesión, crear cuenta y Mi huerto. Al constru
 
 ## Comprobación
 
-Comprobación de desarrollo del 1 de noviembre de 2026: 188 pruebas automáticas correctas; revisión de todos los enlaces internos con una cuenta responsable (59 páginas) y otra participante (35 páginas), sin errores; y recorrido de los formularios principales en el navegador. Las pruebas formales de la interfaz se registran en `docs/v1/resultados.md` (CP-01, ejecutado por Doménica, y apoyo a CP-10).
+Comprobación de desarrollo del 1 de noviembre de 2026: 188 pruebas automáticas correctas; revisión de todos los enlaces internos con una cuenta responsable (59 páginas) y otra participante (35 páginas), sin errores; y recorrido de los formularios principales en el navegador. Las pruebas formales de la interfaz están en `docs/v1/resultados.md`: CP-01 (registro, sesiones y privacidad) fue ejecutado por Doménica el 5 de noviembre y resultó aprobado, y CP-10 (celular, teclado y funcionamiento sin internet) lo ejecutó Juan.
+
+## Pantallas finales
+
+Las capturas se tomaron el 7 de noviembre de 2026 con la base de demostración (`scripts/crear_demo.py`), después de las correcciones de noviembre. Van al final de la sección de diseño del informe y en el README.
+
+- **Figura 7. Pantalla Mi huerto** (`diseno/mi_huerto_aplicacion.png`): muestra cómo el boceto del huerto se convirtió en la pantalla real, con el avance promedio del huerto, los puntos y el nivel, los accesos del responsable, una tarjeta por planta con su estado y porcentaje, y las siguientes acciones sugeridas. Todos los valores los calcula el servidor.
+- **Figura 8. Ficha de planta del catálogo** (`diseno/ficha_planta_aplicacion.png`): muestra la ficha del romero con su foto local, el crédito de autor, licencia y fuente debajo de la imagen, y los datos de identificación, distribución en Ecuador y clasificación ancestral.
 
 ## Limitaciones
 
 - Las fuentes Playfair Display y DM Sans solo se ven si están instaladas; en otro caso se usan Georgia y la fuente del sistema.
 - Los puntos y el nivel de cada miembro se muestran en Mi huerto y no en Mi comunidad, porque el módulo de comunidades no consulta actividades.
-- Las capturas finales para el informe se toman en noviembre, después de las correcciones (D4-03).
