@@ -343,6 +343,23 @@ Reglas que conviene tener presentes al modificar el código:
 
 Los diagramas de arquitectura, datos y estados de una planta están en `docs/v1/diseno/`.
 
+### Interfaz
+
+Las pantallas usan plantillas de Django, Bootstrap 5.3.8 local y una hoja de estilos propia, sin
+JavaScript ni recursos de internet. Las capturas se tomaron con la base de demostración.
+
+![Mi huerto de Huerto Medicinal Los Aromos](docs/v1/diseno/mi_huerto_aplicacion.png)
+
+*Mi huerto: avance del huerto, puntos y nivel, accesos del responsable, tarjetas de cada planta
+con su estado y porcentaje, y siguientes acciones.*
+
+![Ficha del romero en el catálogo](docs/v1/diseno/ficha_planta_aplicacion.png)
+
+*Ficha de planta: foto local con autor, licencia y fuente, identificación, distribución en Ecuador
+y clasificación ancestral.*
+
+El detalle del diseño está en [`docs/v1/diseno/README.md`](docs/v1/diseno/README.md).
+
 ## 7. Estructura del proyecto
 
 ```text
