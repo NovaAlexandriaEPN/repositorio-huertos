@@ -15,13 +15,12 @@ Proyecto de **Calidad de Software (ISWD652, período 2026B)**.
 
 ## Estado actual del proyecto
 
-Estado al 2 de noviembre de 2026. `main` integra el trabajo de todo el equipo y las doce historias de usuario están implementadas.
+- Estado al 8 de noviembre de 2026. `main` integra el trabajo de todo el equipo y las doce historias de usuario están implementadas, los casos de prueba han sido ejecutados y el informe está terminado.
 
-La carga del catálogo contiene **18 fichas**, **13 guías**, **23 opciones**, **18 materiales** y **17 eventos lunares**. Las 188 pruebas automáticas pasan; son comprobaciones de desarrollo y no sustituyen a los casos formales.
+-  carga del catálogo contiene **18 fichas**, **13 guías**, **23 opciones**, **18 materiales** y **17 eventos lunares**. Las 188 pruebas automáticas pasan; son comprobaciones de desarrollo y no sustituyen a los casos formales.
 
-El escenario ficticio de demostración está preparado mediante `scripts/crear_demo.py`. Incluye dos comunidades, cuatro cuentas ficticias, dos huertos, actividades de un ciclo avanzado y un participante nombrado Maestro. La copia de la base se mantiene fuera de Git.
+- El escenario ficticio de demostración está preparado mediante `scripts/crear_demo.py`. Incluye dos comunidades, cuatro cuentas ficticias, dos huertos, actividades de un ciclo avanzado y un participante nombrado Maestro. La copia de la base se mantiene fuera de Git.
 
-Pendiente: la ejecución formal de los casos CP-01 a CP-10, el registro de sus resultados y la instalación en otro computador. Algunos datos de las fichas siguen marcados como «No verificado» porque no tienen fuente, y la aplicación los muestra así.
 
 ---
 
