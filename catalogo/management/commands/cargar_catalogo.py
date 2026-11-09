@@ -39,7 +39,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(
                 f"Hay {distintos} registros con contenido distinto al archivo Python. "
                 "No se sobrescribieron. Consulta la actualización de bases existentes en "
-                "docs/v1/integracion_equipo.md."
+                "docs/v1/implementacion/integracion_equipo.md."
             ))
             if options["verbosity"] >= 2:
                 for fila in resumen:

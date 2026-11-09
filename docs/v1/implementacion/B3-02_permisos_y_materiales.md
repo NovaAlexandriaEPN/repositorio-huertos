@@ -138,7 +138,7 @@ python manage.py test comunidades.tests.RecorridoInicialIntegradoTests
 python manage.py test
 ```
 
-Estas son comprobaciones de desarrollo. No se llenó `docs/v1/resultados.md` ni se dio por ejecutada la batería formal de noviembre.
+Estas son comprobaciones de desarrollo. No se llenó `docs/v1/pruebas/resultados.md` ni se dio por ejecutada la batería formal de noviembre.
 
 ## 7. Qué falta para verlo con el contenido definitivo
 

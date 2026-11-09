@@ -73,7 +73,7 @@ Gestor del proyecto. Las tareas de octubre terminan antes de la ejecución forma
 | J1<br>14-16 oct<br>4 h estimadas | Repositorio compartido y README inicial: instalar, migrar, cargar datos y ejecutar. Acordar entregas y resolver bloqueos. | README.md; .gitignore |
 | J2<br>17-23 oct<br>10 h estimadas | Seis fichas: menta, hierbabuena, toronjil, orégano, romero y manzanilla. Comando de carga inicial desde los datos Python; comprobar que un reenvío no duplica ni borra historial. | catalogo/datos/plantas_juan.py; catalogo/management/commands/cargar_catalogo.py |
 | J3<br>24-31 oct<br>8 h estimadas | Materiales compartidos: formulario, permisos, guardado y rutas. Completar README, borrador del informe y guion corto de demo; coordinar la integración final. | comunidades/forms.py; comunidades/servicios.py; comunidades/views.py; comunidades/urls.py; README.md; docs/v1/informe.docx; docs/v1/demo.md |
-| J4<br>1-9 nov<br>6 h estimadas | Ejecutar CP-09 y CP-10; probar una instalación en otro equipo. Preparar copia ficticia de demo; integrar resultados en el informe, verificar enlace y exportar el PDF; coordinar ensayo. | docs/v1/resultados.md; docs/v1/demo.md; docs/v1/informe.docx; docs/v1/Proyecto-Version1-nombreEquipo.pdf; README.md |
+| J4<br>1-9 nov<br>6 h estimadas | Ejecutar CP-09 y CP-10; probar una instalación en otro equipo. Preparar copia ficticia de demo; integrar resultados en el informe, verificar enlace y exportar el PDF; coordinar ensayo. | docs/v1/pruebas/resultados.md; docs/v1/demo.md; docs/v1/informe.docx; docs/v1/Proyecto-Version1-nombreEquipo.pdf; README.md |
 
 ## Matthew Vladimir Redín Espinel
 
@@ -84,7 +84,7 @@ Analista. Las tareas de octubre terminan antes de la ejecución formal de noviem
 | M1<br>14-16 oct<br>6 h estimadas | Cerrar las 12 historias y reglas del alcance. Definir modelos y campos del catálogo, códigos y contratos de datos para que los demás puedan comenzar. | docs/v1/01_Alcance_V1_Huertos_Medicinales.md; catalogo/models.py; catalogo/migrations/; catalogo/datos/__init__.py |
 | M2<br>17-23 oct<br>10 h estimadas | Seis fichas: matico, taraxaco, marco, llantén, ortiga y violeta. Preparar las 13 guías, opciones, materiales y eventos lunares; consolidar las 18 fichas y revisar fuentes. | catalogo/datos/plantas_matthew.py; catalogo/datos/actividades.py; catalogo/datos/huerto.py; catalogo/datos/luna.py; catalogo/datos/__init__.py |
 | M3<br>24-29 oct<br>8 h estimadas | Consultas de catálogo, detalle, guía y calendario; lista mensual con eventos locales. Conectar plantillas y completar la sección de requisitos y fuentes del borrador. | catalogo/servicios.py; catalogo/views.py; catalogo/urls.py; docs/v1/informe.docx |
-| M4<br>1-9 nov<br>4 h estimadas | Ejecutar CP-03 y CP-04, corregir contenido y comprobar criterios de las historias en el producto. Actualizar solo las secciones afectadas del alcance y el informe. | docs/v1/resultados.md; catalogo/datos/; docs/v1/01_Alcance_V1_Huertos_Medicinales.md; docs/v1/informe.docx |
+| M4<br>1-9 nov<br>4 h estimadas | Ejecutar CP-03 y CP-04, corregir contenido y comprobar criterios de las historias en el producto. Actualizar solo las secciones afectadas del alcance y el informe. | docs/v1/pruebas/resultados.md; catalogo/datos/; docs/v1/01_Alcance_V1_Huertos_Medicinales.md; docs/v1/informe.docx |
 
 ## Doménica Anabell Astudillo Ayala
 
@@ -95,7 +95,7 @@ Diseñadora. Las tareas de octubre terminan antes de la ejecución formal de nov
 | D1<br>14-16 oct<br>4 h estimadas | Dos o tres bocetos representativos; base HTML, menú, estilos y fragmento común de errores/mensajes. Acordar variables de las plantillas con quienes hacen las vistas. | docs/v1/diseno/; templates/base.html; templates/componentes/errores.html; templates/componentes/mensajes.html; static/css/estilos.css; static/vendor/bootstrap/ |
 | D2<br>17-25 oct<br>12 h estimadas | Preparar plantillas de cuentas, comunidad, configurador, materiales, catálogo y guía; conectar las vistas ya disponibles. Entregar 18 fotos con rutas/fuentes/licencias el 23. Formularios con campos y ayudas propios según la función. | templates/cuentas/registro.html; templates/cuentas/login.html; templates/cuentas/perfil.html; templates/comunidades/; templates/catalogo/lista_plantas.html; templates/catalogo/detalle_planta.html; templates/catalogo/guia.html; static/img/plantas/ |
 | D3<br>26-31 oct<br>7 h estimadas | Calendario y pantallas de actividades/huerto virtual con tarjetas y etiquetas de estado. Terminar las conexiones pendientes con Juan, Matthew, Bryan y Fernando hasta el 31; documentar el diseño. | templates/catalogo/calendario.html; templates/actividades/; templates/comunidades/; templates/catalogo/; docs/v1/02_Arquitectura_V1_Django.md; docs/v1/informe.docx |
-| D4<br>1-9 nov<br>5 h estimadas | Ejecutar CP-01; apoyar a Juan en CP-10 con celular y teclado. Corregir pantallas, tomar capturas representativas y cerrar la sección de diseño. | docs/v1/resultados.md; templates/; static/css/estilos.css; docs/v1/diseno/; docs/v1/informe.docx |
+| D4<br>1-9 nov<br>5 h estimadas | Ejecutar CP-01; apoyar a Juan en CP-10 con celular y teclado. Corregir pantallas, tomar capturas representativas y cerrar la sección de diseño. | docs/v1/pruebas/resultados.md; templates/; static/css/estilos.css; docs/v1/diseno/; docs/v1/informe.docx |
 
 ## Bryan Steeven Ayala Pabón
 
@@ -125,10 +125,10 @@ Tester. Las tareas de octubre terminan antes de la ejecución formal de noviembr
 
 | Tarea y fecha | Producto | Archivos |
 | --- | --- | --- |
-| G1<br>16-22 oct<br>10 h estimadas | Seis fichas: paico, chilca, lavanda, salvia, cedrón y laurel. Preparar los 10 casos mínimos con datos, pasos y esperado en una tabla única; no registrar ejecuciones todavía. | catalogo/datos/plantas_guillermo.py; docs/v1/resultados.md |
+| G1<br>16-22 oct<br>10 h estimadas | Seis fichas: paico, chilca, lavanda, salvia, cedrón y laurel. Preparar los 10 casos mínimos con datos, pasos y esperado en una tabla única; no registrar ejecuciones todavía. | catalogo/datos/plantas_guillermo.py; docs/v1/pruebas/resultados.md |
 | G2<br>20-25 oct<br>6 h estimadas | Funciones puras de nivel y porcentaje sobre seis hitos; pruebas cortas de límites. Entregar firmas/primeros cálculos el 22 para Fernando y terminar el 25. | actividades/reglas.py; actividades/tests.py |
-| G3<br>26-31 oct<br>6 h estimadas | Completar un conjunto pequeño de pruebas de reglas críticas con Fernando/Bryan; preparar una base ficticia para demo con un ciclo avanzado y dos comunidades. Describir cómo ejecutar y registrar pruebas. | actividades/tests.py; cuentas/tests.py; comunidades/tests.py; catalogo/tests.py; docs/v1/demo.md; docs/v1/resultados.md; README.md |
-| G4<br>1-9 nov<br>8 h estimadas | Ejecutar CP-02 y CP-05 a CP-08; correr pruebas automáticas, reunir resultados de los demás y reportar fallos reproducibles. Repetir lo afectado y cerrar la sección de pruebas con resultados reales. | docs/v1/resultados.md; docs/v1/informe.docx; actividades/tests.py; cuentas/tests.py; comunidades/tests.py; catalogo/tests.py |
+| G3<br>26-31 oct<br>6 h estimadas | Completar un conjunto pequeño de pruebas de reglas críticas con Fernando/Bryan; preparar una base ficticia para demo con un ciclo avanzado y dos comunidades. Describir cómo ejecutar y registrar pruebas. | actividades/tests.py; cuentas/tests.py; comunidades/tests.py; catalogo/tests.py; docs/v1/demo.md; docs/v1/pruebas/resultados.md; README.md |
+| G4<br>1-9 nov<br>8 h estimadas | Ejecutar CP-02 y CP-05 a CP-08; correr pruebas automáticas, reunir resultados de los demás y reportar fallos reproducibles. Repetir lo afectado y cerrar la sección de pruebas con resultados reales. | docs/v1/pruebas/resultados.md; docs/v1/informe.docx; actividades/tests.py; cuentas/tests.py; comunidades/tests.py; catalogo/tests.py |
 
 ## Casos mínimos y ejecutor
 
@@ -149,7 +149,7 @@ Diez casos cubren las doce historias. Cada uno tiene pasos y datos concretos; la
 
 ## Resultados y correcciones
 
-docs/v1/resultados.md reúne caso/historia, pasos y datos, resultado esperado, observado, aprobado/fallido, fecha y ejecutor. Se añade una captura cuando ayuda a demostrar el resultado; no una por cada variante. Un fallo incluye cómo reproducirlo y quién lo corrige. Se identifican la revisión de código probada y las repeticiones tras correcciones. La misma tabla se incorpora al informe, sin otra transcripción manual en CSV o Word.
+docs/v1/pruebas/resultados.md reúne caso/historia, pasos y datos, resultado esperado, observado, aprobado/fallido, fecha y ejecutor. Se añade una captura cuando ayuda a demostrar el resultado; no una por cada variante. Un fallo incluye cómo reproducirlo y quién lo corrige. Se identifican la revisión de código probada y las repeticiones tras correcciones. La misma tabla se incorpora al informe, sin otra transcripción manual en CSV o Word.
 
 Las pruebas automáticas se ejecutan con manage.py test. Cubren nuestras reglas más delicadas y evitan repetir manualmente cada combinación. Tras corregir se repiten los casos afectados y, al final, un flujo completo. No se pide porcentaje de cobertura, CI, pruebas de carga o un laboratorio de dos conexiones.
 

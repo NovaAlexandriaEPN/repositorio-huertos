@@ -51,13 +51,7 @@ Las licencias CC BY y CC BY-SA obligan a mostrar autor y licencia; la nota «cop
 
 ## Si una foto se ve rota en tu base
 
-`cargar_catalogo` no cambia plantas que ya existen. Una base cargada antes del 25 de octubre de 2026 puede guardar rutas o créditos antiguos (por ejemplo, el toronjil con `static/img/plantas/toronjil.jpg`, que deja la imagen rota). Respalda `db.sqlite3` y ejecuta desde la raíz del proyecto:
-
-```powershell
-python manage.py shell -c "exec(open('docs/v1/diseno/actualizar_fotos_base.py', encoding='utf-8').read())"
-```
-
-Solo copia los datos de foto, fuentes, pendientes y observaciones de las fichas; no toca huertos, actividades ni cuentas.
+`cargar_catalogo` no cambia plantas que ya existen. Una base cargada antes del 25 de octubre de 2026 puede guardar rutas o créditos antiguos (por ejemplo, el toronjil con `static/img/plantas/toronjil.jpg`, que deja la imagen rota). Con el servidor detenido, respalda `db.sqlite3` cambiándole el nombre y crea una base nueva con `migrate` y `cargar_catalogo` (README, sección 3.5).
 
 ## Cómo cambiar una foto
 

@@ -39,7 +39,7 @@ Se dibujaron tres bocetos: iniciar sesión, crear cuenta y Mi huerto. Al constru
 
 ## Comprobación
 
-Comprobación de desarrollo del 1 de noviembre de 2026: 188 pruebas automáticas correctas; revisión de todos los enlaces internos con una cuenta responsable (59 páginas) y otra participante (35 páginas), sin errores; y recorrido de los formularios principales en el navegador. Las pruebas formales de la interfaz están en `docs/v1/resultados.md`: CP-01 (registro, sesiones y privacidad) fue ejecutado por Doménica el 5 de noviembre y resultó aprobado, y CP-10 (celular, teclado y funcionamiento sin internet) lo ejecutó Juan.
+Comprobación de desarrollo del 1 de noviembre de 2026: 188 pruebas automáticas correctas; revisión de todos los enlaces internos con una cuenta responsable (59 páginas) y otra participante (35 páginas), sin errores; y recorrido de los formularios principales en el navegador. Las pruebas formales de la interfaz están en `docs/v1/pruebas/resultados.md`: CP-01 (registro, sesiones y privacidad) fue ejecutado por Doménica el 5 de noviembre y resultó aprobado, y CP-10 (celular, teclado y funcionamiento sin internet) lo ejecutó Juan.
 
 ## Pantallas finales
 

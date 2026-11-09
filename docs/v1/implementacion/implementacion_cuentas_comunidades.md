@@ -58,7 +58,7 @@ Los materiales incluyen recomendaciones comunes y otras relacionadas con los mé
 
 ## Arranque y comprobaciones
 
-El [README](../../README.md) contiene los pasos de clonación de `main` y trabajo en la rama personal, creación del entorno virtual e instalación de `requirements.txt`. Cada integrante utiliza su propia variable `DJANGO_SECRET_KEY`. Con el entorno y la clave configurados, los comandos de desarrollo en PowerShell son:
+El [README](../../../README.md) contiene los pasos de clonación de `main` y trabajo en la rama personal, creación del entorno virtual e instalación de `requirements.txt`. Cada integrante utiliza su propia variable `DJANGO_SECRET_KEY`. Con el entorno y la clave configurados, los comandos de desarrollo en PowerShell son:
 
 ```powershell
 & .\.venv\Scripts\python.exe manage.py check
@@ -74,7 +74,7 @@ Las pruebas de `cuentas/tests.py` y `comunidades/tests.py` comprueban privacidad
 El 24 de octubre de 2026 se verificó una copia temporal de las fuentes `c9e7747` en el mismo computador de desarrollo. Un entorno virtual nuevo instaló las dependencias fijadas y completó las migraciones sobre una base vacía. Las 122 pruebas descubiertas por `manage.py test` terminaron con resultado `OK`. Un servidor WSGI local respondió correctamente para acceso, registro y CSS y redirigió al acceso cuando se solicitó la entrada privada. La revisión de instalación en otro computador permanece pendiente.
 
 La protección de historial se verifica con una tabla temporal que contiene registros activos y anulados. La comprobación incluye el modelo, los servicios y los envíos de formularios abiertos antes de que se registrara la actividad. La integración con Actividad ya se comprueba también con registros y anulaciones reales.
-El 3 de noviembre de 2026 pasaron las 188 pruebas automáticas de la versión integrada. En una base temporal y con CSRF activo se revisaron el registro y la privacidad (CP-01), la pertenencia, los permisos y el historial del huerto (CP-02) y las marcas compartidas de materiales (CP-09). Un POST con un material incompatible recibió HTTP 404 y conservó las marcas. La ejecución formal de cada caso se registra en [resultados.md](resultados.md).
+El 3 de noviembre de 2026 pasaron las 188 pruebas automáticas de la versión integrada. En una base temporal y con CSRF activo se revisaron el registro y la privacidad (CP-01), la pertenencia, los permisos y el historial del huerto (CP-02) y las marcas compartidas de materiales (CP-09). Un POST con un material incompatible recibió HTTP 404 y conservó las marcas. La ejecución formal de cada caso se registra en [resultados.md](../pruebas/resultados.md).
 
 ## Estado de integración
 
