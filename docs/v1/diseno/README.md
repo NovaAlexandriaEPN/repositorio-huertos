@@ -13,7 +13,6 @@ Este documento explica **cómo está construida la interfaz** de Huertos medicin
 | [fotos_plantas.md](fotos_plantas.md) | Las 18 fotos del catálogo: autor, licencia, fuente y cómo se muestra el crédito |
 | `01_iniciar_sesion.png`, `02_crear_cuenta.png`, `03_mi_huerto.png` | Bocetos que guiaron el diseño (sección 6) |
 | `mi_huerto_aplicacion.png`, `ficha_planta_aplicacion.png` | Capturas finales de las pantallas, usadas en el README y el informe (sección 8) |
-| `actualizar_fotos_base.py` | Corrige los datos de foto en una base SQLite cargada antes del 25 de octubre |
 
 Índice:
 
@@ -180,7 +179,7 @@ Las 18 especies tienen foto en `static/img/plantas/<codigo>.jpg`, reducida a 120
 
 ## 8. Comprobación
 
-Comprobación de desarrollo del 1 de noviembre de 2026 (no es un resultado formal; los casos CP-01 a CP-10 se registran en `docs/v1/resultados.md`):
+Comprobación de desarrollo del 1 de noviembre de 2026 (no es un resultado formal; los casos CP-01 a CP-10 se registran en `docs/v1/pruebas/resultados.md`):
 
 1. **Pruebas automáticas:** `python manage.py test` -> 188 pruebas correctas.
 2. **Enlaces:** un script temporal entró con una cuenta responsable y otra participante y siguió todos los enlaces internos: 59 y 35 páginas, ninguna con error.

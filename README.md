@@ -149,7 +149,7 @@ Repetir la carga no duplica registros ni toca cuentas, comunidades, huertos o ac
 una ficha trae un campo que el modelo no tiene, el comando se detiene sin guardar nada e indica
 la ficha y el campo. Git actualiza los archivos, pero no el contenido de SQLite: para corregir
 una base antigua, consulta
-[la actualización de bases existentes](docs/v1/integracion_equipo.md#actualización-de-bases-existentes).
+[la actualización de bases existentes](docs/v1/implementacion/integracion_equipo.md#actualización-de-bases-existentes).
 
 ### 3.6 Levantar el servidor
 
@@ -299,7 +299,7 @@ Levantar el servidor:
 & .\.venv\Scripts\python.exe manage.py runserver
 ```
 
-Abrir <http://127.0.0.1:8000/> y ejecutar los casos siguiendo las instrucciones de `docs/v1/resultados.md`.
+Abrir <http://127.0.0.1:8000/> y ejecutar los casos siguiendo las instrucciones de `docs/v1/pruebas/resultados.md`.
 
 Cada ejecutor debe registrar:
 
@@ -310,7 +310,7 @@ Cada ejecutor debe registrar:
 
 La ejecución formal está prevista del 1 al 9, según la planificación del equipo. Hasta que se realice, los casos deben permanecer como pendientes y no se deben presentar resultados como comprobados.
 
-Los resultados se registran en [`docs/v1/resultados.md`](docs/v1/resultados.md).
+Los resultados se registran en [`docs/v1/pruebas/resultados.md`](docs/v1/pruebas/resultados.md).
 
 ## 6. Arquitectura
 
@@ -375,12 +375,14 @@ repositorio-huertos/
 |   `-- reglas.py            # nivel y porcentaje sin consultas
 |-- templates/               # base.html, base_acceso.html, componentes/ y una carpeta por módulo
 |-- static/                  # vendor/bootstrap/, css/estilos.css, img/plantas/
-`-- docs/
-    |-- aprendizaje/         # guías internas de implementación
-    `-- v1/                  # alcance, arquitectura, plan, resultados y guion de demo
-        `-- diseno/          # diseño de la interfaz, bocetos y diagramas
-|-- scripts/                 # Preparación del escenario ficticio de demostración
+|-- scripts/                 # preparación del escenario ficticio de demostración
 |   `-- crear_demo.py
+`-- docs/
+    `-- v1/                  # alcance, arquitectura, plan y guion de demo
+        |-- aportes/         # textos de cada integrante para el informe
+        |-- diseno/          # diseño de la interfaz, bocetos, capturas y diagramas
+        |-- implementacion/  # guías de implementación y revisión de integración
+        `-- pruebas/         # casos de prueba y resultados
 ```
 
 Cada aplicación incluye además `__init__.py`, `apps.py` y `migrations/`.
@@ -414,7 +416,7 @@ Cada aplicación incluye además `__init__.py`, `apps.py` y `migrations/`.
 | `comunidades/` | Bryan (materiales: Juan) |
 | `actividades/` | Fernando (`reglas.py`: Guillermo) |
 | `templates/`, `static/`, `docs/v1/diseno/` | Doménica |
-| `docs/v1/resultados.md`, `docs/v1/demo.md` | Guillermo / Juan |
+| `docs/v1/pruebas/resultados.md`, `docs/v1/demo.md` | Guillermo / Juan |
 | `README.md` e informe V1 | Juan |
 
 ## 9. Base de datos de demostración
@@ -492,8 +494,9 @@ Para consultar las cuentas y el recorrido de demostración, revisar [`docs/v1/de
 | [Alcance](docs/v1/01_Alcance_V1_Huertos_Medicinales.md) | Funciones de la versión 1 e historias de usuario |
 | [Arquitectura](docs/v1/02_Arquitectura_V1_Django.md) | Organización técnica, modelo de datos y reglas |
 | [Plan de trabajo](docs/v1/03_Plan_de_trabajo_V1.md) | Tareas, fechas y responsables |
-| [Casos de prueba y resultados](docs/v1/resultados.md) | Casos CP-01 a CP-10 |
+| [Casos de prueba y resultados](docs/v1/pruebas/resultados.md) | Casos CP-01 a CP-10 |
 | [Guion de la demo](docs/v1/demo.md) | Recorrido y datos necesarios |
 | [Diseño de la interfaz](docs/v1/diseno/README.md) | Pantallas, recorrido, bocetos y guía de estilo |
-| [Revisión de integración](docs/v1/integracion_equipo.md) | Historias revisadas y actualización de bases |
-| [Guías de implementación](docs/aprendizaje/) | Explicación de cuentas, comunidades, materiales y pruebas |
+| [Revisión de integración](docs/v1/implementacion/integracion_equipo.md) | Historias revisadas y actualización de bases |
+| [Guías de implementación](docs/v1/implementacion/) | Explicación de cuentas, comunidades, materiales y pruebas |
+| [Aportes al informe](docs/v1/aportes/) | Textos de catálogo, diseño y actividades para el informe V1 |

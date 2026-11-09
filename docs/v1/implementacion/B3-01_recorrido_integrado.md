@@ -40,7 +40,7 @@ Los clientes exigen CSRF. No se usa `force_login` para saltar el registro o el i
 
 Como parte de [B3-02](B3-02_permisos_y_materiales.md), el recorrido también comprueba que el participante marque un material compartido antes de cerrar sesión.
 
-Es una comprobación automática de desarrollo. No registra una ejecución formal de CP-01 a CP-10 ni escribe resultados en `docs/v1/resultados.md`.
+Es una comprobación automática de desarrollo. No registra una ejecución formal de CP-01 a CP-10 ni escribe resultados en `docs/v1/pruebas/resultados.md`.
 
 ```powershell
 python manage.py test comunidades.tests.RecorridoInicialIntegradoTests

@@ -14,7 +14,7 @@ def exigir_revision_de_historial_anterior(apps, schema_editor):
         raise RuntimeError(
             'Existen actividades del esquema anterior de Fernando. Se conserva la base: '
             'respalda y revisa ese historial antes de migrar; no se convierten tipos ni '
-            'recompensas automáticamente. Consulta docs/v1/integracion_equipo.md.'
+            'recompensas automáticamente. Consulta docs/v1/implementacion/integracion_equipo.md.'
         )
 
 
